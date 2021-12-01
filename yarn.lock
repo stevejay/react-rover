@@ -2173,9 +2173,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:1.17.0-rc1":
-  version: 1.17.0-rc1
-  resolution: "@playwright/test@npm:1.17.0-rc1"
+"@playwright/test@npm:1.17.0":
+  version: 1.17.0
+  resolution: "@playwright/test@npm:1.17.0"
   dependencies:
     "@babel/code-frame": ^7.14.5
     "@babel/core": ^7.14.8
@@ -2205,14 +2205,14 @@ __metadata:
     open: ^8.3.0
     pirates: ^4.0.1
     pixelmatch: ^5.2.1
-    playwright-core: =1.17.0-rc1
+    playwright-core: =1.17.0
     pngjs: ^5.0.0
     rimraf: ^3.0.2
     source-map-support: ^0.4.18
     stack-utils: ^2.0.3
   bin:
     playwright: cli.js
-  checksum: e45312408a6d078fe34c7419cd9be20f7108e0b440d6fc226126eb5ed077844d1184ed9e57cc380b51153d9be95fd677b15ba66f7cedf412acaab10f13b40731
+  checksum: a68c0360ba2e73b4e65b6f826491cf59b34da629ff684c68e54b1864d44d22e9c832f46d052deb540194003afe200bfe1cc77fd4353c0dcba109a82b984855f1
   languageName: node
   linkType: hard
 
@@ -14463,9 +14463,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:=1.17.0-rc1":
-  version: 1.17.0-rc1
-  resolution: "playwright-core@npm:1.17.0-rc1"
+"playwright-core@npm:=1.17.0":
+  version: 1.17.0
+  resolution: "playwright-core@npm:1.17.0"
   dependencies:
     commander: ^8.2.0
     debug: ^4.1.1
@@ -14485,7 +14485,7 @@ __metadata:
     yazl: ^2.5.1
   bin:
     playwright: cli.js
-  checksum: 3e800e1e44a5ec7a00fd1ebd65780f7ea5a353b8185e734e6829470d9e6fb502b257aef7540ab117db73e1074c97769193300e831c3e3e2b4444ca26a44dd7f8
+  checksum: 8489b41ea7081487cb18c5a50a4ec0709e0828bba28276a898ef12222ae664b5f3c19d06bf015e265d345e8c65628647cb4b2761cb3c31b489295a64d955aa9f
   languageName: node
   linkType: hard
 
@@ -15330,7 +15330,7 @@ __metadata:
     "@babel/preset-react": ^7.16.0
     "@babel/preset-typescript": ^7.16.0
     "@mdx-js/react": ^1.6.22
-    "@playwright/test": 1.17.0-rc1
+    "@playwright/test": 1.17.0
     "@rollup/plugin-alias": ^3.1.8
     "@storybook/addon-actions": ^6.4.3
     "@storybook/addon-docs": ^6.4.3
@@ -17294,16 +17294,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"table@npm:6.7.3":
-  version: 6.7.3
-  resolution: "table@npm:6.7.3"
+"table@npm:^6.7.3":
+  version: 6.7.5
+  resolution: "table@npm:6.7.5"
   dependencies:
     ajv: ^8.0.1
     lodash.truncate: ^4.4.2
     slice-ansi: ^4.0.0
     string-width: ^4.2.3
     strip-ansi: ^6.0.1
-  checksum: 61d732f51108222d158eca2a91bfaae41c14e0cba6eb04c702ec5a1b136219d4925940d5c4d9aff5720bc4e2385dcbe2ed52dcf37bbbd8b2be48c01c1cf2ed1d
+  checksum: 76d01e33d6ef881f21bfe2e343101cb05ef4cedf506523d187af4f3a33f0f69cf25bca3e05c0c5c0eb348b405aaac29d9bb308ba9bf2c5ca7a82d032382a1649
   languageName: node
   linkType: hard
 
