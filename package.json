@@ -1,6 +1,6 @@
 {
   "name": "react-rover",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -98,7 +98,8 @@
   "exports": {
     ".": {
       "import": "./dist/react-rover.es.js",
-      "require": "./dist/react-rover.umd.js"
+      "require": "./dist/react-rover.umd.js",
+      "style": "./dist/style.css"
     }
   },
   "description": "TODO",
@@ -115,5 +116,6 @@
   },
   "sideEffects": [
     "./dist/style.css"
-  ]
+  ],
+  "style": "./dist/style.css"
 }
