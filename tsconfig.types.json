@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "outDir": "./types-temp"
+  },
+  "exclude": ["./types-temp", "./playwright.config.ts", "./src/stories/**/*"]
+}

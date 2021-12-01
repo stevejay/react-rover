@@ -1,0 +1,39 @@
+/node_modules/
+.DS_Store
+/dist/
+/dist-ssr/
+*.local
+
+# vite
+/.vite/
+
+# yarn (without PnP)
+.pnp.*
+.yarn/*
+
+# linting caches
+.stylelintcache
+.eslintcache
+
+# TS types generation
+tsconfig.tsbuildinfo
+/types-temp/
+
+# Storybook
+/storybook-static/
+
+# Playwright
+/test-results/
+
+# npm publish
+/*.tgz
+
+# jest
+/coverage
+
+# yarn (without PnP) - exceptions
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

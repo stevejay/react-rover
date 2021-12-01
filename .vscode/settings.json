@@ -1,0 +1,24 @@
+{
+  "search.exclude": {
+    ".vite/": true,
+    ".yarn/": true,
+    "coverage/": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "env-*": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "env*": true,
+    "tsconfig.tsbuildinfo": true,
+    ".vite/": true
+  }
+}

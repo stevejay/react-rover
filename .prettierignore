@@ -1,0 +1,53 @@
+#-------------------------------------------------------------------------------------------------------------------
+# Keep this section in sync with .gitignore
+#-------------------------------------------------------------------------------------------------------------------
+
+/node_modules/
+.DS_Store
+/dist/
+/dist-ssr/
+*.local
+
+# vite
+/.vite/
+
+# yarn (without PnP)
+.pnp.*
+.yarn/*
+
+# linting caches
+.stylelintcache
+.eslintcache
+
+# TS types generation
+tsconfig.tsbuildinfo
+/types-temp/
+
+# Storybook
+/storybook-static/
+
+# Playwright
+/test-results/
+
+# npm publish
+/*.tgz
+
+# jest
+/coverage
+
+#-------------------------------------------------------------------------------------------------------------------
+# Prettier-specific overrides
+#-------------------------------------------------------------------------------------------------------------------
+
+# Package manager files
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+shrinkwrap.json
+
+# Build outputs
+dist
+lib
+
+# Prettier reformats code blocks inside Markdown, which affects rendered output
+*.md
