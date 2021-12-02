@@ -1,47 +1,23 @@
-import './button.css';
+/** @jsxImportSource @emotion/react */
+import { ButtonHTMLAttributes, forwardRef } from 'react';
 
-interface ButtonProps {
-  /**
-   * Is this the principal call to action on the page?
-   */
-  primary?: boolean;
-  /**
-   * What background color to use
-   */
-  backgroundColor?: string;
-  /**
-   * How large should the button be?
-   */
-  size?: 'small' | 'medium' | 'large';
-  /**
-   * Button contents
-   */
+import { ButtonBase } from './ButtonBase';
+
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   label: string;
-  /**
-   * Optional click handler
-   */
-  onClick?: () => void;
-}
+  disabledFocusable?: boolean;
+};
 
-/**
- * Primary UI component for user interaction
- */
-export const Button = ({
-  primary = false,
-  size = 'medium',
-  backgroundColor,
-  label,
-  ...props
-}: ButtonProps) => {
-  const mode = primary ? 'storybook-button--primary' : 'storybook-button--secondary';
-  return (
-    <button
-      type="button"
-      className={['storybook-button', `storybook-button--${size}`, mode].join(' ')}
-      style={{ backgroundColor }}
-      {...props}
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ label, type = 'button', disabled = false, disabledFocusable = false, ...rest }: ButtonProps, ref) => (
+    <ButtonBase
+      {...rest}
+      type={type}
+      disabled={disabled}
+      aria-disabled={disabledFocusable || disabled}
+      ref={ref}
     >
       {label}
-    </button>
-  );
-};
+    </ButtonBase>
+  )
+);

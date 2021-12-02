@@ -4,5 +4,12 @@ module.exports = {
   framework: '@storybook/react',
   core: {
     builder: 'storybook-builder-vite'
+  },
+  // Workaround for https://github.com/storybookjs/storybook/issues/16099
+  webpackFinal(config) {
+    delete config.resolve.alias['emotion-theming'];
+    delete config.resolve.alias['@emotion/styled'];
+    delete config.resolve.alias['@emotion/core'];
+    return config;
   }
 };

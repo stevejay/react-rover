@@ -23,6 +23,8 @@
     "@babel/preset-env": "^7.16.4",
     "@babel/preset-react": "^7.16.0",
     "@babel/preset-typescript": "^7.16.0",
+    "@emotion/react": "^11.7.0",
+    "@emotion/styled": "^11.6.0",
     "@mdx-js/react": "^1.6.22",
     "@playwright/test": "1.17.0",
     "@rollup/plugin-alias": "^3.1.8",
@@ -38,6 +40,7 @@
     "@types/eslint": "^8",
     "@types/jest": "^27.0.3",
     "@types/mdx-js__react": "^1",
+    "@types/merge-refs": "^1.0.0",
     "@types/node": "^16.11.11",
     "@types/prettier": "^2",
     "@types/react": "^17.0.0",
@@ -72,6 +75,7 @@
     "pretty-quick": "^3.1.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-icons": "^4.3.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.60.2",
     "rollup-plugin-dts": "^4.0.1",
@@ -116,5 +120,9 @@
   "sideEffects": [
     "./dist/style.css"
   ],
-  "style": "./dist/style.css"
+  "style": "./dist/style.css",
+  "dependencies": {
+    "merge-refs": "^1.0.0",
+    "use-isomorphic-layout-effect": "^1.1.1"
+  }
 }

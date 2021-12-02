@@ -14,7 +14,6 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
-    'plugin:react-hooks/recommended',
     'plugin:testing-library/react',
     'plugin:storybook/recommended',
     'prettier'
@@ -63,10 +62,19 @@ module.exports = {
         'eslint:recommended',
         'plugin:react/recommended',
         'plugin:react/jsx-runtime',
+        'plugin:react-hooks/recommended',
+        'plugin:testing-library/react',
+        'plugin:storybook/recommended',
         'plugin:@typescript-eslint/recommended',
         'plugin:@typescript-eslint/recommended-requiring-type-checking',
         'prettier'
-      ]
+      ],
+      rules: {
+        'react/display-name': 'off', // forwardRef causing a problem here
+        'react/prop-types': 'off', // forwardRef causing a problem here,
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }]
+      }
     }
   ],
   settings: {
