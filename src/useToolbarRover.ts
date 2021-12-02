@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from 'react';
 import mergeRefs from 'merge-refs';
 
-import { callAllEventHandlers, elementIsAriaEnabled, elementIsEnabled } from './domUtils';
-import { runKeyDownTranslators } from './keyDownTranslators';
+import { callAllEventHandlers, elementIsAriaEnabled, elementIsEnabled } from '@/domUtils';
+import { runKeyDownTranslators } from '@/keyDownTranslators';
 import {
   addTabStop,
   findTabStop,
   focusTabStop,
   removeTabStop,
   shouldResetCurrentTabStopId
-} from './tabStopUtils';
-import type { Action, KeyDownTranslator, State, TabStopId, TabStopsList } from './types';
+} from '@/tabStopUtils';
+import type { Action, KeyDownTranslator, State, TabStopId, TabStopsList } from '@/types';
 
 const useIsomorphicLayoutEffect = typeof document !== 'undefined' ? useLayoutEffect : useEffect;
 

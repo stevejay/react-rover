@@ -1,6 +1,6 @@
-import { elementIsEnabled } from './domUtils';
-import { findTabStop, getNextEnabledTabStop } from './tabStopUtils';
-import type { KeyDownAction, KeyDownTranslator, TabStopId, TabStopsList } from './types';
+import { elementIsEnabled } from '@/domUtils';
+import { findTabStop, getNextEnabledTabStop } from '@/tabStopUtils';
+import type { KeyDownAction, KeyDownTranslator, TabStopId, TabStopsList } from '@/types';
 
 export const extremesNavigation: KeyDownTranslator = (event, tabStops) => {
   if (event.key === 'Home') {

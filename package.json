@@ -11,12 +11,12 @@
     "lint:ts": "tsc --noEmit --pretty",
     "lint:css": "stylelint --allow-empty-input 'src/**/*.css'",
     "lint": "npm-run-all --parallel 'lint:*'",
-    "build:types": "rimraf types-temp && tsc --pretty --emitDeclarationOnly -p tsconfig.types.json && rollup --config rollupTypes.config.cjs && rimraf types-temp",
+    "build:types": "rimraf types-temp && tsc --pretty --emitDeclarationOnly -p tsconfig.types.json && rollup --config rollupTypes.config.cjs",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
     "test:e2e": "yarn dlx playwright test --workers=1",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --config=jest.config.cjs",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --config=jest.config.cjs --coverage=false --watch"
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --config=jest.config.cjs --coverage=false --watch",
+    "build:storybook": "build-storybook"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",

@@ -1,5 +1,5 @@
-import { elementIsEnabled } from './domUtils';
-import type { TabStop, TabStopId, TabStopsList } from './types';
+import { elementIsEnabled } from '@/domUtils';
+import type { TabStop, TabStopId, TabStopsList } from '@/types';
 
 export function shouldResetCurrentTabStopId(
   tabStops: TabStopsList,

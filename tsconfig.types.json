@@ -5,5 +5,11 @@
     "declaration": true,
     "outDir": "./types-temp"
   },
-  "exclude": ["./types-temp", "./e2e-tests", "./playwright.config.ts", "./src/stories/**/*"]
+  "exclude": [
+    "./types-temp",
+    "./e2e-tests",
+    "./playwright.config.ts",
+    "./src/stories/**/*",
+    "./src/setupTests.ts"
+  ]
 }
