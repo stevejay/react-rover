@@ -9,7 +9,7 @@
     "lint:prettier": "prettier --loglevel warn --check .",
     "lint:eslint": "eslint --max-warnings 0 .",
     "lint:ts": "tsc --noEmit --pretty",
-    "lint:css": "stylelint 'src/**/*.css'",
+    "lint:css": "stylelint --allow-empty-input 'src/**/*.css'",
     "lint": "npm-run-all --parallel 'lint:*'",
     "build:types": "rimraf types-temp && tsc --pretty --emitDeclarationOnly -p tsconfig.types.json && rollup --config rollupTypes.config.cjs && rimraf types-temp",
     "storybook": "start-storybook -p 6006",

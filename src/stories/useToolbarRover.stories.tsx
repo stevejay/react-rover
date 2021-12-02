@@ -17,6 +17,7 @@ import { Menu } from './Menu';
 import { RadioButton } from './RadioButton';
 import { SpinButton } from './SpinButton';
 import { TextArea } from './TextArea';
+import { initialEditorState } from './textEditorState';
 import { ToggleButton } from './ToggleButton';
 import { Toolbar } from './Toolbar';
 
@@ -41,20 +42,6 @@ const horizontalToolbarKeyDownTranslators = [
   horizontalNavigation(true),
   extremesNavigation
 ];
-
-const initialEditorState: EditorState = {
-  bold: false,
-  italic: false,
-  underline: false,
-  justify: 'left',
-  nightMode: false,
-  fontSize: 14,
-  fontFamily: 'sans-serif',
-  fontFamilies: ['sans-serif', 'serif', 'monospace', 'fantasy', 'cursive'],
-  text: `Abraham Lincoln's Gettysburg Address
-
-Four score and seven years ago our fathers brought forth on this continent a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.`
-};
 
 const Template: Story<void> = () => {
   const [state, setState] = useState(initialEditorState);

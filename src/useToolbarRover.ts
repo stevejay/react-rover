@@ -11,6 +11,7 @@ import {
   removeTabStop,
   shouldResetCurrentTabStopId
 } from './tabStopUtils';
+import type { Action, KeyDownTranslator, State, TabStopId, TabStopsList } from './types';
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -165,24 +166,6 @@ export function useToolbarRover(
             });
           }
         }
-
-        // callAllEventHandlers<MouseEvent>(userOnClick, () => {
-        //   const currentRef = findTabStop(tabStopsListRef.current, id);
-        //   if (
-        //     currentRef &&
-        //     elementIsEnabled(currentRef.element) &&
-        //     elementIsAriaEnabled(currentRef.element)
-        //   ) {
-        //     dispatch({
-        //       type: 'updateTabStopOnClick',
-        //       payload: {
-        //         tabStops: tabStopsListRef.current,
-        //         newTabStopId: id,
-        //         shouldFocus: shouldFocusOnClick,
-        //       },
-        //     });
-        //   }
-        // }),
       };
     },
     [state.currentTabStopId, shouldFocusOnClick]

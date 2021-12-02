@@ -1,13 +1,16 @@
-type TabStopId = string;
-type TabStop = { id: TabStopId; element: HTMLElement };
-type TabStopsList = TabStop[];
+// This file has a .ts rather than a .d.ts extension in order
+// to simplify type file generation: https://stackoverflow.com/a/56440335/604006
 
-type State = {
+export type TabStopId = string;
+export type TabStop = { id: TabStopId; element: HTMLElement };
+export type TabStopsList = TabStop[];
+
+export type State = {
   currentTabStopId: TabStopId | null;
   shouldFocus: boolean;
 };
 
-type Action =
+export type Action =
   | {
       type: 'resetTabStop';
       payload: { tabStops: TabStopsList; initialTabStopId: TabStopId | null };
@@ -28,24 +31,12 @@ type Action =
       };
     };
 
-type KeyDownAction = {
+export type KeyDownAction = {
   newTabStopId: TabStopId;
 };
 
-type KeyDownTranslator = (
+export type KeyDownTranslator = (
   event: React.KeyboardEvent,
   tabStops: TabStopsList,
   currentTabStop: TabStop
 ) => KeyDownAction | null;
-
-type EditorState = {
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
-  justify: 'left' | 'right' | 'center';
-  nightMode: boolean;
-  fontSize: number;
-  fontFamily: string;
-  fontFamilies: string[];
-  text: string;
-};
