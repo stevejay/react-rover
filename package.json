@@ -102,25 +102,21 @@
     ".": {
       "import": "./dist/react-rover.es.js",
       "require": "./dist/react-rover.umd.js"
-    },
-    "./dist/style.css": "./dist/style.css"
+    }
   },
-  "description": "TODO",
+  "description": "A roving tabindex hook for React",
   "keywords": [
-    "TODO"
+    "roving",
+    "tabindex",
+    "react",
+    "a11y"
   ],
   "homepage": "https://github.com/stevejay/react-rover#readme",
   "bugs": {
     "url": "https://github.com/stevejay/react-rover/issues"
   },
   "repository": "github:stevejay/react-rover",
-  "engines": {
-    "node": ">=14"
-  },
-  "sideEffects": [
-    "./dist/style.css"
-  ],
-  "style": "./dist/style.css",
+  "sideEffects": false,
   "dependencies": {
     "merge-refs": "^1.0.0",
     "use-isomorphic-layout-effect": "^1.1.1"

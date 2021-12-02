@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 import { useCallback, useState } from 'react';
 import { FaAlignCenter, FaAlignLeft, FaAlignRight, FaBold, FaItalic, FaUnderline } from 'react-icons/fa';
 import { Meta, Story } from '@storybook/react';
@@ -6,8 +7,8 @@ import {
   extremesNavigation,
   horizontalNavigation,
   horizontalRadioGroupNavigation
-} from '@/keyDownTranslators';
-import { OnTabStopChange, useToolbarRover } from '@/useToolbarRover';
+} from '../keyDownTranslators';
+import { OnTabStopChange, useToolbarRover } from '../useToolbarRover';
 
 import { Button } from './Button';
 import { Checkbox } from './Checkbox';
@@ -66,7 +67,8 @@ const Template: Story<void> = () => {
     onTabStopChange
   });
   return (
-    <>
+    <div css={{ display: 'flex', flexDirection: 'column', '& > * + *': { marginTop: 16 } }}>
+      <Button label="Focus before" />
       <Toolbar aria-label="Text Formatting" aria-controls="textarea1" {...getTabContainerProps()}>
         <Toolbar.Group>
           <ToggleButton
@@ -181,7 +183,7 @@ const Template: Story<void> = () => {
         </Toolbar.Group>
       </Toolbar>
       <TextArea id="textarea1" state={state} />
-    </>
+    </div>
   );
 };
 

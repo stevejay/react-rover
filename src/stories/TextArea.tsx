@@ -15,9 +15,8 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(({ id, st
     rows={20}
     cols={80}
     css={{
-      width: 990,
       height: 400,
-      padding: 6,
+      padding: 8,
       border: '2px solid black',
       borderRadius: 5,
       fontSize: `${state.fontSize}pt`,
@@ -31,7 +30,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(({ id, st
       backgroundColor: state.nightMode ? 'black' : 'white',
       '&:focus': {
         borderColor: '#005a9c',
-        padding: 5,
+        padding: 7,
         borderWidth: 3
       }
     }}
