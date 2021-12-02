@@ -6,9 +6,9 @@ import { Meta, Story } from '@storybook/react';
 import {
   extremesNavigation,
   horizontalNavigation,
-  horizontalRadioGroupNavigation
-} from '../keyDownTranslators';
-import { OnTabStopChange, useToolbarRover } from '../useToolbarRover';
+  horizontalRadioGroupNavigation,
+  useToolbarRover
+} from '..';
 
 import { Button } from './Button';
 import { Checkbox } from './Checkbox';
@@ -45,10 +45,7 @@ const horizontalToolbarKeyDownTranslators = [
 
 const Template: Story<void> = () => {
   const [state, setState] = useState(initialEditorState);
-  const onTabStopChange = useCallback<OnTabStopChange>(
-    (id) => console.log(`new tab stop: ${id || '---'}`),
-    []
-  );
+  const onTabStopChange = useCallback((id: string | null) => console.log(`new tab stop: ${id || '---'}`), []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
     initialTabStopId: 'italic',
     onTabStopChange

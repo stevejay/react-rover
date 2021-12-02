@@ -1,16 +1,10 @@
-import { SyntheticEvent } from 'react';
-
-export function preventDefault(event: SyntheticEvent) {
-  event.preventDefault();
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFunction<Type = any> = (...args: any[]) => Type;
 
 // Credit to https://github.com/remirror/remirror/blob/a2ca7a83f35b3831b97817eb2cb38b1a82d60ab8/packages/multishift/src/multishift-utils.ts#L1019
 // and https://github.com/downshift-js/downshift/blob/26c93a539dad09e41adba69ddc3a7d7ecccfc8bb/src/utils.js#L93
 export function callAllEventHandlers<
-  Type extends Event = Event,
+  Type extends React.SyntheticEvent,
   Method extends (event: Type, ...args: unknown[]) => void | undefined | false | true = AnyFunction
 >(...fns: Array<Method | undefined | null | false>) {
   return (event: Type, ...args: unknown[]): void => {
@@ -21,9 +15,8 @@ export function callAllEventHandlers<
       return (
         // eslint-disable-next-line
         (event as any).preventReactRoverDefault ||
-        (Object.prototype.hasOwnProperty.call(event, 'nativeEvent') &&
-          // eslint-disable-next-line
-          (event as any).nativeEvent.preventReactRoverDefault)
+        // eslint-disable-next-line
+        (event.nativeEvent && (event.nativeEvent as any).preventReactRoverDefault)
       );
     });
   };

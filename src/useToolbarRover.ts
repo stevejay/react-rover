@@ -1,6 +1,5 @@
-import React, { MouseEvent, useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from 'react';
 import mergeRefs from 'merge-refs';
-import useIsomorphicLayoutEffect from 'use-isomorphic-layout-effect';
 
 import { callAllEventHandlers, elementIsAriaEnabled, elementIsEnabled } from './domUtils';
 import { runKeyDownTranslators } from './keyDownTranslators';
@@ -12,6 +11,8 @@ import {
   shouldResetCurrentTabStopId
 } from './tabStopUtils';
 import type { Action, KeyDownTranslator, State, TabStopId, TabStopsList } from './types';
+
+const useIsomorphicLayoutEffect = typeof document !== 'undefined' ? useLayoutEffect : useEffect;
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -115,8 +116,7 @@ export function useToolbarRover(
     ({ onKeyDown: userOnKeyDown, ...rest } = {}) => {
       return {
         ...rest,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onKeyDown: callAllEventHandlers<any>(userOnKeyDown, (event: React.KeyboardEvent<HTMLElement>) => {
+        onKeyDown: callAllEventHandlers(userOnKeyDown, (event: React.KeyboardEvent<HTMLElement>) => {
           const action = runKeyDownTranslators(
             keyDownTranslators,
             tabStopsListRef.current,
@@ -151,10 +151,9 @@ export function useToolbarRover(
         tabIndex: id === state.currentTabStopId ? 0 : -1,
         // eslint-disable-next-line
         ref: userRef ? mergeRefs(userRef, ref) : ref,
-        onClick: (event: MouseEvent<HTMLElement>) => {
-          if (event.target && elementIsEnabled(event.target) && elementIsAriaEnabled(event.target)) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            callAllEventHandlers<any>(userOnClick, () => {
+        onClick: (event: React.MouseEvent<HTMLElement>) => {
+          if (elementIsEnabled(event.target) && elementIsAriaEnabled(event.target)) {
+            callAllEventHandlers<React.MouseEvent<HTMLElement>>(userOnClick, () => {
               dispatch({
                 type: 'updateTabStopOnClick',
                 payload: {
@@ -163,7 +162,7 @@ export function useToolbarRover(
                   shouldFocus: shouldFocusOnClick
                 }
               });
-            });
+            })(event);
           }
         }
       };

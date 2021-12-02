@@ -118,7 +118,6 @@
   "repository": "github:stevejay/react-rover",
   "sideEffects": false,
   "dependencies": {
-    "merge-refs": "^1.0.0",
-    "use-isomorphic-layout-effect": "^1.1.1"
+    "merge-refs": "^1.0.0"
   }
 }
