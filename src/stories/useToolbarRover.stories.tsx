@@ -16,6 +16,7 @@ import { Link } from './Link';
 import { Menu } from './Menu';
 import { RadioButton } from './RadioButton';
 import { SpinButton } from './SpinButton';
+import { StackedLayout } from './StackedLayout';
 import { TextArea } from './TextArea';
 import { initialEditorState } from './textEditorState';
 import { ToggleButton } from './ToggleButton';
@@ -51,7 +52,7 @@ const Template: Story<void> = () => {
     onTabStopChange
   });
   return (
-    <div css={{ display: 'flex', flexDirection: 'column', '& > * + *': { marginTop: 16 } }}>
+    <StackedLayout>
       <Button label="Focus before" />
       <Toolbar aria-label="Text Formatting" aria-controls="textarea1" {...getTabContainerProps()}>
         <Toolbar.Group>
@@ -167,12 +168,10 @@ const Template: Story<void> = () => {
         </Toolbar.Group>
       </Toolbar>
       <TextArea id="textarea1" state={state} />
-    </div>
+    </StackedLayout>
   );
 };
 
 // By passing using the Args format for exported stories, you can control the props for a component for reuse in a test
 // https://storybook.js.org/docs/react/workflows/unit-testing
 export const Default = Template.bind({});
-
-// Default.args = {};
