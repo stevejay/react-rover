@@ -26,7 +26,7 @@ import { ToggleButton } from './ToggleButton';
 import { Toolbar } from './Toolbar';
 
 const meta: Meta = {
-  title: 'useToolbarRover',
+  title: 'Toolbar',
   argTypes: {
     children: {
       control: {
@@ -49,7 +49,7 @@ const horizontalToolbarKeyDownTranslators = [
 
 const preventDefault = (event: React.MouseEvent) => event.preventDefault();
 
-const ComplexToolbarTemplate: Story<void> = () => {
+const TextEditorTemplate: Story<void> = () => {
   const [state, setState] = useState(initialEditorState);
   const onTabStopChange = useCallback((id: string | null) => console.log(`new tab stop: ${id || '---'}`), []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
@@ -58,7 +58,6 @@ const ComplexToolbarTemplate: Story<void> = () => {
   });
   return (
     <StackedLayout>
-      <Button label="Focus before" />
       <Toolbar aria-label="Text Formatting" aria-controls="textarea1" {...getTabContainerProps()}>
         <Toolbar.Group>
           <ToggleButton
@@ -160,11 +159,12 @@ const ComplexToolbarTemplate: Story<void> = () => {
         <Toolbar.Group>
           <SpinButton
             label="Font size in points"
-            {...getTabStopProps('font-size')}
-            onChange={(_, value) => setState((state) => ({ ...state, fontSize: value }))}
             value={state.fontSize}
             min={5}
             max={24}
+            onMouseDown={preventDefault}
+            onChange={(_, value) => setState((state) => ({ ...state, fontSize: value }))}
+            {...getTabStopProps('font-size')}
           />
         </Toolbar.Group>
         <Toolbar.Group>
@@ -172,8 +172,8 @@ const ComplexToolbarTemplate: Story<void> = () => {
             label="Night Mode"
             checked={state.nightMode}
             onMouseDown={preventDefault}
-            {...getTabStopProps('night-mode')}
             onChange={(_, nightMode) => setState((state) => ({ ...state, nightMode }))}
+            {...getTabStopProps('night-mode')}
           />
         </Toolbar.Group>
         <Toolbar.Group>
@@ -237,10 +237,10 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
 
 // By passing using the Args format for exported stories, you can control the props for a component for reuse in a test
 // https://storybook.js.org/docs/react/workflows/unit-testing
-export const ComplexToolbar = ComplexToolbarTemplate.bind({});
+export const TextEditor = TextEditorTemplate.bind({});
 
-export const SimpleToolbar = SimpleToolbarTemplate.bind({});
-SimpleToolbar.args = {
+export const Basic = SimpleToolbarTemplate.bind({});
+Basic.args = {
   keyDownTranslators: [horizontalNavigation(), extremesNavigation],
   tabStops: [
     { id: 'one', label: 'One' },
@@ -249,8 +249,8 @@ SimpleToolbar.args = {
   ]
 };
 
-export const SimpleToolbarWithInitialTabStop = SimpleToolbarTemplate.bind({});
-SimpleToolbarWithInitialTabStop.args = {
+export const WithInitialTabStop = SimpleToolbarTemplate.bind({});
+WithInitialTabStop.args = {
   keyDownTranslators: [horizontalNavigation(), extremesNavigation],
   tabStops: [
     { id: 'one', label: 'One' },
@@ -260,8 +260,8 @@ SimpleToolbarWithInitialTabStop.args = {
   initialTabStopId: 'two'
 };
 
-export const SimpleToolbarWithDisabledEndStops = SimpleToolbarTemplate.bind({});
-SimpleToolbarWithDisabledEndStops.args = {
+export const WithDisabledEndStops = SimpleToolbarTemplate.bind({});
+WithDisabledEndStops.args = {
   keyDownTranslators: [horizontalNavigation(), extremesNavigation],
   tabStops: [
     { id: 'one', label: 'One', disabled: true },
@@ -272,8 +272,8 @@ SimpleToolbarWithDisabledEndStops.args = {
   ]
 };
 
-export const SimpleToolbarWithNoWraparound = SimpleToolbarTemplate.bind({});
-SimpleToolbarWithNoWraparound.args = {
+export const WithNoWraparound = SimpleToolbarTemplate.bind({});
+WithNoWraparound.args = {
   keyDownTranslators: [horizontalNavigation(false), extremesNavigation],
   tabStops: [
     { id: 'one', label: 'One' },
@@ -282,8 +282,8 @@ SimpleToolbarWithNoWraparound.args = {
   ]
 };
 
-export const SimpleToolbarWithVerticalNavigation = SimpleToolbarTemplate.bind({});
-SimpleToolbarWithVerticalNavigation.args = {
+export const WithVerticalNavigation = SimpleToolbarTemplate.bind({});
+WithVerticalNavigation.args = {
   keyDownTranslators: [verticalNavigation(), extremesNavigation],
   tabStops: [
     { id: 'one', label: 'One' },
@@ -292,8 +292,8 @@ SimpleToolbarWithVerticalNavigation.args = {
   ]
 };
 
-export const SimpleToolbarWithHorizontalAndVerticalNavigation = SimpleToolbarTemplate.bind({});
-SimpleToolbarWithHorizontalAndVerticalNavigation.args = {
+export const WithHorizontalAndVerticalNavigation = SimpleToolbarTemplate.bind({});
+WithHorizontalAndVerticalNavigation.args = {
   keyDownTranslators: [horizontalNavigation(), verticalNavigation(), extremesNavigation],
   tabStops: [
     { id: 'one', label: 'One' },

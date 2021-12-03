@@ -62,7 +62,7 @@ export type SpinButtonProps = Omit<HTMLAttributes<HTMLElement>, 'onChange'> & {
 };
 
 export const SpinButton = forwardRef<HTMLElement, SpinButtonProps>(
-  ({ value, min, max, label, onChange, disabled = false, ...rest }, ref) => {
+  ({ value, min, max, label, onChange, onMouseDown, disabled = false, ...rest }, ref) => {
     const increment = (event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>, inc = 1) =>
       onChange(event, Math.min(value + inc, max));
 
@@ -111,10 +111,18 @@ export const SpinButton = forwardRef<HTMLElement, SpinButtonProps>(
         >
           {value} Point
         </span>
-        <StyledIncDecButton className="increase" onClick={(event) => increment(event, 1)}>
+        <StyledIncDecButton
+          className="increase"
+          onClick={(event) => increment(event, 1)}
+          onMouseDown={onMouseDown}
+        >
           <FaArrowUp />
         </StyledIncDecButton>
-        <StyledIncDecButton className="decrease" onClick={(event) => decrement(event, 1)}>
+        <StyledIncDecButton
+          className="decrease"
+          onClick={(event) => decrement(event, 1)}
+          onMouseDown={onMouseDown}
+        >
           <FaArrowDown />
         </StyledIncDecButton>
       </StyledSpinButton>
