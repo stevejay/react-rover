@@ -64,7 +64,7 @@ type GetTabStopProps = (
 export type OnTabStopChange = (id: TabStopId | null) => void;
 
 export type ToolbarRoverOptions = {
-  initialTabStopId?: TabStopId;
+  initialTabStopId?: TabStopId | null;
   onTabStopChange?: OnTabStopChange;
   shouldFocusOnClick?: boolean;
 };

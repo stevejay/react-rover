@@ -7,7 +7,10 @@ import {
   extremesNavigation,
   horizontalNavigation,
   horizontalRadioGroupNavigation,
-  useToolbarRover
+  KeyDownTranslator,
+  TabStopId,
+  useToolbarRover,
+  verticalNavigation
 } from '..';
 
 import { Button } from './Button';
@@ -44,7 +47,9 @@ const horizontalToolbarKeyDownTranslators = [
   extremesNavigation
 ];
 
-const Template: Story<void> = () => {
+const preventDefault = (event: React.MouseEvent) => event.preventDefault();
+
+const ComplexToolbarTemplate: Story<void> = () => {
   const [state, setState] = useState(initialEditorState);
   const onTabStopChange = useCallback((id: string | null) => console.log(`new tab stop: ${id || '---'}`), []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
@@ -60,6 +65,7 @@ const Template: Story<void> = () => {
             label="Bold"
             icon={FaBold}
             pressed={state.bold}
+            onMouseDown={preventDefault}
             {...getTabStopProps('bold', {
               onClick: () => setState((state) => ({ ...state, bold: !state.bold }))
             })}
@@ -68,6 +74,7 @@ const Template: Story<void> = () => {
             label="Italic"
             icon={FaItalic}
             pressed={state.italic}
+            onMouseDown={preventDefault}
             {...getTabStopProps('italic', {
               onClick: () => setState((state) => ({ ...state, italic: !state.italic }))
             })}
@@ -76,6 +83,7 @@ const Template: Story<void> = () => {
             label="Underline"
             icon={FaUnderline}
             pressed={state.underline}
+            onMouseDown={preventDefault}
             disabled
             {...getTabStopProps('underline', {
               onClick: () =>
@@ -91,6 +99,7 @@ const Template: Story<void> = () => {
             label="Align left"
             icon={FaAlignLeft}
             checked={state.justify === 'left'}
+            onMouseDown={preventDefault}
             {...getTabStopProps('align-left', {
               onClick: () => setState((state) => ({ ...state, justify: 'left' }))
             })}
@@ -99,6 +108,7 @@ const Template: Story<void> = () => {
             label="Align center"
             icon={FaAlignCenter}
             checked={state.justify === 'center'}
+            onMouseDown={preventDefault}
             {...getTabStopProps('align-center', {
               onClick: () => setState((state) => ({ ...state, justify: 'center' }))
             })}
@@ -107,6 +117,7 @@ const Template: Story<void> = () => {
             label="Align right"
             icon={FaAlignRight}
             checked={state.justify === 'right'}
+            onMouseDown={preventDefault}
             {...getTabStopProps('align-right', {
               onClick: () => setState((state) => ({ ...state, justify: 'right' }))
             })}
@@ -115,7 +126,7 @@ const Template: Story<void> = () => {
         <Toolbar.Group>
           <Button
             label="Copy"
-            disabledFocusable
+            onMouseDown={preventDefault}
             {...getTabStopProps('copy', {
               onClick: () => console.log('Copy clicked')
             })}
@@ -123,13 +134,14 @@ const Template: Story<void> = () => {
           <Button
             label="Paste"
             disabledFocusable
+            onMouseDown={preventDefault}
             {...getTabStopProps('paste', {
               onClick: () => console.log('Paste clicked')
             })}
           />
           <Button
             label="Cut"
-            disabledFocusable
+            onMouseDown={preventDefault}
             {...getTabStopProps('cut', {
               onClick: () => console.log('Cut clicked')
             })}
@@ -159,6 +171,7 @@ const Template: Story<void> = () => {
           <Checkbox
             label="Night Mode"
             checked={state.nightMode}
+            onMouseDown={preventDefault}
             {...getTabStopProps('night-mode')}
             onChange={(_, nightMode) => setState((state) => ({ ...state, nightMode }))}
           />
@@ -172,6 +185,121 @@ const Template: Story<void> = () => {
   );
 };
 
+type TabStopSetup = {
+  id: TabStopId;
+  label: string;
+  disabled?: boolean;
+  disabledFocusable?: boolean;
+};
+
+type SimpleToolbarTemplateProps = {
+  keyDownTranslators: KeyDownTranslator[];
+  tabStops: TabStopSetup[];
+  initialTabStopId?: TabStopId | null;
+  shouldFocusOnClick?: boolean;
+  preventDefaultOnMouseDown?: boolean;
+};
+
+const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
+  tabStops,
+  keyDownTranslators,
+  initialTabStopId,
+  shouldFocusOnClick,
+  preventDefaultOnMouseDown
+}) => {
+  const onTabStopChange = useCallback((id: string | null) => console.log(`new tab stop: ${id || '---'}`), []);
+  const { getTabContainerProps, getTabStopProps } = useToolbarRover(keyDownTranslators, {
+    initialTabStopId,
+    onTabStopChange,
+    shouldFocusOnClick
+  });
+  return (
+    <StackedLayout>
+      <Button label="Focus before" />
+      <Toolbar aria-label="Toolbar" {...getTabContainerProps()}>
+        {tabStops.map((tabStop) => (
+          <Button
+            key={tabStop.id}
+            label={tabStop.label}
+            disabled={tabStop.disabled}
+            disabledFocusable={tabStop.disabledFocusable}
+            onMouseDown={preventDefaultOnMouseDown ? preventDefault : undefined}
+            {...getTabStopProps(tabStop.id, {
+              onClick: () => console.log('One clicked')
+            })}
+          />
+        ))}
+      </Toolbar>
+      <Button label="Focus after" />
+    </StackedLayout>
+  );
+};
+
 // By passing using the Args format for exported stories, you can control the props for a component for reuse in a test
 // https://storybook.js.org/docs/react/workflows/unit-testing
-export const Default = Template.bind({});
+export const ComplexToolbar = ComplexToolbarTemplate.bind({});
+
+export const SimpleToolbar = SimpleToolbarTemplate.bind({});
+SimpleToolbar.args = {
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  tabStops: [
+    { id: 'one', label: 'One' },
+    { id: 'two', label: 'Two' },
+    { id: 'three', label: 'Three' }
+  ]
+};
+
+export const SimpleToolbarWithInitialTabStop = SimpleToolbarTemplate.bind({});
+SimpleToolbarWithInitialTabStop.args = {
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  tabStops: [
+    { id: 'one', label: 'One' },
+    { id: 'two', label: 'Two' },
+    { id: 'three', label: 'Three' }
+  ],
+  initialTabStopId: 'two'
+};
+
+export const SimpleToolbarWithDisabledEndStops = SimpleToolbarTemplate.bind({});
+SimpleToolbarWithDisabledEndStops.args = {
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  tabStops: [
+    { id: 'one', label: 'One', disabled: true },
+    { id: 'two', label: 'Two' },
+    { id: 'three', label: 'Three' },
+    { id: 'four', label: 'Four' },
+    { id: 'five', label: 'Five', disabled: true }
+  ]
+};
+
+export const SimpleToolbarWithNoWraparound = SimpleToolbarTemplate.bind({});
+SimpleToolbarWithNoWraparound.args = {
+  keyDownTranslators: [horizontalNavigation(false), extremesNavigation],
+  tabStops: [
+    { id: 'one', label: 'One' },
+    { id: 'two', label: 'Two' },
+    { id: 'three', label: 'Three' }
+  ]
+};
+
+export const SimpleToolbarWithVerticalNavigation = SimpleToolbarTemplate.bind({});
+SimpleToolbarWithVerticalNavigation.args = {
+  keyDownTranslators: [verticalNavigation(), extremesNavigation],
+  tabStops: [
+    { id: 'one', label: 'One' },
+    { id: 'two', label: 'Two' },
+    { id: 'three', label: 'Three' }
+  ]
+};
+
+export const SimpleToolbarWithHorizontalAndVerticalNavigation = SimpleToolbarTemplate.bind({});
+SimpleToolbarWithHorizontalAndVerticalNavigation.args = {
+  keyDownTranslators: [horizontalNavigation(), verticalNavigation(), extremesNavigation],
+  tabStops: [
+    { id: 'one', label: 'One' },
+    { id: 'two', label: 'Two' },
+    { id: 'three', label: 'Three' }
+  ]
+};
+
+// Loop around needs to work if first/last tab stop is disabled.
