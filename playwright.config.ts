@@ -2,18 +2,22 @@ import { devices, PlaywrightTestConfig } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
   testDir: 'e2e-tests',
-  timeout: 30000,
-  expect: {
-    timeout: 10000,
-    toMatchSnapshot: {
-      threshold: 0.3
-    }
-  },
+  outputDir: './e2e-tests-results',
+  //   timeout: 30000,
+  //   expect: {
+  //     timeout: 10000,
+  //     toMatchSnapshot: {
+  //       threshold: 0.3
+  //     }
+  //   },
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  // Having to run Playwright in single-threaded mode locally
+  // as some tests will time out without this:
+  retries: process.env.CI ? 2 : 1,
   use: {
+    baseURL: 'http://localhost:6006',
     trace: 'on-first-retry',
-    video: 'retain-on-failure',
+    video: 'on-first-retry',
     screenshot: 'only-on-failure'
   },
   projects: [

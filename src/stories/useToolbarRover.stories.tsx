@@ -249,8 +249,8 @@ Basic.args = {
   ]
 };
 
-export const WithInitialTabStop = SimpleToolbarTemplate.bind({});
-WithInitialTabStop.args = {
+export const WithButtonTwoAsInitialTabStop = SimpleToolbarTemplate.bind({});
+WithButtonTwoAsInitialTabStop.args = {
   keyDownTranslators: [horizontalNavigation(), extremesNavigation],
   tabStops: [
     { id: 'one', label: 'One' },
@@ -269,6 +269,18 @@ WithDisabledEndStops.args = {
     { id: 'three', label: 'Three' },
     { id: 'four', label: 'Four' },
     { id: 'five', label: 'Five', disabled: true }
+  ]
+};
+
+export const WithDisabledFocusableEndStops = SimpleToolbarTemplate.bind({});
+WithDisabledFocusableEndStops.args = {
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  tabStops: [
+    { id: 'one', label: 'One', disabledFocusable: true },
+    { id: 'two', label: 'Two' },
+    { id: 'three', label: 'Three' },
+    { id: 'four', label: 'Four' },
+    { id: 'five', label: 'Five', disabledFocusable: true }
   ]
 };
 

@@ -21,7 +21,7 @@ const StyledMenu = styled.ul<{ open: boolean }>`
   left: 0px;
   z-index: 100;
 
-  &:focus {
+  &:focus-visible {
     border-color: #005a9c;
   }
 `;
@@ -50,7 +50,7 @@ const StyledMenuItem = styled.li`
     content: url('../images/menuitemradio-checked.svg');
   }
 
-  &:focus,
+  &:focus-visible,
   &:hover {
     background: rgb(226, 239, 255);
     border-top: 1px solid #005a9c;
@@ -59,7 +59,7 @@ const StyledMenuItem = styled.li`
     padding-bottom: 0;
   }
 
-  &:focus {
+  &:focus-visible {
     border-color: #005a9c;
   }
 `;

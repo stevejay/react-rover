@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from 'react';
 import mergeRefs from 'merge-refs';
 
-import { callAllEventHandlers, elementIsAriaEnabled, elementIsEnabled } from '@/domUtils';
+import { callAllEventHandlers, elementIsEnabled } from '@/domUtils';
 import { runKeyDownTranslators } from '@/keyDownTranslators';
 import {
   addTabStop,
@@ -152,7 +152,7 @@ export function useToolbarRover(
         // eslint-disable-next-line
         ref: userRef ? mergeRefs(userRef, ref) : ref,
         onClick: (event: React.MouseEvent<HTMLElement>) => {
-          if (elementIsEnabled(event.target) && elementIsAriaEnabled(event.target)) {
+          if (elementIsEnabled(event.target) /*&& elementIsAriaEnabled(event.target)*/) {
             callAllEventHandlers<React.MouseEvent<HTMLElement>>(userOnClick, () => {
               dispatch({
                 type: 'updateTabStopOnClick',

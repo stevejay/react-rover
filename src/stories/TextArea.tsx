@@ -28,7 +28,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(({ id, st
       fontStyle: state.italic ? 'italic' : 'normal',
       color: state.nightMode ? 'white' : 'black',
       backgroundColor: state.nightMode ? 'black' : 'white',
-      '&:focus': {
+      '&:focus-visible': {
         borderColor: '#005a9c',
         padding: 7,
         borderWidth: 3

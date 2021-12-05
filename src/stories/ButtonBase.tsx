@@ -36,14 +36,14 @@ export const ButtonBase = styled.button`
     background-color: #f4f4f4;
   }
 
-  &:focus {
+  &:focus-visible {
     border-width: 2px;
     border-color: #005a9c;
     background: rgb(226, 239, 255);
     padding: 5px 11px;
   }
 
-  &:not(:disabled)[aria-disabled='true']:focus {
+  &:not(:disabled)[aria-disabled='true']:focus-visible {
     border-color: #005a9c;
   }
 

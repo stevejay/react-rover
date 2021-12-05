@@ -27,7 +27,7 @@ tsconfig.tsbuildinfo
 /storybook-static/
 
 # Playwright
-/test-results/
+/e2e-tests-results/
 
 # npm publish
 /*.tgz
