@@ -65,6 +65,7 @@ const TextEditorTemplate: Story<void> = () => {
             icon={FaBold}
             pressed={state.bold}
             onMouseDown={preventDefault}
+            disabledFocusable
             {...getTabStopProps('bold', {
               onClick: () => setState((state) => ({ ...state, bold: !state.bold }))
             })}
@@ -83,7 +84,6 @@ const TextEditorTemplate: Story<void> = () => {
             icon={FaUnderline}
             pressed={state.underline}
             onMouseDown={preventDefault}
-            disabled
             {...getTabStopProps('underline', {
               onClick: () =>
                 setState((state) => ({

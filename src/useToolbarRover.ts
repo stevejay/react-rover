@@ -152,7 +152,7 @@ export function useToolbarRover(
         // eslint-disable-next-line
         ref: userRef ? mergeRefs(userRef, ref) : ref,
         onClick: (event: React.MouseEvent<HTMLElement>) => {
-          if (elementIsEnabled(event.target) /*&& elementIsAriaEnabled(event.target)*/) {
+          if (elementIsEnabled(event.target)) {
             callAllEventHandlers<React.MouseEvent<HTMLElement>>(userOnClick, () => {
               dispatch({
                 type: 'updateTabStopOnClick',

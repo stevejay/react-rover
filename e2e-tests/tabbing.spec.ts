@@ -98,7 +98,7 @@ test('roving within the toolbar', async ({ page }) => {
   await expect(toolbarPage.buttonOne).toBeFocused();
 });
 
-test('Clicking on a tab stop', async ({ page }) => {
+test('clicking on an enabled tab stop', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
   const toolbarPage = new SimpleToolbarPage(page);
   await toolbarPage.goto(basicToolbar);
@@ -118,7 +118,7 @@ test('Clicking on a tab stop', async ({ page }) => {
   await expect(toolbarPage.buttonThree).toBeFocused();
 });
 
-test('initialTabStopId value is obeyed', async ({ page }) => {
+test('toolbar with an initialTabStopId value', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
   const toolbarPage = new SimpleToolbarPage(page);
   await toolbarPage.goto(toolbarWithButtonTwoAsInitialTabStop);
@@ -133,7 +133,7 @@ test('initialTabStopId value is obeyed', async ({ page }) => {
   await expect(toolbarPage.buttonTwo).toBeFocused();
 });
 
-test('Roving when the end tab stops are disabled', async ({ page }) => {
+test('roving when the end tab stops are disabled', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
   const toolbarPage = new SimpleToolbarPage(page);
   await toolbarPage.goto(toolbarWithDisabledEndStops);
@@ -180,7 +180,7 @@ test('Roving when the end tab stops are disabled', async ({ page }) => {
   await expect(toolbarPage.buttonTwo).toBeFocused();
 });
 
-test('Clicking on a disabled tab stop', async ({ page }) => {
+test('clicking on a disabled tab stop', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
   const toolbarPage = new SimpleToolbarPage(page);
   await toolbarPage.goto(toolbarWithDisabledEndStops);

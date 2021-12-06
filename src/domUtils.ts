@@ -33,8 +33,3 @@ function hasProperty<X extends object, Y extends PropertyKey>(
 export function elementIsEnabled(element: HTMLElement | EventTarget | null): boolean {
   return !!element && (!hasProperty(element, 'disabled') || !element.disabled);
 }
-
-// Element can be focused if clicked.
-export function elementIsAriaEnabled(element: HTMLElement | EventTarget | null): boolean {
-  return !!element && (!hasProperty(element, 'ariaDisabled') || element.ariaDisabled == 'false');
-}
