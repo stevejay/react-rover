@@ -1,15 +1,15 @@
 # react-rover
 
-![npm](https://img.shields.io/npm/v/react-rover?style=for-the-badge)
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-rover?style=for-the-badge)
+[![npm](https://img.shields.io/npm/v/react-rover?style=for-the-badge)](https://www.npmjs.com/package/react-rover)
+[![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-rover?style=for-the-badge)](https://bundlephobia.com/package/react-rover)
 [![GitHub license](https://img.shields.io/github/license/stevejay/react-rover?style=for-the-badge)](https://github.com/stevejay/react-rover/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/stevejay/react-rover?style=for-the-badge)](https://github.com/stevejay/react-rover/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/stevejay/react-rover?style=for-the-badge)](https://github.com/stevejay/react-rover/issues)
-![Codacy grade](https://img.shields.io/codacy/grade/7933e4280d8642e9b503b45ff801c724?style=for-the-badge)
-![Code Climate technical debt](https://img.shields.io/codeclimate/tech-debt/stevejay/react-rover?style=for-the-badge)
-![Code Climate issues](https://img.shields.io/codeclimate/issues/stevejay/react-rover?style=for-the-badge)
-![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/stevejay/react-rover?style=for-the-badge)
-![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/stevejay/react-rover/main?style=for-the-badge)
+[![Codacy grade](https://img.shields.io/codacy/grade/7933e4280d8642e9b503b45ff801c724?style=for-the-badge)](https://www.codacy.com/gh/stevejay/react-rover/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=stevejay/react-rover&amp;utm_campaign=Badge_Grade)
+<!-- ![Code Climate technical debt](https://img.shields.io/codeclimate/tech-debt/stevejay/react-rover?style=for-the-badge)
+![Code Climate issues](https://img.shields.io/codeclimate/issues/stevejay/react-rover?style=for-the-badge) -->
+[![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/stevejay/react-rover?style=for-the-badge)](https://codeclimate.com/github/stevejay/react-rover/maintainability)
+[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/stevejay/react-rover/main?style=for-the-badge)](https://www.codefactor.io/repository/github/stevejay/react-rover)
 
 ## Notes
 

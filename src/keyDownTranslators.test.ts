@@ -1,7 +1,7 @@
 import { stub } from 'jest-auto-stub';
 
+import type { TabStop } from '.';
 import { extremesNavigation } from './keyDownTranslators';
-import { TabStop } from '.';
 
 describe('extremesNavigation when navigating to the start', () => {
   it('should navigate to the start when all tab stops are enabled', () => {
