@@ -70,7 +70,7 @@
     "husky": "^7.0.4",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.4.2",
-    "jest-mock-extended": "^2.0.4",
+    "jest-auto-stub": "^1.0.8",
     "jest-svg-transformer": "^1.0.0",
     "lint-staged": "^12.1.2",
     "markdownlint": "^0.24.0",
