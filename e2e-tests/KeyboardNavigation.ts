@@ -23,6 +23,14 @@ export class KeyboardNavigation {
     await this.page.locator(':focus').press('ArrowLeft');
   }
 
+  async upArrow() {
+    await this.page.locator(':focus').press('ArrowUp');
+  }
+
+  async downArrow() {
+    await this.page.locator(':focus').press('ArrowDown');
+  }
+
   async home() {
     await this.page.locator(':focus').press('Home');
   }

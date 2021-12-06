@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { FaAlignCenter, FaAlignLeft, FaAlignRight, FaBold, FaItalic, FaUnderline } from 'react-icons/fa';
 import { Meta, Story } from '@storybook/react';
 
@@ -47,25 +47,34 @@ const horizontalToolbarKeyDownTranslators = [
   extremesNavigation
 ];
 
-const preventDefault = (event: React.MouseEvent) => event.preventDefault();
-
 const TextEditorTemplate: Story<void> = () => {
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [state, setState] = useState(initialEditorState);
   const onTabStopChange = useCallback((id: string | null) => console.log(`new tab stop: ${id || '---'}`), []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
     initialTabStopId: 'italic',
     onTabStopChange
   });
+  // Prevents focus leaving the text area if it currently has focus,
+  // so you can interact with the toolbar without losing the caret:
+  const mouseDownHandler = useCallback((event: React.MouseEvent) => {
+    if (
+      document.activeElement &&
+      textAreaRef.current &&
+      textAreaRef.current.contains(document.activeElement)
+    ) {
+      event.preventDefault();
+    }
+  }, []);
   return (
     <StackedLayout>
-      <Toolbar aria-label="Text Formatting" aria-controls="textarea1" {...getTabContainerProps()}>
+      <Toolbar aria-label="Text Formatting" aria-controls="text-area" {...getTabContainerProps()}>
         <Toolbar.Group>
           <ToggleButton
             label="Bold"
             icon={FaBold}
             pressed={state.bold}
-            onMouseDown={preventDefault}
-            disabledFocusable
+            onMouseDown={mouseDownHandler}
             {...getTabStopProps('bold', {
               onClick: () => setState((state) => ({ ...state, bold: !state.bold }))
             })}
@@ -74,7 +83,7 @@ const TextEditorTemplate: Story<void> = () => {
             label="Italic"
             icon={FaItalic}
             pressed={state.italic}
-            onMouseDown={preventDefault}
+            onMouseDown={mouseDownHandler}
             {...getTabStopProps('italic', {
               onClick: () => setState((state) => ({ ...state, italic: !state.italic }))
             })}
@@ -83,7 +92,7 @@ const TextEditorTemplate: Story<void> = () => {
             label="Underline"
             icon={FaUnderline}
             pressed={state.underline}
-            onMouseDown={preventDefault}
+            onMouseDown={mouseDownHandler}
             {...getTabStopProps('underline', {
               onClick: () =>
                 setState((state) => ({
@@ -98,7 +107,7 @@ const TextEditorTemplate: Story<void> = () => {
             label="Align left"
             icon={FaAlignLeft}
             checked={state.justify === 'left'}
-            onMouseDown={preventDefault}
+            onMouseDown={mouseDownHandler}
             {...getTabStopProps('align-left', {
               onClick: () => setState((state) => ({ ...state, justify: 'left' }))
             })}
@@ -107,7 +116,7 @@ const TextEditorTemplate: Story<void> = () => {
             label="Align center"
             icon={FaAlignCenter}
             checked={state.justify === 'center'}
-            onMouseDown={preventDefault}
+            onMouseDown={mouseDownHandler}
             {...getTabStopProps('align-center', {
               onClick: () => setState((state) => ({ ...state, justify: 'center' }))
             })}
@@ -116,7 +125,7 @@ const TextEditorTemplate: Story<void> = () => {
             label="Align right"
             icon={FaAlignRight}
             checked={state.justify === 'right'}
-            onMouseDown={preventDefault}
+            onMouseDown={mouseDownHandler}
             {...getTabStopProps('align-right', {
               onClick: () => setState((state) => ({ ...state, justify: 'right' }))
             })}
@@ -125,7 +134,7 @@ const TextEditorTemplate: Story<void> = () => {
         <Toolbar.Group>
           <Button
             label="Copy"
-            onMouseDown={preventDefault}
+            onMouseDown={mouseDownHandler}
             {...getTabStopProps('copy', {
               onClick: () => console.log('Copy clicked')
             })}
@@ -133,14 +142,14 @@ const TextEditorTemplate: Story<void> = () => {
           <Button
             label="Paste"
             disabledFocusable
-            onMouseDown={preventDefault}
+            onMouseDown={mouseDownHandler}
             {...getTabStopProps('paste', {
               onClick: () => console.log('Paste clicked')
             })}
           />
           <Button
             label="Cut"
-            onMouseDown={preventDefault}
+            onMouseDown={mouseDownHandler}
             {...getTabStopProps('cut', {
               onClick: () => console.log('Cut clicked')
             })}
@@ -162,7 +171,7 @@ const TextEditorTemplate: Story<void> = () => {
             value={state.fontSize}
             min={5}
             max={24}
-            onMouseDown={preventDefault}
+            onMouseDown={mouseDownHandler}
             onChange={(_, value) => setState((state) => ({ ...state, fontSize: value }))}
             {...getTabStopProps('font-size')}
           />
@@ -171,7 +180,7 @@ const TextEditorTemplate: Story<void> = () => {
           <Checkbox
             label="Night Mode"
             checked={state.nightMode}
-            onMouseDown={preventDefault}
+            onMouseDown={mouseDownHandler}
             onChange={(_, nightMode) => setState((state) => ({ ...state, nightMode }))}
             {...getTabStopProps('night-mode')}
           />
@@ -180,7 +189,7 @@ const TextEditorTemplate: Story<void> = () => {
           <Link label="Help" href="https://www.google.com" {...getTabStopProps('link')} />
         </Toolbar.Group>
       </Toolbar>
-      <TextArea id="textarea1" state={state} />
+      <TextArea id="text-area" ref={textAreaRef} state={state} />
     </StackedLayout>
   );
 };
@@ -197,15 +206,13 @@ type SimpleToolbarTemplateProps = {
   tabStops: TabStopSetup[];
   initialTabStopId?: TabStopId | null;
   shouldFocusOnClick?: boolean;
-  preventDefaultOnMouseDown?: boolean;
 };
 
 const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
   tabStops,
   keyDownTranslators,
   initialTabStopId,
-  shouldFocusOnClick,
-  preventDefaultOnMouseDown
+  shouldFocusOnClick
 }) => {
   const onTabStopChange = useCallback((id: string | null) => console.log(`new tab stop: ${id || '---'}`), []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(keyDownTranslators, {
@@ -223,9 +230,8 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
             label={tabStop.label}
             disabled={tabStop.disabled}
             disabledFocusable={tabStop.disabledFocusable}
-            onMouseDown={preventDefaultOnMouseDown ? preventDefault : undefined}
             {...getTabStopProps(tabStop.id, {
-              onClick: () => console.log('One clicked')
+              onClick: () => !tabStop.disabledFocusable && console.log(`Button ${tabStop.label} clicked`)
             })}
           />
         ))}
@@ -278,9 +284,7 @@ WithDisabledFocusableEndStops.args = {
   tabStops: [
     { id: 'one', label: 'One', disabledFocusable: true },
     { id: 'two', label: 'Two' },
-    { id: 'three', label: 'Three' },
-    { id: 'four', label: 'Four' },
-    { id: 'five', label: 'Five', disabledFocusable: true }
+    { id: 'three', label: 'Three', disabledFocusable: true }
   ]
 };
 
@@ -313,5 +317,3 @@ WithHorizontalAndVerticalNavigation.args = {
     { id: 'three', label: 'Three' }
   ]
 };
-
-// Loop around needs to work if first/last tab stop is disabled.

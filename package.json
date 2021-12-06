@@ -13,7 +13,7 @@
     "lint": "npm-run-all --parallel 'lint:*'",
     "build:types": "rimraf types-temp && tsc --pretty --emitDeclarationOnly -p tsconfig.types.json && rollup --config rollupTypes.config.cjs",
     "storybook": "start-storybook -p 6006",
-    "test:e2e": "yarn dlx playwright test --workers=1",
+    "test:e2e": "playwright test --workers=1",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --config=jest.config.cjs",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --config=jest.config.cjs --coverage=false --watch",
     "build:storybook": "build-storybook"
