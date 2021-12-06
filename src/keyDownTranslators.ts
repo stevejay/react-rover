@@ -64,9 +64,23 @@ export function horizontalRadioGroupNavigation(wraparound = true): KeyDownTransl
       return null;
     }
 
-    // TODO make more efficient.
-    const firstIndex = tabStops.findIndex((tabStop) => tabStop.element === parent.firstElementChild);
-    const lastIndex = tabStops.findIndex((tabStop) => tabStop.element === parent.lastElementChild);
+    let firstIndex = -1;
+    let lastIndex = -1;
+
+    // Find both firstIndex and lastIndex in a single pass through tabStops:
+    for (let i = 0; i < tabStops.length; ++i) {
+      const currentElement = tabStops[i].element;
+      if (currentElement === parent.firstElementChild) {
+        firstIndex = i;
+      }
+      if (currentElement === parent.lastElementChild) {
+        lastIndex = i;
+      }
+      // Break out of the loop if we have found both indexes:
+      if (firstIndex > -1 && lastIndex > -1) {
+        break;
+      }
+    }
 
     if (firstIndex === -1 || lastIndex === -1) {
       return null;

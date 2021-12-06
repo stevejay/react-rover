@@ -1,5 +1,5 @@
-// This file has a .ts rather than a .d.ts extension in order
-// to simplify type file generation: https://stackoverflow.com/a/56440335/604006
+// This file has a .ts rather than a .d.ts extension in order to
+// simplify type file generation: https://stackoverflow.com/a/56440335/604006
 
 export type TabStopId = string;
 export type TabStop = { id: TabStopId; element: HTMLElement };
