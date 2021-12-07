@@ -11,8 +11,8 @@ export function shouldResetCurrentTabStopId(
     return tabStops.some((tabStop) => elementIsEnabled(tabStop.element));
   }
   // Return true if there is a currentTabStopId but a tab stop
-  // with that id no longer exists.
-  return !tabStops.some((tabStop) => tabStop.id === currentTabStopId);
+  // with that id no longer exists or it is now disabled:
+  return !tabStops.some((tabStop) => tabStop.id === currentTabStopId && elementIsEnabled(tabStop.element));
 }
 
 function findIndexOfTabStop(tabStops: TabStopsList, tabStopId: TabStopId | null): number {
@@ -44,8 +44,7 @@ export function addTabStop(
   let indexToInsertAt = -1;
   for (let i = tabStops.length - 1; i >= 0; --i) {
     const loopTabStop = tabStops[i];
-    // The compareDocumentPosition condition is true
-    // if node follows loopTabStop.node.
+    // The compareDocumentPosition condition is true if node follows loopTabStop.node:
     if (
       indexToInsertAt === -1 &&
       !!(loopTabStop.element.compareDocumentPosition(tabStopElement) & DOCUMENT_POSITION_FOLLOWING)
@@ -69,7 +68,7 @@ export function addTabStop(
 }
 
 export function removeTabStop(tabStops: TabStopsList, tabStopId: TabStopId): TabStopsList {
-  return tabStops.filter((x) => x.id === tabStopId);
+  return tabStops.filter((x) => x.id !== tabStopId);
 }
 
 export function getNextEnabledTabStop(
@@ -83,27 +82,33 @@ export function getNextEnabledTabStop(
     return null;
   }
   let nextIndex = startIndex + offset;
+  let result: TabStop | null = null;
+
   for (;;) {
     if (nextIndex === tabStops.length) {
       if (wraparound) {
         nextIndex = 0;
       } else {
-        return null;
+        break;
       }
     } else if (nextIndex === -1) {
       if (wraparound) {
         nextIndex = tabStops.length - 1;
       } else {
-        return null;
+        break;
       }
     } else if (nextIndex === startIndex) {
-      // We've looped right around so return null as there is nothing to do.
-      return null; // tabStops[currentTabStopId];
+      // We've looped right around back to where we started
+      // so return null as there is nothing to do.
+      break;
     } else {
       if (elementIsEnabled(tabStops[nextIndex].element)) {
-        return tabStops[nextIndex];
+        result = tabStops[nextIndex];
+        break;
       }
       nextIndex += offset;
     }
   }
+
+  return result;
 }

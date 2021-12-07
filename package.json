@@ -17,7 +17,8 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --config=jest.config.cjs",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --config=jest.config.cjs --coverage=false --watch",
     "build:storybook": "build-storybook",
-    "lint:md": "markdownlint --ignore-path ./.gitignore ."
+    "lint:md": "markdownlint --ignore-path ./.gitignore .",
+    "view-coverage": "open ./coverage/lcov-report/index.html"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",

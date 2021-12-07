@@ -57,7 +57,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['**/*.ts?(x)'],
+      files: ['**/*.{ts,tsx}'],
       extends: [
         'eslint:recommended',
         'plugin:react/recommended',
@@ -73,7 +73,14 @@ module.exports = {
         'react/display-name': 'off', // forwardRef causing a problem here
         'react/prop-types': 'off', // forwardRef causing a problem here,
         'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }]
+        '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
+      }
+    },
+    {
+      files: ['**/*.test.{ts,tsx}'],
+      rules: {
+        '@typescript-eslint/unbound-method': 'off',
+        'jest/unbound-method': 'error'
       }
     }
   ],

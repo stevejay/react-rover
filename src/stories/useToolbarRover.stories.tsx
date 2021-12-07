@@ -47,7 +47,7 @@ const horizontalToolbarKeyDownTranslators = [
   extremesNavigation
 ];
 
-const TextEditorTemplate: Story<void> = () => {
+const TextEditorToolbarTemplate: Story<void> = () => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [state, setState] = useState(initialEditorState);
   const onTabStopChange = useCallback((id: string | null) => console.log(`new tab stop: ${id || '---'}`), []);
@@ -194,6 +194,50 @@ const TextEditorTemplate: Story<void> = () => {
   );
 };
 
+const DynamicToolbarTemplate: Story<void> = () => {
+  const [showButtonTwo, setShowButtonTwo] = useState(true);
+  const [enableButtonThree, setEnableButtonThree] = useState(true);
+  const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators);
+  return (
+    <StackedLayout>
+      <Button label="Focus before" />
+      <Toolbar aria-label="Toolbar" {...getTabContainerProps()}>
+        <Button
+          label="Button One"
+          {...getTabStopProps('one', {
+            onClick: () => console.log('Button One clicked')
+          })}
+        />
+        {showButtonTwo && (
+          <Button
+            label="Button Two"
+            {...getTabStopProps('two', {
+              onClick: () => console.log('Button Two clicked')
+            })}
+          />
+        )}
+        <Button
+          label="Button Three"
+          disabled={!enableButtonThree}
+          {...getTabStopProps('three', {
+            onClick: () => console.log('Button Three clicked')
+          })}
+        />
+      </Toolbar>
+      <div css={{ display: 'flex', gap: 16 }}>
+        <Button
+          label={showButtonTwo ? 'Hide Button Two' : 'Show Button Two'}
+          onClick={() => setShowButtonTwo((state) => !state)}
+        />
+        <Button
+          label={enableButtonThree ? 'Disable Button Three' : 'Enable Button Three'}
+          onClick={() => setEnableButtonThree((state) => !state)}
+        />
+      </div>
+    </StackedLayout>
+  );
+};
+
 type TabStopSetup = {
   id: TabStopId;
   label: string;
@@ -241,9 +285,9 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
   );
 };
 
-// By passing using the Args format for exported stories, you can control the props for a component for reuse in a test
-// https://storybook.js.org/docs/react/workflows/unit-testing
-export const TextEditor = TextEditorTemplate.bind({});
+export const TextEditorToolbar = TextEditorToolbarTemplate.bind({});
+
+export const DynamicToolbar = DynamicToolbarTemplate.bind({});
 
 export const Basic = SimpleToolbarTemplate.bind({});
 Basic.args = {
