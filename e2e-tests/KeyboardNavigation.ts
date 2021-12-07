@@ -8,34 +8,34 @@ export class KeyboardNavigation {
   }
 
   async tabForwards() {
-    await this.page.locator(':focus').press('Tab');
+    await this.page.keyboard.press('Tab');
   }
 
   async tabBackwards() {
-    await this.page.locator(':focus').press('Shift+Tab');
+    await this.page.keyboard.press('Shift+Tab');
   }
 
   async rightArrow() {
-    await this.page.locator(':focus').press('ArrowRight');
+    await this.page.keyboard.press('ArrowRight');
   }
 
   async leftArrow() {
-    await this.page.locator(':focus').press('ArrowLeft');
+    await this.page.keyboard.press('ArrowLeft');
   }
 
   async upArrow() {
-    await this.page.locator(':focus').press('ArrowUp');
+    await this.page.keyboard.press('ArrowUp');
   }
 
   async downArrow() {
-    await this.page.locator(':focus').press('ArrowDown');
+    await this.page.keyboard.press('ArrowDown');
   }
 
   async home() {
-    await this.page.locator(':focus').press('Home');
+    await this.page.keyboard.press('Home');
   }
 
   async end() {
-    await this.page.locator(':focus').press('End');
+    await this.page.keyboard.press('End');
   }
 }

@@ -8,6 +8,7 @@ const toolbarWithButtonTwoAsInitialTabStop = 'toolbar--with-button-two-as-initia
 const toolbarWithDisabledEndStops = 'toolbar--with-disabled-end-stops';
 const toolbarWithDisabledFocusableEndStops = 'toolbar--with-disabled-focusable-end-stops';
 const toolbarWithNoWraparound = 'toolbar--with-no-wraparound';
+const dynamicToolbar = 'toolbar--dynamic-toolbar';
 
 test('tabbing in and out of a toolbar', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
@@ -301,3 +302,77 @@ test('roving within a toolbar with no wraparound', async ({ page }) => {
 });
 
 // TODO test the dynamic toolbar
+
+test('the rover handles the current tab stop becoming disabled', async ({ page }) => {
+  const keyboard = new KeyboardNavigation(page);
+  const toolbarPage = new SimpleToolbarPage(page);
+  await toolbarPage.goto(dynamicToolbar);
+
+  // Focus on the before content:
+
+  await toolbarPage.before.focus();
+
+  // Tab forward into the toolbar:
+
+  await keyboard.tabForwards();
+  await expect(toolbarPage.buttonOne).toBeFocused();
+
+  // Rove to button three:
+
+  await keyboard.rightArrow();
+  await keyboard.rightArrow();
+  await expect(toolbarPage.buttonThree).toBeFocused();
+
+  // Click on the 'Disable Button Three' button:
+
+  await page.locator('"Disable Button Three"').click();
+
+  // Tab back into the toolbar:
+
+  await keyboard.tabBackwards();
+  await keyboard.tabBackwards();
+  await expect(toolbarPage.buttonOne).toBeFocused();
+
+  // Check the rover still wraps around correctly:
+
+  await keyboard.rightArrow();
+  await expect(toolbarPage.buttonTwo).toBeFocused();
+  await keyboard.rightArrow();
+  await expect(toolbarPage.buttonOne).toBeFocused();
+});
+
+test('the rover handles the current tab stop disappearing', async ({ page }) => {
+  const keyboard = new KeyboardNavigation(page);
+  const toolbarPage = new SimpleToolbarPage(page);
+  await toolbarPage.goto(dynamicToolbar);
+
+  // Focus on the before content:
+
+  await toolbarPage.before.focus();
+
+  // Tab forward into the toolbar:
+
+  await keyboard.tabForwards();
+  await expect(toolbarPage.buttonOne).toBeFocused();
+
+  // Rove to button two:
+
+  await keyboard.rightArrow();
+  await expect(toolbarPage.buttonTwo).toBeFocused();
+
+  // Click on the 'Hide Button Two' button:
+
+  await page.locator('"Hide Button Two"').click();
+
+  // Tab back into the toolbar:
+
+  await keyboard.tabBackwards();
+  await expect(toolbarPage.buttonOne).toBeFocused();
+
+  // Check the rover still wraps around correctly:
+
+  await keyboard.rightArrow();
+  await expect(toolbarPage.buttonThree).toBeFocused();
+  await keyboard.rightArrow();
+  await expect(toolbarPage.buttonOne).toBeFocused();
+});

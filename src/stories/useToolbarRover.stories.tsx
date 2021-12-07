@@ -203,21 +203,21 @@ const DynamicToolbarTemplate: Story<void> = () => {
       <Button label="Focus before" />
       <Toolbar aria-label="Toolbar" {...getTabContainerProps()}>
         <Button
-          label="Button One"
+          label="One"
           {...getTabStopProps('one', {
             onClick: () => console.log('Button One clicked')
           })}
         />
         {showButtonTwo && (
           <Button
-            label="Button Two"
+            label="Two"
             {...getTabStopProps('two', {
               onClick: () => console.log('Button Two clicked')
             })}
           />
         )}
         <Button
-          label="Button Three"
+          label="Three"
           disabled={!enableButtonThree}
           {...getTabStopProps('three', {
             onClick: () => console.log('Button Three clicked')
