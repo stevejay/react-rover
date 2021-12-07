@@ -12,11 +12,11 @@ const StyledToolbar = styled.div`
   max-width: 1050px;
   background-color: #ececea;
 
-  &:focus-within {
+  /* &:focus-within {
     border-color: #005a9c;
     border-width: 3px;
     padding: 5px;
-  }
+  } */
 `;
 
 export type ToolbarGroupProps = {

@@ -18,18 +18,13 @@ export const ButtonBase = styled.button`
     border: 0;
   }
 
-  &[aria-pressed='true'] {
-    border-color: #555;
-    font-weight: bold;
-    background-color: #f4f4f4;
-  }
-
   &[aria-disabled='true'],
   &:disabled {
     color: #889;
     cursor: not-allowed;
   }
 
+  &[aria-pressed='true'],
   &[aria-checked='true'] {
     border-color: #555;
     font-weight: bold;
@@ -50,14 +45,17 @@ export const ButtonBase = styled.button`
     padding: 6px 12px;
   }
 
+  &:focus:not(:focus-visible)[aria-pressed='true'],
+  &:focus:not(:focus-visible)[aria-checked='true'] {
+    border-color: #555;
+    font-weight: bold;
+    background-color: #f4f4f4;
+  }
+
   &:focus-visible {
     border: 2px solid #005a9c;
     background: rgb(226, 239, 255);
     padding: 5px 11px;
-  }
-
-  &:not(:disabled)[aria-disabled='true']:focus-visible {
-    border-color: #005a9c;
   }
 
   &:hover {

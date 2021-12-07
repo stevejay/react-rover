@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import React, { useCallback, useRef, useState } from 'react';
 import { FaAlignCenter, FaAlignLeft, FaAlignRight, FaBold, FaItalic, FaUnderline } from 'react-icons/fa';
+import { action } from '@storybook/addon-actions';
 import { Meta, Story } from '@storybook/react';
 
 import {
@@ -50,7 +51,8 @@ const horizontalToolbarKeyDownTranslators = [
 const TextEditorToolbarTemplate: Story<void> = () => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [state, setState] = useState(initialEditorState);
-  const onTabStopChange = useCallback((id: string | null) => console.log(`new tab stop: ${id || '---'}`), []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onTabStopChange = useCallback(action('tab-stop-changed'), []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
     initialTabStopId: 'italic',
     onTabStopChange
@@ -136,7 +138,7 @@ const TextEditorToolbarTemplate: Story<void> = () => {
             label="Copy"
             onMouseDown={mouseDownHandler}
             {...getTabStopProps('copy', {
-              onClick: () => console.log('Copy clicked')
+              onClick: action('copy-button-click')
             })}
           />
           <Button
@@ -144,14 +146,14 @@ const TextEditorToolbarTemplate: Story<void> = () => {
             disabledFocusable
             onMouseDown={mouseDownHandler}
             {...getTabStopProps('paste', {
-              onClick: () => console.log('Paste clicked')
+              onClick: action('paste-button-click')
             })}
           />
           <Button
             label="Cut"
             onMouseDown={mouseDownHandler}
             {...getTabStopProps('cut', {
-              onClick: () => console.log('Cut clicked')
+              onClick: action('cut-button-click')
             })}
           />
         </Toolbar.Group>
@@ -205,14 +207,14 @@ const DynamicToolbarTemplate: Story<void> = () => {
         <Button
           label="One"
           {...getTabStopProps('one', {
-            onClick: () => console.log('Button One clicked')
+            onClick: action('button-one-click')
           })}
         />
         {showButtonTwo && (
           <Button
             label="Two"
             {...getTabStopProps('two', {
-              onClick: () => console.log('Button Two clicked')
+              onClick: action('button-two-click')
             })}
           />
         )}
@@ -220,7 +222,7 @@ const DynamicToolbarTemplate: Story<void> = () => {
           label="Three"
           disabled={!enableButtonThree}
           {...getTabStopProps('three', {
-            onClick: () => console.log('Button Three clicked')
+            onClick: action('button-three-click')
           })}
         />
       </Toolbar>
@@ -258,7 +260,8 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
   initialTabStopId,
   shouldFocusOnClick
 }) => {
-  const onTabStopChange = useCallback((id: string | null) => console.log(`new tab stop: ${id || '---'}`), []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onTabStopChange = useCallback(action('tab-stop-change'), []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(keyDownTranslators, {
     initialTabStopId,
     onTabStopChange,
@@ -275,7 +278,9 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
             disabled={tabStop.disabled}
             disabledFocusable={tabStop.disabledFocusable}
             {...getTabStopProps(tabStop.id, {
-              onClick: () => !tabStop.disabledFocusable && console.log(`Button ${tabStop.label} clicked`)
+              onClick: (event) => {
+                !tabStop.disabledFocusable && action('tab-stop-click')(event);
+              }
             })}
           />
         ))}
@@ -286,8 +291,14 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
 };
 
 export const TextEditorToolbar = TextEditorToolbarTemplate.bind({});
+TextEditorToolbar.parameters = {
+  controls: { hideNoControlsWarning: true }
+};
 
 export const DynamicToolbar = DynamicToolbarTemplate.bind({});
+DynamicToolbar.parameters = {
+  controls: { hideNoControlsWarning: true }
+};
 
 export const Basic = SimpleToolbarTemplate.bind({});
 Basic.args = {
@@ -297,6 +308,9 @@ Basic.args = {
     { id: 'two', label: 'Two' },
     { id: 'three', label: 'Three' }
   ]
+};
+Basic.parameters = {
+  controls: { hideNoControlsWarning: true }
 };
 
 export const WithButtonTwoAsInitialTabStop = SimpleToolbarTemplate.bind({});
@@ -308,6 +322,9 @@ WithButtonTwoAsInitialTabStop.args = {
     { id: 'three', label: 'Three' }
   ],
   initialTabStopId: 'two'
+};
+WithButtonTwoAsInitialTabStop.parameters = {
+  controls: { hideNoControlsWarning: true }
 };
 
 export const WithDisabledEndStops = SimpleToolbarTemplate.bind({});
@@ -321,6 +338,9 @@ WithDisabledEndStops.args = {
     { id: 'five', label: 'Five', disabled: true }
   ]
 };
+WithDisabledEndStops.parameters = {
+  controls: { hideNoControlsWarning: true }
+};
 
 export const WithDisabledFocusableEndStops = SimpleToolbarTemplate.bind({});
 WithDisabledFocusableEndStops.args = {
@@ -330,6 +350,9 @@ WithDisabledFocusableEndStops.args = {
     { id: 'two', label: 'Two' },
     { id: 'three', label: 'Three', disabledFocusable: true }
   ]
+};
+WithDisabledFocusableEndStops.parameters = {
+  controls: { hideNoControlsWarning: true }
 };
 
 export const WithNoWraparound = SimpleToolbarTemplate.bind({});
@@ -341,6 +364,9 @@ WithNoWraparound.args = {
     { id: 'three', label: 'Three' }
   ]
 };
+WithNoWraparound.parameters = {
+  controls: { hideNoControlsWarning: true }
+};
 
 export const WithVerticalNavigation = SimpleToolbarTemplate.bind({});
 WithVerticalNavigation.args = {
@@ -351,6 +377,9 @@ WithVerticalNavigation.args = {
     { id: 'three', label: 'Three' }
   ]
 };
+WithVerticalNavigation.parameters = {
+  controls: { hideNoControlsWarning: true }
+};
 
 export const WithHorizontalAndVerticalNavigation = SimpleToolbarTemplate.bind({});
 WithHorizontalAndVerticalNavigation.args = {
@@ -360,4 +389,7 @@ WithHorizontalAndVerticalNavigation.args = {
     { id: 'two', label: 'Two' },
     { id: 'three', label: 'Three' }
   ]
+};
+WithHorizontalAndVerticalNavigation.parameters = {
+  controls: { hideNoControlsWarning: true }
 };
