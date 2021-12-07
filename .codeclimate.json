@@ -1,0 +1,23 @@
+{
+  "exclude_patterns": [
+    "config/",
+    "db/",
+    "dist/",
+    "features/",
+    "**/node_modules/",
+    "script/",
+    "**/spec/",
+    "**/test/",
+    "**/tests/",
+    "**/stories/",
+    "Tests/",
+    "**/vendor/",
+    "**/*_test.go",
+    "**/*.d.ts",
+    ".husky/",
+    ".storybook/",
+    ".vscode/",
+    ".yarn/",
+    "e2e-tests/"
+  ]
+}

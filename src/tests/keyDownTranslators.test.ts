@@ -2,11 +2,14 @@ import { JSDOM } from 'jsdom';
 
 import {
   extremesNavigation,
+  horizontalNavigation,
   horizontalRadioGroupNavigation,
-  runKeyDownTranslators
-} from './keyDownTranslators';
+  runKeyDownTranslators,
+  verticalNavigation
+} from '@/keyDownTranslators';
+import { KeyDownAction, KeyDownTranslator, TabStop } from '@/types';
+
 import { createTabStops } from './testUtils';
-import { horizontalNavigation, KeyDownAction, KeyDownTranslator, TabStop, verticalNavigation } from '.';
 
 const arrowLeftEvent = { key: 'ArrowLeft' } as React.KeyboardEvent<Element>;
 const arrowRightEvent = { key: 'ArrowRight' } as unknown as React.KeyboardEvent<Element>;

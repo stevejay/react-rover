@@ -1,15 +1,3 @@
 {
   // See https://github.com/DavidAnson/markdownlint/blob/main/schema/.markdownlint.jsonc for docs.
-
-  // MD030/list-marker-space - Spaces after list markers
-  "MD030": {
-    // Spaces for single-line unordered list items
-    "ul_single": 2,
-    // Spaces for single-line ordered list items
-    "ol_single": 2,
-    // Spaces for multi-line unordered list items
-    "ul_multi": 2,
-    // Spaces for multi-line ordered list items
-    "ol_multi": 2
-  }
 }

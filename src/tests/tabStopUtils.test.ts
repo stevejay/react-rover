@@ -9,9 +9,10 @@ import {
   getNextEnabledTabStop,
   removeTabStop,
   shouldResetCurrentTabStopId
-} from './tabStopUtils';
+} from '@/tabStopUtils';
+import { TabStop } from '@/types';
+
 import { createTabStops } from './testUtils';
-import { TabStop } from '.';
 
 export function createTabStopsFromDOM(domString: string): TabStop[] {
   const dom = new JSDOM(domString);

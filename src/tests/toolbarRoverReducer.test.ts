@@ -1,6 +1,7 @@
+import { toolbarRoverReducer } from '@/toolbarRoverReducer';
+import { Action, State } from '@/types';
+
 import { createTabStops } from './testUtils';
-import { toolbarRoverReducer } from './toolbarRoverReducer';
-import { Action, State } from '.';
 
 describe('resetTabStop', () => {
   it('should reset the tab stop to the initial tab stop when it is enabled', () => {

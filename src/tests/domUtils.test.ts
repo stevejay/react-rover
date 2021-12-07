@@ -2,7 +2,7 @@ import { SyntheticEvent } from 'react';
 import { jest } from '@jest/globals';
 import { JSDOM } from 'jsdom';
 
-import { callAllEventHandlers, elementIsEnabled } from './domUtils';
+import { callAllEventHandlers, elementIsEnabled } from '@/domUtils';
 
 describe('elementIsEnabled', () => {
   it('returns true if the element is enabled', () => {
