@@ -22,21 +22,16 @@ export const extremesNavigation: KeyDownTranslator = (event, tabStops) => {
 };
 
 export function horizontalNavigation(wraparound = true): KeyDownTranslator {
-  return (event, tabStops, currentTabStop) => {
-    const offset = event.key === 'ArrowLeft' ? -1 : event.key === 'ArrowRight' ? 1 : null;
-    if (offset) {
-      const nextTabStop = getNextEnabledTabStop(tabStops, currentTabStop.id, offset, wraparound);
-      if (nextTabStop) {
-        return { newTabStopId: nextTabStop.id };
-      }
-    }
-    return null;
-  };
+  return stepNavigation(wraparound, 'ArrowLeft', 'ArrowRight');
 }
 
 export function verticalNavigation(wraparound = true): KeyDownTranslator {
+  return stepNavigation(wraparound, 'ArrowUp', 'ArrowDown');
+}
+
+function stepNavigation(wraparound: boolean, stepBackKey: string, stepForwardKey: string): KeyDownTranslator {
   return (event, tabStops, currentTabStop) => {
-    const offset = event.key === 'ArrowUp' ? -1 : event.key === 'ArrowDown' ? 1 : null;
+    const offset = event.key === stepBackKey ? -1 : event.key === stepForwardKey ? 1 : null;
     if (offset) {
       const nextTabStop = getNextEnabledTabStop(tabStops, currentTabStop.id, offset, wraparound);
       if (nextTabStop) {
