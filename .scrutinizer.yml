@@ -1,0 +1,5 @@
+# JavaScript/TypeScript (NodeJS-v10+)
+# ref: https://scrutinizer-ci.com/docs/configuration/build_reference
+build:
+  environment:
+    node: v16.13.0
