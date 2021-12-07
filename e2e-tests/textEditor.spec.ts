@@ -27,6 +27,7 @@ test('clicking on a toolbar item when focus is in the text area', async ({ page 
 });
 
 test('clicking on a toolbar item when focus is not in the text area', async ({ page }) => {
+  const keyboard = new KeyboardNavigation(page);
   const textEditorPage = new TextEditorPage(page);
   await textEditorPage.goto();
 
@@ -36,5 +37,9 @@ test('clicking on a toolbar item when focus is not in the text area', async ({ p
 
   // Focus should be on the copy button:
 
+  await keyboard.tabForwards();
+  await keyboard.tabBackwards();
   await expect(textEditorPage.copyButton).toBeFocused();
+
+  //   await expect(textEditorPage.copyButton).toBeFocused();
 });

@@ -327,10 +327,13 @@ test('the rover handles the current tab stop becoming disabled', async ({ page }
 
   await page.locator('"Disable Button Three"').click();
 
-  // Tab back into the toolbar:
+  // Focus on the before content:
 
-  await keyboard.tabBackwards();
-  await keyboard.tabBackwards();
+  await toolbarPage.before.focus();
+
+  // Tab forward into the toolbar:
+
+  await keyboard.tabForwards();
   await expect(toolbarPage.buttonOne).toBeFocused();
 
   // Check the rover still wraps around correctly:
@@ -364,9 +367,13 @@ test('the rover handles the current tab stop disappearing', async ({ page }) => 
 
   await page.locator('"Hide Button Two"').click();
 
-  // Tab back into the toolbar:
+  // Focus on the before content:
 
-  await keyboard.tabBackwards();
+  await toolbarPage.before.focus();
+
+  // Tab forward into the toolbar:
+
+  await keyboard.tabForwards();
   await expect(toolbarPage.buttonOne).toBeFocused();
 
   // Check the rover still wraps around correctly:

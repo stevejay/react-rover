@@ -22,6 +22,5 @@
     "env*": true,
     "tsconfig.tsbuildinfo": true,
     ".vite/": true
-  },
-  "cSpell.words": ["markdownlint"]
+  }
 }

@@ -36,9 +36,22 @@ export const ButtonBase = styled.button`
     background-color: #f4f4f4;
   }
 
+  &:focus {
+    /* for browsers that do not support focus-visible */
+    border: 2px solid #005a9c;
+    background: rgb(226, 239, 255);
+    padding: 5px 11px;
+  }
+
+  &:focus:not(:focus-visible) {
+    /* undo the focus styles for browsers that support focus-visible */
+    border: 1px solid white;
+    background: white;
+    padding: 6px 12px;
+  }
+
   &:focus-visible {
-    border-width: 2px;
-    border-color: #005a9c;
+    border: 2px solid #005a9c;
     background: rgb(226, 239, 255);
     padding: 5px 11px;
   }
