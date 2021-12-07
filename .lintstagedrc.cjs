@@ -3,5 +3,5 @@ module.exports = {
   '**/*.ts?(x)': () => 'yarn tsc --noEmit --incremental',
   '*.css': 'yarn stylelint --cache',
   '**/*': 'yarn pretty-quick --staged',
-  '*.md': 'yarn markdownlint --config ./.markdownlint.jsonc'
+  '*.md': 'yarn markdownlint --config ./.markdownlint.json'
 };
