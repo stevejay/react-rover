@@ -9,9 +9,7 @@
 [![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/stevejay/react-rover?style=for-the-badge)](https://codeclimate.com/github/stevejay/react-rover/maintainability)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/stevejay/react-rover/main?style=for-the-badge)](https://www.codefactor.io/repository/github/stevejay/react-rover)
 
-<!-- ![Code Climate technical debt](https://img.shields.io/codeclimate/tech-debt/stevejay/react-rover?style=for-the-badge)
-![Code Climate issues](https://img.shields.io/codeclimate/issues/stevejay/react-rover?style=for-the-badge) -->
-
 ## Notes
 
 - The prop-types rule from eslint-plugin-react [does not support the React.VFC type](https://github.com/yannickcr/eslint-plugin-react/issues/2913).
+- CodeFactor don't support an ESLint config file with the `.cjs` file extension.
