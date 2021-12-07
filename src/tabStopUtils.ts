@@ -101,11 +101,10 @@ export function getNextEnabledTabStop(
       // We've looped right around back to where we started
       // so return null as there is nothing to do.
       break;
+    } else if (elementIsEnabled(tabStops[nextIndex].element)) {
+      result = tabStops[nextIndex];
+      break;
     } else {
-      if (elementIsEnabled(tabStops[nextIndex].element)) {
-        result = tabStops[nextIndex];
-        break;
-      }
       nextIndex += offset;
     }
   }

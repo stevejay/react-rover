@@ -14,8 +14,9 @@
     "build:types": "rimraf types-temp && tsc --pretty --emitDeclarationOnly -p tsconfig.types.json && rollup --config rollupTypes.config.cjs",
     "storybook": "start-storybook -p 6006",
     "test:e2e": "playwright test --workers=1",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --config=jest.config.cjs",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --config=jest.config.cjs --coverage=false --watch",
+    "test": "NODE_OPTIONS=--experimental-vm-modules yarn jest --config=jest.config.cjs",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules yarn jest --config=jest.config.cjs --collectCoverage",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules yarn jest --config=jest.config.cjs --coverage=false --watch",
     "build:storybook": "build-storybook",
     "lint:md": "markdownlint --ignore-path ./.gitignore .",
     "view-coverage": "open ./coverage/lcov-report/index.html"

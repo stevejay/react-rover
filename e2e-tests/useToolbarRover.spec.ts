@@ -8,8 +8,6 @@ const toolbarWithButtonTwoAsInitialTabStop = 'toolbar--with-button-two-as-initia
 const toolbarWithDisabledEndStops = 'toolbar--with-disabled-end-stops';
 const toolbarWithDisabledFocusableEndStops = 'toolbar--with-disabled-focusable-end-stops';
 const toolbarWithNoWraparound = 'toolbar--with-no-wraparound';
-const toolbarWithVerticalNavigation = 'toolbar--with-vertical-navigation';
-const toolbarWithHorizontalAndVerticalNavigation = 'toolbar--with-horizontal-and-vertical-navigation';
 
 test('tabbing in and out of a toolbar', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
@@ -302,104 +300,4 @@ test('roving within a toolbar with no wraparound', async ({ page }) => {
   await expect(toolbarPage.buttonOne).toBeFocused();
 });
 
-test('roving within a toolbar with vertical navigation', async ({ page }) => {
-  const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
-  await toolbarPage.goto(toolbarWithVerticalNavigation);
-
-  // Focus on the before content:
-
-  await toolbarPage.before.focus();
-
-  // Tab forward into the toolbar:
-
-  await keyboard.tabForwards();
-  await expect(toolbarPage.buttonOne).toBeFocused();
-
-  // Rove forwards and wrap around:
-
-  await keyboard.downArrow();
-  await expect(toolbarPage.buttonTwo).toBeFocused();
-
-  await keyboard.downArrow();
-  await expect(toolbarPage.buttonThree).toBeFocused();
-
-  await keyboard.downArrow();
-  await expect(toolbarPage.buttonOne).toBeFocused();
-
-  // Rove backwards and wrap around:
-
-  await keyboard.upArrow();
-  await expect(toolbarPage.buttonThree).toBeFocused();
-
-  await keyboard.upArrow();
-  await expect(toolbarPage.buttonTwo).toBeFocused();
-
-  await keyboard.upArrow();
-  await expect(toolbarPage.buttonOne).toBeFocused();
-
-  // Rove to the end:
-
-  await keyboard.end();
-  await expect(toolbarPage.buttonThree).toBeFocused();
-
-  // Rove to the start:
-
-  await keyboard.home();
-  await expect(toolbarPage.buttonOne).toBeFocused();
-
-  // Horizontal navigation should have no effect:
-
-  await keyboard.rightArrow();
-  await expect(toolbarPage.buttonOne).toBeFocused();
-
-  await keyboard.leftArrow();
-  await expect(toolbarPage.buttonOne).toBeFocused();
-});
-
-test('roving within a toolbar with horizontal and vertical navigation', async ({ page }) => {
-  const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
-  await toolbarPage.goto(toolbarWithHorizontalAndVerticalNavigation);
-
-  // Focus on the before content:
-
-  await toolbarPage.before.focus();
-
-  // Tab forward into the toolbar:
-
-  await keyboard.tabForwards();
-  await expect(toolbarPage.buttonOne).toBeFocused();
-
-  // Rove forwards and wrap around:
-
-  await keyboard.downArrow();
-  await expect(toolbarPage.buttonTwo).toBeFocused();
-
-  await keyboard.rightArrow();
-  await expect(toolbarPage.buttonThree).toBeFocused();
-
-  await keyboard.downArrow();
-  await expect(toolbarPage.buttonOne).toBeFocused();
-
-  // Rove backwards and wrap around:
-
-  await keyboard.upArrow();
-  await expect(toolbarPage.buttonThree).toBeFocused();
-
-  await keyboard.leftArrow();
-  await expect(toolbarPage.buttonTwo).toBeFocused();
-
-  await keyboard.upArrow();
-  await expect(toolbarPage.buttonOne).toBeFocused();
-
-  // Rove to the end:
-
-  await keyboard.end();
-  await expect(toolbarPage.buttonThree).toBeFocused();
-
-  // Rove to the start:
-
-  await keyboard.home();
-  await expect(toolbarPage.buttonOne).toBeFocused();
-});
+// TODO test the dynamic toolbar
