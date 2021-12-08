@@ -5,25 +5,26 @@ import type { Action, State } from '@/types';
 export function toolbarRoverReducer(state: State, action: Action): State {
   switch (action.type) {
     case 'resetTabStop': {
-      const { tabStops, initialTabStopId } = action.payload;
+      const { tabStopsItems, tabStopsElementMap, initialTabStopId } = action.payload;
       if (initialTabStopId) {
-        if (
-          tabStops.some((tabStop) => tabStop.id === initialTabStopId && elementIsEnabled(tabStop.element))
-        ) {
+        if (elementIsEnabled(tabStopsElementMap.get(initialTabStopId))) {
           return { currentTabStopId: initialTabStopId, shouldFocus: false };
         }
       }
-      const firstEnabledTabStop = tabStops.find((tabStop) => elementIsEnabled(tabStop.element));
-      return firstEnabledTabStop ? { currentTabStopId: firstEnabledTabStop.id, shouldFocus: false } : state;
+
+      const firstEnabledTabStopId = tabStopsItems.find((id) => elementIsEnabled(tabStopsElementMap.get(id)));
+      return firstEnabledTabStopId !== undefined
+        ? { currentTabStopId: firstEnabledTabStopId, shouldFocus: false }
+        : state;
     }
     case 'updateTabStopOnClick': {
-      const { tabStops, newTabStopId, shouldFocus } = action.payload;
-      const tabStop = findTabStop(tabStops, newTabStopId);
+      const { tabStopsItems, newTabStopId, shouldFocus } = action.payload;
+      const tabStop = findTabStop(tabStopsItems, newTabStopId);
       return tabStop ? { currentTabStopId: newTabStopId, shouldFocus } : state;
     }
     case 'updateTabStopOnKeyDown': {
-      const { tabStops, newTabStopId } = action.payload;
-      const tabStop = findTabStop(tabStops, newTabStopId);
+      const { tabStopsItems, newTabStopId } = action.payload;
+      const tabStop = findTabStop(tabStopsItems, newTabStopId);
       return tabStop ? { currentTabStopId: newTabStopId, shouldFocus: true } : state;
     }
     default:

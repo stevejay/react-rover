@@ -29,6 +29,6 @@ function hasProperty<X extends object, Y extends PropertyKey>(
 }
 
 // Element can be a tab stop.
-export function elementIsEnabled(element: HTMLElement | EventTarget | null): boolean {
+export function elementIsEnabled(element?: HTMLElement | EventTarget | null): boolean {
   return !!element && (!hasProperty(element, 'disabled') || !element.disabled);
 }

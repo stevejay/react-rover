@@ -2,8 +2,8 @@
 // simplify type file generation: https://stackoverflow.com/a/56440335/604006
 
 export type TabStopId = string;
-export type TabStop = { id: TabStopId; element: HTMLElement };
-export type TabStopsList = TabStop[];
+export type TabStopsItems = TabStopId[];
+export type TabStopsElementMap = Map<TabStopId, HTMLElement>;
 
 export type State = {
   currentTabStopId: TabStopId | null;
@@ -13,12 +13,16 @@ export type State = {
 export type Action =
   | {
       type: 'resetTabStop';
-      payload: { tabStops: TabStopsList; initialTabStopId: TabStopId | null };
+      payload: {
+        tabStopsItems: TabStopsItems;
+        tabStopsElementMap: TabStopsElementMap;
+        initialTabStopId: TabStopId | null;
+      };
     }
   | {
       type: 'updateTabStopOnClick';
       payload: {
-        tabStops: TabStopsList;
+        tabStopsItems: TabStopsItems;
         newTabStopId: TabStopId;
         shouldFocus: boolean;
       };
@@ -26,7 +30,7 @@ export type Action =
   | {
       type: 'updateTabStopOnKeyDown';
       payload: {
-        tabStops: TabStopsList;
+        tabStopsItems: TabStopsItems;
         newTabStopId: TabStopId;
       };
     };
@@ -37,6 +41,7 @@ export type KeyDownAction = {
 
 export type KeyDownTranslator = (
   event: React.KeyboardEvent,
-  tabStops: TabStopsList,
-  currentTabStop: TabStop
+  tabStopsItems: TabStopsItems,
+  tabStopsElementMap: TabStopsElementMap,
+  currentTabStopId: TabStopId
 ) => KeyDownAction | null;
