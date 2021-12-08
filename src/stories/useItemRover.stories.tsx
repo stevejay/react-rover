@@ -65,8 +65,8 @@ const GridTemplate: Story<GridTemplateProps> = ({ columns, itemCount }) => {
       <Button label="Focus before" />
       <Grid columns={columns} aria-label="Cells" {...getTabContainerProps()}>
         {items.map((item, index) => {
-          const rowIndex = Math.floor(index / columns);
-          return <Button key={item.id} label={item.label} {...getTabStopProps(item, rowIndex)} />;
+          const columnIndex = index % columns;
+          return <Button key={item.id} label={item.label} {...getTabStopProps(item, columnIndex)} />;
         })}
       </Grid>
       <Button label="Focus after" />

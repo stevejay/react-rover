@@ -19,7 +19,7 @@ type GetTabContainerProps = (props?: { onKeyDown?: React.KeyboardEventHandler<HT
 
 type GetTabStopProps = (
   item: Item,
-  rowIndex?: number,
+  columnIndex?: number,
   props?: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ref?: React.Ref<any>;
@@ -116,12 +116,12 @@ export function useItemRover(
   );
 
   const getTabStopProps: GetTabStopProps = useCallback(
-    (id, rowIndex, { ref: userRef, onClick: userOnClick, ...rest } = {}) => {
+    (id, columnIndex, { ref: userRef, onClick: userOnClick, ...rest } = {}) => {
       const ref = (node: HTMLElement) => {
         if (node) {
           tabStopsElementMapRef.current.set(id, node);
-          if (rowIndex !== undefined) {
-            node.dataset.rowIndex = `${rowIndex}`;
+          if (columnIndex !== undefined) {
+            node.dataset.columnIndex = `${columnIndex}`;
           }
           tabStopsItemsRef.current = addTabStopItem(
             tabStopsItemsRef.current,

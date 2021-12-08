@@ -29,24 +29,9 @@ export function extremesNavigation(): KeyDownTranslator {
   return generalisedExtremesNavigation(false);
 }
 
-// export const extremesNavigation: KeyDownTranslator = (event, items, itemToElementMap) => {
-//   if (event.key === 'Home') {
-//     // Search forwards from the first element for the first enabled element.
-//     const newTabStopItem = items.find((item) => elementIsEnabled(itemToElementMap.get(item)));
-//     if (newTabStopItem !== undefined) {
-//       return { newTabStopItem };
-//     }
-//   } else if (event.key === 'End') {
-//     // Search backwards from the last element for the last enabled element.
-//     for (let i = items.length - 1; i >= 0; --i) {
-//       const newTabStopItem = items[i];
-//       if (elementIsEnabled(itemToElementMap.get(newTabStopItem))) {
-//         return { newTabStopItem };
-//       }
-//     }
-//   }
-//   return null;
-// };
+export function gridExtremesNavigation(): KeyDownTranslator {
+  return generalisedExtremesNavigation(true);
+}
 
 // TODO wraparound option?
 // export const gridStepNavigation: KeyDownTranslator = (
@@ -69,15 +54,15 @@ export function extremesNavigation(): KeyDownTranslator {
 //     return null;
 //   }
 
-//   const dataRow = getDataRow(currentTabStopElement);
+//   const dataRow = getColumnIndex(currentTabStopElement);
 //   if (!dataRow) {
 //     return null;
 //   }
 
 // };
 
-function getDataRow(element?: HTMLElement | null): string | null {
-  return element ? element.dataset.rowIndex || null : null;
+function getColumnIndex(element?: HTMLElement | null): number | null {
+  return element ? parseInt(element.dataset.columnIndex || '', 10) || null : null;
 }
 
 export const gridRowExtremesNavigation: KeyDownTranslator = (
@@ -90,17 +75,23 @@ export const gridRowExtremesNavigation: KeyDownTranslator = (
     return null;
   }
 
-  const currentTabStopElement = itemToElementMap.get(currentTabStopItem);
-  if (!currentTabStopElement) {
+  const currentTabStopIndex = items.findIndex((item) => item === currentTabStopItem);
+  if (currentTabStopIndex === -1) {
     return null;
   }
 
-  const dataRow = getDataRow(currentTabStopElement);
-  if (!dataRow) {
-    return null;
-  }
+  //   const currentTabStopElement = itemToElementMap.get(currentTabStopItem);
+  //   if (!currentTabStopElement) {
+  //     return null;
+  //   }
 
-  const [firstIndex, lastIndex] = getDataRowTabStopRange(items, itemToElementMap, dataRow);
+  const [firstIndex, lastIndex] = getGridRowTabStopRange(
+    items,
+    itemToElementMap,
+    currentTabStopItem,
+    currentTabStopIndex
+  );
+
   if (firstIndex === -1 || lastIndex === -1) {
     /* istanbul ignore next */
     return null;
@@ -127,35 +118,47 @@ export const gridRowExtremesNavigation: KeyDownTranslator = (
   return null;
 };
 
-function getDataRowTabStopRange(
+function getGridRowTabStopRange(
   items: ItemList,
   itemToElementMap: ItemToElementMap,
-  dataRow: string
+  currentTabStopItem: Item,
+  currentTabStopIndex: number
 ): [number, number] {
-  let firstIndex = -1;
-  let lastIndex = -1;
+  const currentTabStopElement = itemToElementMap.get(currentTabStopItem);
+  if (!currentTabStopElement) {
+    return [-1, -1];
+  }
 
-  // TODO find a more efficient way to find the indexes.
-  for (let i = 0; i < items.length; ++i) {
-    const currentElement = itemToElementMap.get(items[i]);
-    const currentDataRow = getDataRow(currentElement);
-    if (currentDataRow === dataRow) {
-      if (firstIndex === -1) {
-        firstIndex = i;
-      } else {
-        lastIndex = i;
+  const columnIndex = getColumnIndex();
+  if (columnIndex === null) {
+    return [-1, -1];
+  }
+
+  let firstIndex = currentTabStopIndex;
+  let lastIndex = currentTabStopIndex;
+
+  if (columnIndex > 0) {
+    for (let i = currentTabStopIndex - 1; i >= 0; --i) {
+      const loopElement = itemToElementMap.get(items[i]);
+      const loopColumnIndex = getColumnIndex(loopElement);
+      if (loopColumnIndex === 0) {
+        firstIndex = loopColumnIndex;
+        break;
       }
-    } else if (firstIndex !== -1 && lastIndex !== -1) {
+    }
+  }
+
+  for (let i = currentTabStopIndex + 1; i < items.length; ++i) {
+    const loopElement = itemToElementMap.get(items[i]);
+    const loopColumnIndex = getColumnIndex(loopElement);
+    if (loopColumnIndex === 0) {
       break;
+    } else if (loopColumnIndex !== null) {
+      lastIndex = loopColumnIndex;
     }
   }
 
   return [firstIndex, lastIndex];
-}
-
-// event.ctrlKey
-export function gridExtremesNavigation(): KeyDownTranslator {
-  return generalisedExtremesNavigation(true);
 }
 
 export function horizontalNavigation(wraparound = true): KeyDownTranslator {
