@@ -3,11 +3,10 @@ import { JSDOM } from 'jsdom';
 import {
   extremesNavigation,
   horizontalNavigation,
-  horizontalRadioGroupNavigation,
   runKeyDownTranslators,
   verticalNavigation
 } from '@/keyDownTranslators';
-import { KeyDownAction, KeyDownTranslator, TabStopsElementMap, TabStopsItems } from '@/types';
+import { ItemList, ItemToElementMap, KeyDownAction, KeyDownTranslator } from '@/types';
 
 import { createTabStops } from './testUtils';
 
@@ -18,7 +17,7 @@ const arrowDownEvent = { key: 'ArrowDown' } as unknown as React.KeyboardEvent<El
 const homeKeyEvent = { key: 'Home' } as unknown as React.KeyboardEvent<Element>;
 const endKeyEvent = { key: 'End' } as unknown as React.KeyboardEvent<Element>;
 
-export function createTabStopsWithRadioGroupFromDOM(domString: string): [TabStopsItems, TabStopsElementMap] {
+export function createTabStopsWithRadioGroupFromDOM(domString: string): [ItemList, ItemToElementMap] {
   const dom = new JSDOM(domString);
 
   const beforeButton = dom.window.document.getElementById('before') as HTMLButtonElement;
@@ -42,307 +41,315 @@ export function createTabStopsWithRadioGroupFromDOM(domString: string): [TabStop
 describe('extremesNavigation', () => {
   describe('when navigating to the start', () => {
     it('should navigate to the start when all tab stops are enabled', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
-      const result = extremesNavigation(homeKeyEvent, tabStopsItems, tabStopsElementMap, 'three');
-      expect(result).toEqual({ newTabStopId: 'one' });
+      const translator = extremesNavigation();
+      const result = translator(homeKeyEvent, items, itemToElementMap, 'three');
+      expect(result).toEqual({ newTabStopItem: 'one' });
     });
 
     it('should navigate to the first enabled tab stop when there are disabled tab stops', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: true }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
-      const result = extremesNavigation(homeKeyEvent, tabStopsItems, tabStopsElementMap, 'three');
-      expect(result).toEqual({ newTabStopId: 'two' });
+      const translator = extremesNavigation();
+      const result = translator(homeKeyEvent, items, itemToElementMap, 'three');
+      expect(result).toEqual({ newTabStopItem: 'two' });
     });
 
     it('should return the current tab stop when it is the first enabled tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: true }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
-      const result = extremesNavigation(homeKeyEvent, tabStopsItems, tabStopsElementMap, 'two');
-      expect(result).toEqual({ newTabStopId: 'two' });
+      const translator = extremesNavigation();
+      const result = translator(homeKeyEvent, items, itemToElementMap, 'two');
+      expect(result).toEqual({ newTabStopItem: 'two' });
     });
   });
 
   describe('when navigating to the end', () => {
     it('should navigate to the end when all tab stops are enabled', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
-      const result = extremesNavigation(endKeyEvent, tabStopsItems, tabStopsElementMap, 'one');
-      expect(result).toEqual({ newTabStopId: 'three' });
+      const translator = extremesNavigation();
+      const result = translator(endKeyEvent, items, itemToElementMap, 'one');
+      expect(result).toEqual({ newTabStopItem: 'three' });
     });
 
     it('should navigate to the last enabled tab stop when there are disabled tab stops', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: true }]
       ]);
-      const result = extremesNavigation(endKeyEvent, tabStopsItems, tabStopsElementMap, 'one');
-      expect(result).toEqual({ newTabStopId: 'two' });
+      const translator = extremesNavigation();
+      const result = translator(endKeyEvent, items, itemToElementMap, 'one');
+      expect(result).toEqual({ newTabStopItem: 'two' });
     });
 
     it('should return the current tab stop when it is the last enabled tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: true }]
       ]);
-      const result = extremesNavigation(endKeyEvent, tabStopsItems, tabStopsElementMap, 'two');
-      expect(result).toEqual({ newTabStopId: 'two' });
+      const translator = extremesNavigation();
+      const result = translator(endKeyEvent, items, itemToElementMap, 'two');
+      expect(result).toEqual({ newTabStopItem: 'two' });
     });
   });
 
   it('should not respond to non-extremes navigation', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStops([
+    const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: false }],
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
-    expect(extremesNavigation(arrowUpEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(extremesNavigation(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(extremesNavigation(arrowLeftEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(extremesNavigation(arrowRightEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
+    const translator = extremesNavigation();
+    expect(translator(arrowUpEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(arrowDownEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(arrowLeftEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(arrowRightEvent, items, itemToElementMap, 'two')).toBeNull();
   });
 });
 
 describe('horizontalNavigation', () => {
   describe('when navigating forwards with wraparound', () => {
     it('should navigate forwards from the first tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = horizontalNavigation();
-      const result = translator(arrowRightEvent, tabStopsItems, tabStopsElementMap, 'one');
-      expect(result).toEqual({ newTabStopId: 'two' });
+      const result = translator(arrowRightEvent, items, itemToElementMap, 'one');
+      expect(result).toEqual({ newTabStopItem: 'two' });
     });
 
     it('should wraparound when navigating forwards from the last tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = horizontalNavigation();
-      const result = translator(arrowRightEvent, tabStopsItems, tabStopsElementMap, 'three');
-      expect(result).toEqual({ newTabStopId: 'one' });
+      const result = translator(arrowRightEvent, items, itemToElementMap, 'three');
+      expect(result).toEqual({ newTabStopItem: 'one' });
     });
   });
 
   describe('when navigating forwards without wraparound', () => {
     it('should not wraparound when navigating forwards from the last tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = horizontalNavigation(false);
-      const result = translator(arrowRightEvent, tabStopsItems, tabStopsElementMap, 'three');
+      const result = translator(arrowRightEvent, items, itemToElementMap, 'three');
       expect(result).toBeNull();
     });
   });
 
   describe('when navigating backwards with wraparound', () => {
     it('should navigate backwards from the last tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = horizontalNavigation();
-      const result = translator(arrowLeftEvent, tabStopsItems, tabStopsElementMap, 'three');
-      expect(result).toEqual({ newTabStopId: 'two' });
+      const result = translator(arrowLeftEvent, items, itemToElementMap, 'three');
+      expect(result).toEqual({ newTabStopItem: 'two' });
     });
 
     it('should wraparound when navigating backwards from the first tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = horizontalNavigation();
-      const result = translator(arrowLeftEvent, tabStopsItems, tabStopsElementMap, 'one');
-      expect(result).toEqual({ newTabStopId: 'three' });
+      const result = translator(arrowLeftEvent, items, itemToElementMap, 'one');
+      expect(result).toEqual({ newTabStopItem: 'three' });
     });
   });
 
   describe('when navigating backwards without wraparound', () => {
     it('should not wraparound when navigating backwards from the first tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = horizontalNavigation(false);
-      const result = translator(arrowLeftEvent, tabStopsItems, tabStopsElementMap, 'one');
+      const result = translator(arrowLeftEvent, items, itemToElementMap, 'one');
       expect(result).toBeNull();
     });
   });
 
   it('should skip disabled tab stops when navigation forwards', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStops([
+    const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: false }],
       ['two', { disabled: false }],
       ['three', { disabled: true }]
     ]);
     const translator = horizontalNavigation();
-    const result = translator(arrowRightEvent, tabStopsItems, tabStopsElementMap, 'two');
-    expect(result).toEqual({ newTabStopId: 'one' });
+    const result = translator(arrowRightEvent, items, itemToElementMap, 'two');
+    expect(result).toEqual({ newTabStopItem: 'one' });
   });
 
   it('should skip disabled tab stops when navigating backwards', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStops([
+    const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: true }],
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
     const translator = horizontalNavigation();
-    const result = translator(arrowLeftEvent, tabStopsItems, tabStopsElementMap, 'two');
-    expect(result).toEqual({ newTabStopId: 'three' });
+    const result = translator(arrowLeftEvent, items, itemToElementMap, 'two');
+    expect(result).toEqual({ newTabStopItem: 'three' });
   });
 
   it('should not respond to non-horizontal navigation', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStops([
+    const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: false }],
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
     const translator = horizontalNavigation();
-    expect(translator(arrowUpEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(translator(homeKeyEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(translator(endKeyEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
+    expect(translator(arrowUpEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(arrowDownEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(homeKeyEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(endKeyEvent, items, itemToElementMap, 'two')).toBeNull();
   });
 });
 
 describe('verticalNavigation', () => {
   describe('when navigating down with wraparound', () => {
     it('should navigate down from the first tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = verticalNavigation();
-      const result = translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'one');
-      expect(result).toEqual({ newTabStopId: 'two' });
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'one');
+      expect(result).toEqual({ newTabStopItem: 'two' });
     });
 
     it('should wraparound when navigating down from the last tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = verticalNavigation();
-      const result = translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'three');
-      expect(result).toEqual({ newTabStopId: 'one' });
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'three');
+      expect(result).toEqual({ newTabStopItem: 'one' });
     });
   });
 
   describe('when navigating down without wraparound', () => {
     it('should not wraparound when navigating down from the last tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = verticalNavigation(false);
-      const result = translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'three');
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'three');
       expect(result).toBeNull();
     });
   });
 
   describe('when navigating up with wraparound', () => {
     it('should navigate up from the last tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = verticalNavigation();
-      const result = translator(arrowUpEvent, tabStopsItems, tabStopsElementMap, 'three');
-      expect(result).toEqual({ newTabStopId: 'two' });
+      const result = translator(arrowUpEvent, items, itemToElementMap, 'three');
+      expect(result).toEqual({ newTabStopItem: 'two' });
     });
 
     it('should wraparound when navigating up from the first tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = verticalNavigation();
-      const result = translator(arrowUpEvent, tabStopsItems, tabStopsElementMap, 'one');
-      expect(result).toEqual({ newTabStopId: 'three' });
+      const result = translator(arrowUpEvent, items, itemToElementMap, 'one');
+      expect(result).toEqual({ newTabStopItem: 'three' });
     });
   });
 
   describe('when navigating up without wraparound', () => {
     it('should not wraparound when navigating up from the first tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStops([
+      const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
       ]);
       const translator = verticalNavigation(false);
-      const result = translator(arrowUpEvent, tabStopsItems, tabStopsElementMap, 'one');
+      const result = translator(arrowUpEvent, items, itemToElementMap, 'one');
       expect(result).toBeNull();
     });
   });
 
   it('should skip disabled tab stops when navigating down', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStops([
+    const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: false }],
       ['two', { disabled: false }],
       ['three', { disabled: true }]
     ]);
     const translator = verticalNavigation();
-    const result = translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'two');
-    expect(result).toEqual({ newTabStopId: 'one' });
+    const result = translator(arrowDownEvent, items, itemToElementMap, 'two');
+    expect(result).toEqual({ newTabStopItem: 'one' });
   });
 
   it('should skip disabled tab stops when navigating up', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStops([
+    const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: true }],
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
     const translator = verticalNavigation();
-    const result = translator(arrowUpEvent, tabStopsItems, tabStopsElementMap, 'two');
-    expect(result).toEqual({ newTabStopId: 'three' });
+    const result = translator(arrowUpEvent, items, itemToElementMap, 'two');
+    expect(result).toEqual({ newTabStopItem: 'three' });
   });
 
   it('should not respond to non-vertical navigation', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStops([
+    const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: false }],
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
     const translator = verticalNavigation();
-    expect(translator(arrowLeftEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(translator(arrowRightEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(translator(homeKeyEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(translator(endKeyEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
+    expect(translator(arrowLeftEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(arrowRightEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(homeKeyEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(endKeyEvent, items, itemToElementMap, 'two')).toBeNull();
   });
 });
 
+/*
 describe('horizontalRadioGroupNavigation', () => {
   describe('when navigating a radio group with wraparound', () => {
     it('should navigate forwards from the first radio group tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStopsWithRadioGroupFromDOM(`
+      const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
         <!DOCTYPE html>
         <button id='before'></button>
         <div role="radiogroup">
@@ -353,12 +360,12 @@ describe('horizontalRadioGroupNavigation', () => {
         <button id='after'></button>`);
 
       const translator = horizontalRadioGroupNavigation();
-      const result = translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'one');
-      expect(result).toEqual({ newTabStopId: 'two' });
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'one');
+      expect(result).toEqual({ newTabStopItem: 'two' });
     });
 
     it('should wraparound when navigating forwards from the last radio group tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStopsWithRadioGroupFromDOM(`
+      const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
         <!DOCTYPE html>
         <button id='before'></button>
         <div role="radiogroup">
@@ -369,14 +376,14 @@ describe('horizontalRadioGroupNavigation', () => {
         <button id='after'></button>`);
 
       const translator = horizontalRadioGroupNavigation();
-      const result = translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'three');
-      expect(result).toEqual({ newTabStopId: 'one' });
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'three');
+      expect(result).toEqual({ newTabStopItem: 'one' });
     });
   });
 
   describe('horizontalRadioGroupNavigation when navigating a radio group without wraparound', () => {
     it('should not wraparound when navigating forwards from the last radio group tab stop', () => {
-      const [tabStopsItems, tabStopsElementMap] = createTabStopsWithRadioGroupFromDOM(`
+      const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
         <!DOCTYPE html>
         <button id='before'></button>
         <div role="radiogroup">
@@ -387,13 +394,13 @@ describe('horizontalRadioGroupNavigation', () => {
         <button id='after'></button>`);
 
       const translator = horizontalRadioGroupNavigation(false);
-      const result = translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'three');
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'three');
       expect(result).toBeNull();
     });
   });
 
   it('should skip disabled tab stops when navigating forwards in the radio group', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStopsWithRadioGroupFromDOM(`
+    const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
         <!DOCTYPE html>
         <button id='before'></button>
         <div role="radiogroup">
@@ -404,12 +411,12 @@ describe('horizontalRadioGroupNavigation', () => {
         <button id='after'></button>`);
 
     const translator = horizontalRadioGroupNavigation();
-    const result = translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'two');
-    expect(result).toEqual({ newTabStopId: 'one' });
+    const result = translator(arrowDownEvent, items, itemToElementMap, 'two');
+    expect(result).toEqual({ newTabStopItem: 'one' });
   });
 
   it('should skip disabled tab stops when navigating backwards in the radio group', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStopsWithRadioGroupFromDOM(`
+    const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
         <!DOCTYPE html>
         <button id='before'></button>
         <div role="radiogroup">
@@ -420,12 +427,12 @@ describe('horizontalRadioGroupNavigation', () => {
         <button id='after'></button>`);
 
     const translator = horizontalRadioGroupNavigation();
-    const result = translator(arrowUpEvent, tabStopsItems, tabStopsElementMap, 'two');
-    expect(result).toEqual({ newTabStopId: 'three' });
+    const result = translator(arrowUpEvent, items, itemToElementMap, 'two');
+    expect(result).toEqual({ newTabStopItem: 'three' });
   });
 
   it('should not respond to non- horizontal radio group navigation', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStopsWithRadioGroupFromDOM(`
+    const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
         <!DOCTYPE html>
         <button id='before'></button>
         <div role="radiogroup">
@@ -436,14 +443,14 @@ describe('horizontalRadioGroupNavigation', () => {
         <button id='after'></button>`);
 
     const translator = horizontalRadioGroupNavigation();
-    expect(translator(arrowLeftEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(translator(arrowRightEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(translator(homeKeyEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(translator(endKeyEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
+    expect(translator(arrowLeftEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(arrowRightEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(homeKeyEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(endKeyEvent, items, itemToElementMap, 'two')).toBeNull();
   });
 
   it('should not respond when the parent element does not have the radiogroup role', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStopsWithRadioGroupFromDOM(`
+    const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
         <!DOCTYPE html>
         <button id='before'></button>
         <div>
@@ -454,12 +461,12 @@ describe('horizontalRadioGroupNavigation', () => {
         <button id='after'></button>`);
 
     const translator = horizontalRadioGroupNavigation();
-    expect(translator(arrowUpEvent, tabStopsItems, tabStopsElementMap, 'one')).toBeNull();
-    expect(translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'one')).toBeNull();
+    expect(translator(arrowUpEvent, items, itemToElementMap, 'one')).toBeNull();
+    expect(translator(arrowDownEvent, items, itemToElementMap, 'one')).toBeNull();
   });
 
   it('should not respond when the tab stop has the radio role but is not in a radio group', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStopsWithRadioGroupFromDOM(`
+    const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
         <!DOCTYPE html>
         <button id='before'></button>
         <button id='one' role="radio"></button>
@@ -468,21 +475,22 @@ describe('horizontalRadioGroupNavigation', () => {
         <button id='after'></button>`);
 
     const translator = horizontalRadioGroupNavigation();
-    expect(translator(arrowUpEvent, tabStopsItems, tabStopsElementMap, 'one')).toBeNull();
-    expect(translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'one')).toBeNull();
+    expect(translator(arrowUpEvent, items, itemToElementMap, 'one')).toBeNull();
+    expect(translator(arrowDownEvent, items, itemToElementMap, 'one')).toBeNull();
   });
 
   it('should not respond when the tab stop is not in a radio group', () => {
-    const [tabStopsItems, tabStopsElementMap] = createTabStops([
+    const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: false }],
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
     const translator = horizontalRadioGroupNavigation();
-    expect(translator(arrowUpEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
-    expect(translator(arrowDownEvent, tabStopsItems, tabStopsElementMap, 'two')).toBeNull();
+    expect(translator(arrowUpEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(arrowDownEvent, items, itemToElementMap, 'two')).toBeNull();
   });
 });
+*/
 
 describe('runKeyDownTranslators', () => {
   const translatorThatReturnsNull: KeyDownTranslator = () => null;
@@ -493,55 +501,37 @@ describe('runKeyDownTranslators', () => {
 
   it('returns null when no translators return an action', () => {
     const translators = [translatorThatReturnsNull, translatorThatReturnsNull];
-    const [tabStopsItems, tabStopsElementMap] = createTabStops([
+    const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: false }],
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
-    const result = runKeyDownTranslators(
-      translators,
-      tabStopsItems,
-      tabStopsElementMap,
-      'two',
-      arrowDownEvent
-    );
+    const result = runKeyDownTranslators(translators, items, itemToElementMap, 'two', arrowDownEvent);
     expect(result).toBeNull();
   });
 
   it('returns null when the current tab stop is null', () => {
-    const translators = [translatorThatReturnsAnAction({ newTabStopId: 'two' })];
-    const [tabStopsItems, tabStopsElementMap] = createTabStops([
+    const translators = [translatorThatReturnsAnAction({ newTabStopItem: 'two' })];
+    const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: false }],
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
-    const result = runKeyDownTranslators(
-      translators,
-      tabStopsItems,
-      tabStopsElementMap,
-      null,
-      arrowDownEvent
-    );
+    const result = runKeyDownTranslators(translators, items, itemToElementMap, null, arrowDownEvent);
     expect(result).toBeNull();
   });
 
   it('returns the first action returned by a translator', () => {
     const translators = [
-      translatorThatReturnsAnAction({ newTabStopId: 'two' }),
-      translatorThatReturnsAnAction({ newTabStopId: 'three' })
+      translatorThatReturnsAnAction({ newTabStopItem: 'two' }),
+      translatorThatReturnsAnAction({ newTabStopItem: 'three' })
     ];
-    const [tabStopsItems, tabStopsElementMap] = createTabStops([
+    const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: false }],
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
-    const result = runKeyDownTranslators(
-      translators,
-      tabStopsItems,
-      tabStopsElementMap,
-      'one',
-      arrowDownEvent
-    );
-    expect(result).toEqual({ newTabStopId: 'two' });
+    const result = runKeyDownTranslators(translators, items, itemToElementMap, 'one', arrowDownEvent);
+    expect(result).toEqual({ newTabStopItem: 'two' });
   });
 });

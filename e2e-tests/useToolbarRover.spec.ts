@@ -145,7 +145,7 @@ test('clicking on a disabled tab stop', async ({ page }) => {
   await expect(toolbarPage.buttonTwo).toBeFocused();
 });
 
-test('initialisation of a toolbar with an initialTabStopId value', async ({ page }) => {
+test('initialisation of a toolbar with an initialItem value', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
   const toolbarPage = new SimpleToolbarPage(page);
   await toolbarPage.goto(toolbarWithButtonTwoAsInitialTabStop);

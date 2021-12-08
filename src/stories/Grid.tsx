@@ -12,7 +12,9 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(({ columns, children, 
     css={{
       display: 'grid',
       gridTemplateColumns: `repeat(${columns}, 1fr)`,
-      gap: 8
+      gap: 8,
+      padding: 8,
+      backgroundColor: '#ececea'
     }}
   >
     {children}

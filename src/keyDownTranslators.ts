@@ -1,76 +1,151 @@
 import { elementIsEnabled } from '@/domUtils';
 import { getIdOfNextEnabledTabStop } from '@/tabStopUtils';
-import type { KeyDownAction, KeyDownTranslator, TabStopId, TabStopsElementMap, TabStopsItems } from '@/types';
+import type { Item, ItemList, ItemToElementMap, KeyDownAction, KeyDownTranslator } from '@/types';
 
-export const extremesNavigation: KeyDownTranslator = (event, tabStopsItems, tabStopsElementMap) => {
-  if (event.key === 'Home') {
-    // Search forwards from the first element for the first enabled element.
-    const newTabStopId = tabStopsItems.find((id) => elementIsEnabled(tabStopsElementMap.get(id)));
-    if (newTabStopId !== undefined) {
-      return { newTabStopId };
-    }
-  } else if (event.key === 'End') {
-    // Search backwards from the last element for the last enabled element.
-    for (let i = tabStopsItems.length - 1; i >= 0; --i) {
-      const newTabStopId = tabStopsItems[i];
-      if (elementIsEnabled(tabStopsElementMap.get(newTabStopId))) {
-        return { newTabStopId };
-      }
-    }
-  }
-  return null;
-};
-
-export function horizontalNavigation(wraparound = true): KeyDownTranslator {
-  return stepNavigation(wraparound, 'ArrowLeft', 'ArrowRight');
-}
-
-export function verticalNavigation(wraparound = true): KeyDownTranslator {
-  return stepNavigation(wraparound, 'ArrowUp', 'ArrowDown');
-}
-
-function stepNavigation(wraparound: boolean, stepBackKey: string, stepForwardKey: string): KeyDownTranslator {
-  return (event, tabStopsItems, tabStopsElementMap, currentTabStopId) => {
-    const offset = event.key === stepBackKey ? -1 : event.key === stepForwardKey ? 1 : null;
-    if (offset) {
-      const newTabStopId = getIdOfNextEnabledTabStop(
-        tabStopsItems,
-        tabStopsElementMap,
-        currentTabStopId,
-        offset,
-        wraparound
-      );
-      if (newTabStopId !== null) {
-        return { newTabStopId };
+function generalisedExtremesNavigation(requireCtrl: boolean): KeyDownTranslator {
+  return (event, items, itemToElementMap) => {
+    if (!requireCtrl || event.ctrlKey) {
+      if (event.key === 'Home') {
+        // Search forwards from the first element for the first enabled element.
+        const newTabStopItem = items.find((item) => elementIsEnabled(itemToElementMap.get(item)));
+        if (newTabStopItem !== undefined) {
+          return { newTabStopItem };
+        }
+      } else if (event.key === 'End') {
+        // Search backwards from the last element for the last enabled element.
+        for (let i = items.length - 1; i >= 0; --i) {
+          const newTabStopItem = items[i];
+          if (elementIsEnabled(itemToElementMap.get(newTabStopItem))) {
+            return { newTabStopItem };
+          }
+        }
       }
     }
     return null;
   };
 }
 
-function getRoleAttribute(element: HTMLElement | null): string | null {
-  return element ? element.getAttribute('role') : null;
+export function extremesNavigation(): KeyDownTranslator {
+  return generalisedExtremesNavigation(false);
 }
 
-function getRadioGroupTabStopRange(
-  tabStopsItems: TabStopsItems,
-  tabStopsElementMap: TabStopsElementMap,
-  radioGroupElement: HTMLElement
+// export const extremesNavigation: KeyDownTranslator = (event, items, itemToElementMap) => {
+//   if (event.key === 'Home') {
+//     // Search forwards from the first element for the first enabled element.
+//     const newTabStopItem = items.find((item) => elementIsEnabled(itemToElementMap.get(item)));
+//     if (newTabStopItem !== undefined) {
+//       return { newTabStopItem };
+//     }
+//   } else if (event.key === 'End') {
+//     // Search backwards from the last element for the last enabled element.
+//     for (let i = items.length - 1; i >= 0; --i) {
+//       const newTabStopItem = items[i];
+//       if (elementIsEnabled(itemToElementMap.get(newTabStopItem))) {
+//         return { newTabStopItem };
+//       }
+//     }
+//   }
+//   return null;
+// };
+
+// TODO wraparound option?
+// export const gridStepNavigation: KeyDownTranslator = (
+//   event: React.KeyboardEvent,
+//   items: ItemList,
+//   itemToElementMap: ItemToElementMap,
+//   currentTabStopItem: Item
+// ) => {
+//   if (
+//     event.key !== 'ArrowLeft' &&
+//     event.key !== 'ArrowRight' &&
+//     event.key !== 'ArrowUp' &&
+//     event.key !== 'ArrowDown'
+//   ) {
+//     return null;
+//   }
+
+//   const currentTabStopElement = itemToElementMap.get(currentTabStopItem);
+//   if (!currentTabStopElement) {
+//     return null;
+//   }
+
+//   const dataRow = getDataRow(currentTabStopElement);
+//   if (!dataRow) {
+//     return null;
+//   }
+
+// };
+
+function getDataRow(element?: HTMLElement | null): string | null {
+  return element ? element.dataset.rowIndex || null : null;
+}
+
+export const gridRowExtremesNavigation: KeyDownTranslator = (
+  event: React.KeyboardEvent,
+  items: ItemList,
+  itemToElementMap: ItemToElementMap,
+  currentTabStopItem: Item
+) => {
+  if (event.key !== 'Home' && event.key !== 'End') {
+    return null;
+  }
+
+  const currentTabStopElement = itemToElementMap.get(currentTabStopItem);
+  if (!currentTabStopElement) {
+    return null;
+  }
+
+  const dataRow = getDataRow(currentTabStopElement);
+  if (!dataRow) {
+    return null;
+  }
+
+  const [firstIndex, lastIndex] = getDataRowTabStopRange(items, itemToElementMap, dataRow);
+  if (firstIndex === -1 || lastIndex === -1) {
+    /* istanbul ignore next */
+    return null;
+  }
+
+  const rowItems = items.slice(firstIndex, lastIndex + 1);
+
+  if (event.key === 'Home') {
+    // Search forwards from the first element for the first enabled element.
+    const newTabStopItem = rowItems.find((item) => elementIsEnabled(itemToElementMap.get(item)));
+    if (newTabStopItem !== undefined) {
+      return { newTabStopItem };
+    }
+  } else if (event.key === 'End') {
+    // Search backwards from the last element for the last enabled element.
+    for (let i = rowItems.length - 1; i >= 0; --i) {
+      const newTabStopItem = rowItems[i];
+      if (elementIsEnabled(itemToElementMap.get(newTabStopItem))) {
+        return { newTabStopItem };
+      }
+    }
+  }
+
+  return null;
+};
+
+function getDataRowTabStopRange(
+  items: ItemList,
+  itemToElementMap: ItemToElementMap,
+  dataRow: string
 ): [number, number] {
   let firstIndex = -1;
   let lastIndex = -1;
 
-  // Find both firstIndex and lastIndex in a single pass through tabStops:
-  for (let i = 0; i < tabStopsItems.length; ++i) {
-    const currentElement = tabStopsElementMap.get(tabStopsItems[i]);
-    if (currentElement === radioGroupElement.firstElementChild) {
-      firstIndex = i;
-    }
-    if (currentElement === radioGroupElement.lastElementChild) {
-      lastIndex = i;
-    }
-    // Break out of the loop if we have found both indexes:
-    if (firstIndex > -1 && lastIndex > -1) {
+  // TODO find a more efficient way to find the indexes.
+  for (let i = 0; i < items.length; ++i) {
+    const currentElement = itemToElementMap.get(items[i]);
+    const currentDataRow = getDataRow(currentElement);
+    if (currentDataRow === dataRow) {
+      if (firstIndex === -1) {
+        firstIndex = i;
+      } else {
+        lastIndex = i;
+      }
+    } else if (firstIndex !== -1 && lastIndex !== -1) {
       break;
     }
   }
@@ -78,61 +153,57 @@ function getRadioGroupTabStopRange(
   return [firstIndex, lastIndex];
 }
 
-export function horizontalRadioGroupNavigation(wraparound = true): KeyDownTranslator {
-  return (event, tabStopsItems, tabStopsElementMap, currentTabStopId) => {
-    const currentTabStopElement = tabStopsElementMap.get(currentTabStopId);
-    if (!currentTabStopElement) {
-      return null;
+// event.ctrlKey
+export function gridExtremesNavigation(): KeyDownTranslator {
+  return generalisedExtremesNavigation(true);
+}
+
+export function horizontalNavigation(wraparound = true): KeyDownTranslator {
+  return singleStepNavigation(wraparound, 'ArrowLeft', 'ArrowRight');
+}
+
+export function verticalNavigation(wraparound = true): KeyDownTranslator {
+  return singleStepNavigation(wraparound, 'ArrowUp', 'ArrowDown');
+}
+
+function singleStepNavigation(
+  wraparound: boolean,
+  stepBackKey: string,
+  stepForwardKey: string
+): KeyDownTranslator {
+  return (event, items, itemToElementMap, currentTabStopItem) => {
+    const offset = event.key === stepBackKey ? -1 : event.key === stepForwardKey ? 1 : null;
+    if (offset) {
+      const newTabStopItem = getIdOfNextEnabledTabStop(
+        items,
+        itemToElementMap,
+        currentTabStopItem,
+        offset,
+        wraparound
+      );
+      if (newTabStopItem !== null) {
+        return { newTabStopItem };
+      }
     }
-
-    const role = getRoleAttribute(currentTabStopElement);
-    if (role !== 'radio') {
-      return null;
-    }
-
-    const offset = event.key === 'ArrowUp' ? -1 : event.key === 'ArrowDown' ? 1 : null;
-    if (!offset) {
-      return null;
-    }
-
-    const parent = currentTabStopElement.parentElement;
-    if (!parent || getRoleAttribute(parent) !== 'radiogroup') {
-      return null;
-    }
-
-    const [firstIndex, lastIndex] = getRadioGroupTabStopRange(tabStopsItems, tabStopsElementMap, parent);
-    if (firstIndex === -1 || lastIndex === -1) {
-      /* istanbul ignore next */
-      return null;
-    }
-
-    const newTabStopId = getIdOfNextEnabledTabStop(
-      tabStopsItems.slice(firstIndex, lastIndex + 1),
-      tabStopsElementMap,
-      currentTabStopId,
-      offset,
-      wraparound
-    );
-
-    return newTabStopId ? { newTabStopId } : null;
+    return null;
   };
 }
 
 export function runKeyDownTranslators(
   keyDownTranslators: KeyDownTranslator[],
-  tabStopsItems: TabStopsItems,
-  tabStopsElementMap: TabStopsElementMap,
-  currentTabStopId: TabStopId | null,
+  items: ItemList,
+  itemToElementMap: ItemToElementMap,
+  currentTabStopItem: Item | null,
   event: React.KeyboardEvent
 ): KeyDownAction | null {
-  if (!currentTabStopId) {
+  if (!currentTabStopItem) {
     return null;
   }
 
   let i = 0;
   let action = null;
   while (!action && i < keyDownTranslators.length) {
-    action = keyDownTranslators[i](event, tabStopsItems, tabStopsElementMap, currentTabStopId);
+    action = keyDownTranslators[i](event, items, itemToElementMap, currentTabStopItem);
     ++i;
   }
 

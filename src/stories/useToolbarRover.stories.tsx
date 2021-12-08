@@ -7,15 +7,14 @@ import { Meta, Story } from '@storybook/react';
 import {
   extremesNavigation,
   horizontalNavigation,
-  horizontalRadioGroupNavigation,
   KeyDownTranslator,
-  TabStopId,
   useToolbarRover,
   verticalNavigation
-} from '..';
+} from '@/index';
 
 import { Button } from './Button';
 import { Checkbox } from './Checkbox';
+import { horizontalRadioGroupNavigation } from './horizontalRadioGroupNavigation';
 import { Link } from './Link';
 import { Menu } from './Menu';
 import { RadioButton } from './RadioButton';
@@ -46,7 +45,7 @@ const meta: Meta = {
     }
   },
   parameters: {
-    controls: { expanded: true }
+    controls: { expanded: false, hideNoControlsWarning: true }
   }
 };
 
@@ -55,7 +54,7 @@ export default meta;
 const horizontalToolbarKeyDownTranslators = [
   horizontalRadioGroupNavigation(true),
   horizontalNavigation(true),
-  extremesNavigation
+  extremesNavigation()
 ];
 
 const TextEditorToolbarTemplate: Story<void> = () => {
@@ -64,7 +63,7 @@ const TextEditorToolbarTemplate: Story<void> = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onTabStopChange = useCallback(action('tab-stop-changed'), []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
-    initialTabStopId: 'italic',
+    initialId: 'italic',
     onTabStopChange
   });
   // Prevents focus leaving the text area if it currently has focus,
@@ -251,7 +250,7 @@ const DynamicToolbarTemplate: Story<void> = () => {
 };
 
 type TabStopSetup = {
-  id: TabStopId;
+  id: string;
   label: string;
   disabled?: boolean;
   disabledFocusable?: boolean;
@@ -260,20 +259,20 @@ type TabStopSetup = {
 type SimpleToolbarTemplateProps = {
   keyDownTranslators: KeyDownTranslator[];
   tabStops: TabStopSetup[];
-  initialTabStopId?: TabStopId | null;
+  initialId?: string | null;
   shouldFocusOnClick?: boolean;
 };
 
 const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
   tabStops,
   keyDownTranslators,
-  initialTabStopId,
+  initialId,
   shouldFocusOnClick
 }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onTabStopChange = useCallback(action('tab-stop-change'), []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(keyDownTranslators, {
-    initialTabStopId,
+    initialId,
     onTabStopChange,
     shouldFocusOnClick
   });
@@ -314,36 +313,43 @@ DynamicToolbar.parameters = {
 
 export const Basic = SimpleToolbarTemplate.bind({});
 Basic.args = {
-  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One' },
     { id: 'two', label: 'Two' },
     { id: 'three', label: 'Three' }
   ]
 };
+<<<<<<< HEAD
 Basic.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
+=======
+>>>>>>> partial grid support
 
 export const WithButtonTwoAsInitialTabStop = SimpleToolbarTemplate.bind({});
 WithButtonTwoAsInitialTabStop.args = {
-  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One' },
     { id: 'two', label: 'Two' },
     { id: 'three', label: 'Three' }
   ],
+<<<<<<< HEAD
   initialTabStopId: 'two'
 };
 WithButtonTwoAsInitialTabStop.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
+=======
+  initialId: 'two'
+>>>>>>> partial grid support
 };
 
 export const WithDisabledEndStops = SimpleToolbarTemplate.bind({});
 WithDisabledEndStops.args = {
-  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One', disabled: true },
     { id: 'two', label: 'Two' },
@@ -352,63 +358,78 @@ WithDisabledEndStops.args = {
     { id: 'five', label: 'Five', disabled: true }
   ]
 };
+<<<<<<< HEAD
 WithDisabledEndStops.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
+=======
+>>>>>>> partial grid support
 
 export const WithDisabledFocusableEndStops = SimpleToolbarTemplate.bind({});
 WithDisabledFocusableEndStops.args = {
-  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One', disabledFocusable: true },
     { id: 'two', label: 'Two' },
     { id: 'three', label: 'Three', disabledFocusable: true }
   ]
 };
+<<<<<<< HEAD
 WithDisabledFocusableEndStops.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
+=======
+>>>>>>> partial grid support
 
 export const WithNoWraparound = SimpleToolbarTemplate.bind({});
 WithNoWraparound.args = {
-  keyDownTranslators: [horizontalNavigation(false), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(false), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One' },
     { id: 'two', label: 'Two' },
     { id: 'three', label: 'Three' }
   ]
 };
+<<<<<<< HEAD
 WithNoWraparound.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
+=======
+>>>>>>> partial grid support
 
 export const WithVerticalNavigation = SimpleToolbarTemplate.bind({});
 WithVerticalNavigation.args = {
-  keyDownTranslators: [verticalNavigation(), extremesNavigation],
+  keyDownTranslators: [verticalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One' },
     { id: 'two', label: 'Two' },
     { id: 'three', label: 'Three' }
   ]
 };
+<<<<<<< HEAD
 WithVerticalNavigation.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
+=======
+>>>>>>> partial grid support
 
 export const WithHorizontalAndVerticalNavigation = SimpleToolbarTemplate.bind({});
 WithHorizontalAndVerticalNavigation.args = {
-  keyDownTranslators: [horizontalNavigation(), verticalNavigation(), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(), verticalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One' },
     { id: 'two', label: 'Two' },
     { id: 'three', label: 'Three' }
   ]
 };
+<<<<<<< HEAD
 WithHorizontalAndVerticalNavigation.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
+=======
+>>>>>>> partial grid support
