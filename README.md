@@ -1,5 +1,7 @@
 # react-rover
 
+:dog2:
+
 [![npm](https://img.shields.io/npm/v/react-rover?style=for-the-badge)](https://www.npmjs.com/package/react-rover)
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-rover?style=for-the-badge)](https://bundlephobia.com/package/react-rover)
 [![GitHub license](https://img.shields.io/github/license/stevejay/react-rover?style=for-the-badge)](https://github.com/stevejay/react-rover/blob/main/LICENSE)
