@@ -1,3 +1,5 @@
+import type { KeyboardEvent } from 'react';
+
 import { elementIsEnabled } from '@/domUtils';
 import { getIdOfNextEnabledTabStop } from '@/tabStopUtils';
 import type {
@@ -61,7 +63,7 @@ function generalisedExtremesNavigation(requireCtrl: boolean): KeyDownTranslator 
  */
 export function gridRowExtremesNavigation(): KeyDownTranslator {
   return (
-    event: React.KeyboardEvent,
+    event: KeyboardEvent,
     items: ItemList,
     itemToElementMap: ItemToElementMap,
     currentTabStopItem: Item,
@@ -153,7 +155,7 @@ function singleStepNavigation(
  */
 export function gridSingleStepNavigation(): KeyDownTranslator {
   return (
-    event: React.KeyboardEvent,
+    event: KeyboardEvent,
     items: ItemList,
     itemToElementMap: ItemToElementMap,
     currentTabStopItem: Item,
@@ -228,7 +230,7 @@ export function gridSingleStepNavigation(): KeyDownTranslator {
 
 export function runKeyDownTranslators(
   keyDownTranslators: KeyDownTranslator[],
-  event: React.KeyboardEvent,
+  event: KeyboardEvent,
   items: ItemList,
   itemToElementMap: ItemToElementMap,
   currentTabStopItem: Item | null,

@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useCallback, useRef, useState } from 'react';
+import { MouseEvent, useCallback, useRef, useState } from 'react';
 import { FaAlignCenter, FaAlignLeft, FaAlignRight, FaBold, FaItalic, FaUnderline } from 'react-icons/fa';
 import { action } from '@storybook/addon-actions';
 import { Meta, Story } from '@storybook/react';
@@ -73,7 +73,7 @@ const TextEditorToolbarTemplate: Story<void> = () => {
   });
   // Prevents focus leaving the text area if it currently has focus,
   // so you can interact with the toolbar without losing the caret:
-  const mouseDownHandler = useCallback((event: React.MouseEvent) => {
+  const mouseDownHandler = useCallback((event: MouseEvent) => {
     if (
       document.activeElement &&
       textAreaRef.current &&

@@ -1,3 +1,4 @@
+import type { KeyboardEvent } from 'react';
 import { JSDOM } from 'jsdom';
 
 import {
@@ -10,12 +11,12 @@ import { ItemList, ItemToElementMap, KeyDownAction, KeyDownTranslator } from '@/
 
 import { createTabStops } from './testUtils';
 
-const arrowLeftEvent = { key: 'ArrowLeft' } as React.KeyboardEvent<Element>;
-const arrowRightEvent = { key: 'ArrowRight' } as unknown as React.KeyboardEvent<Element>;
-const arrowUpEvent = { key: 'ArrowUp' } as unknown as React.KeyboardEvent<Element>;
-const arrowDownEvent = { key: 'ArrowDown' } as unknown as React.KeyboardEvent<Element>;
-const homeKeyEvent = { key: 'Home' } as unknown as React.KeyboardEvent<Element>;
-const endKeyEvent = { key: 'End' } as unknown as React.KeyboardEvent<Element>;
+const arrowLeftEvent = { key: 'ArrowLeft' } as KeyboardEvent<Element>;
+const arrowRightEvent = { key: 'ArrowRight' } as unknown as KeyboardEvent<Element>;
+const arrowUpEvent = { key: 'ArrowUp' } as unknown as KeyboardEvent<Element>;
+const arrowDownEvent = { key: 'ArrowDown' } as unknown as KeyboardEvent<Element>;
+const homeKeyEvent = { key: 'Home' } as unknown as KeyboardEvent<Element>;
+const endKeyEvent = { key: 'End' } as unknown as KeyboardEvent<Element>;
 
 export function createTabStopsWithRadioGroupFromDOM(domString: string): [ItemList, ItemToElementMap] {
   const dom = new JSDOM(domString);
