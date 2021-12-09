@@ -7,7 +7,6 @@ import {
   addTabStopItem,
   findTabStopItem,
   focusTabStopItem,
-  getIdOfNextEnabledTabStop,
   removeTabStopItem,
   shouldResetCurrentTabStopItem
 } from '@/tabStopUtils';
@@ -144,84 +143,6 @@ describe('removeTabStopItem', () => {
     ]);
     const result = removeTabStopItem(items, 'unknown');
     expect(result).toHaveLength(2);
-  });
-});
-
-describe('getIdOfNextEnabledTabStop', () => {
-  it('should handle the current tab stop being unknown', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: false }],
-      ['three', { disabled: false }]
-    ]);
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'unknown', 1, true)).toBeNull();
-  });
-
-  it('should handle roving forward with wraparound', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: false }],
-      ['three', { disabled: false }]
-    ]);
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'two', 1, true)).toEqual('three');
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'three', 1, true)).toEqual('one');
-  });
-
-  it('should handle roving forward with no wraparound', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: false }],
-      ['three', { disabled: false }]
-    ]);
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'two', 1, false)).toEqual('three');
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'three', 1, false)).toBeNull();
-  });
-
-  it('should handle roving forward when there are disabled tab stops', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: true }],
-      ['three', { disabled: false }]
-    ]);
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'one', 1, true)).toEqual('three');
-  });
-
-  it('should handle roving forward when all other tab stops are disabled', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: true }],
-      ['three', { disabled: true }]
-    ]);
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'one', 1, true)).toBeNull();
-  });
-
-  it('should handle roving backwards with wraparound', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: false }],
-      ['three', { disabled: false }]
-    ]);
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'two', -1, true)).toEqual('one');
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'one', -1, true)).toEqual('three');
-  });
-
-  it('should handle roving backwards with no wraparound', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: false }],
-      ['three', { disabled: false }]
-    ]);
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'two', -1, false)).toEqual('one');
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'one', -1, false)).toBeNull();
-  });
-
-  it('should handle roving backwards when there are disabled tab stops', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: true }],
-      ['three', { disabled: false }]
-    ]);
-    expect(getIdOfNextEnabledTabStop(items, itemToElementMap, 'three', -1, true)).toEqual('one');
   });
 });
 

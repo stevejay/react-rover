@@ -22,6 +22,8 @@ import {
 } from '@/tabStopUtils';
 import type { Item, ItemList, KeyDownTranslator } from '@/types';
 
+import { isNil } from './utils';
+
 type GetTabContainerProps = (props?: { onKeyDown?: KeyboardEventHandler<HTMLElement> }) => {
   onKeyDown: KeyboardEventHandler<HTMLElement>;
 };
@@ -101,19 +103,19 @@ export function useToolbarRover(
       return {
         ...rest,
         onKeyDown: callAllEventHandlers(userOnKeyDown, (event: KeyboardEvent<HTMLElement>) => {
-          const action = runKeyDownTranslators(
+          const newTabStopItem = runKeyDownTranslators(
             keyDownTranslators,
             event,
             tabStopItemsRef.current,
             tabStopElementMapRef.current,
             state.currentTabStopItem
           );
-          if (action) {
+          if (!isNil(newTabStopItem)) {
             event.preventDefault();
             event.stopPropagation();
             dispatch({
               type: 'updateTabStopOnKeyDown',
-              payload: { items: tabStopItemsRef.current, ...action }
+              payload: { items: tabStopItemsRef.current, newTabStopItem }
             });
           }
         })

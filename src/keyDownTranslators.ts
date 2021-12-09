@@ -1,22 +1,65 @@
 import type { KeyboardEvent } from 'react';
 
 import { elementIsEnabled } from '@/domUtils';
-import { getIdOfNextEnabledTabStop } from '@/tabStopUtils';
-import type {
-  Item,
-  ItemList,
-  ItemToElementMap,
-  KeyDownAction,
-  KeyDownTranslator,
-  KeyDownTranslatorOptions
-} from '@/types';
+import { findIndexOfTabStopItem } from '@/tabStopUtils';
+import type { Item, ItemList, ItemToElementMap, KeyDownTranslator, KeyDownTranslatorOptions } from '@/types';
 import { isNil } from '@/utils';
-
-// TODO there is an inconsistency about how I handle returning the current item as the
-// new tab item - should I always return null in that case?
 
 function getNormalisedOptions(options?: KeyDownTranslatorOptions) {
   return { columnsCount: options?.columnsCount || null };
+}
+
+function itemIsEnabled(item: Item, itemToElementMap: ItemToElementMap): boolean {
+  return elementIsEnabled(itemToElementMap.get(item));
+}
+
+function getRowItems(items: ItemList, currentItemIndex: number, columnsCount: number): ItemList {
+  const rowStartIndex = Math.floor(currentItemIndex / columnsCount) * columnsCount;
+  const rowEndIndex = Math.min(items.length, rowStartIndex + columnsCount);
+  return items.slice(rowStartIndex, rowEndIndex);
+}
+
+export function getNextEnabledTabStopItem(
+  items: ItemList,
+  itemToElementMap: ItemToElementMap,
+  currentTabStopItem: Item,
+  offset: number,
+  wraparound: boolean
+): Item | null {
+  const startIndex = findIndexOfTabStopItem(items, currentTabStopItem);
+  if (startIndex === -1) {
+    return null;
+  }
+
+  let nextIndex = startIndex + offset;
+  let result: Item | null = null;
+
+  for (;;) {
+    if (nextIndex >= items.length) {
+      if (wraparound) {
+        nextIndex = 0;
+      } else {
+        break;
+      }
+    } else if (nextIndex < 0) {
+      if (wraparound) {
+        nextIndex = items.length - 1;
+      } else {
+        break;
+      }
+    } else if (nextIndex === startIndex) {
+      // We've looped right around back to where we started
+      // so return null as there is nothing to do.
+      break;
+    } else if (itemIsEnabled(items[nextIndex], itemToElementMap)) {
+      result = items[nextIndex];
+      break;
+    } else {
+      nextIndex += offset;
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -37,25 +80,26 @@ export function gridExtremesNavigation(): KeyDownTranslator {
 }
 
 function generalisedExtremesNavigation(requireCtrl: boolean): KeyDownTranslator {
-  return (event, items, itemToElementMap) => {
+  return (event, items, itemToElementMap, currentTabStopItem) => {
+    let result: Item | null = null;
+
     if (!requireCtrl || event.ctrlKey) {
       if (event.key === 'Home') {
-        // Search forwards from the first element for the first enabled element.
-        const newTabStopItem = items.find((item) => elementIsEnabled(itemToElementMap.get(item)));
-        if (!isNil(newTabStopItem)) {
-          return { newTabStopItem };
-        }
+        // Search forwards from the start for the first enabled element.
+        result = items.find((item) => itemIsEnabled(item, itemToElementMap)) ?? null;
       } else if (event.key === 'End') {
-        // Search backwards from the last element for the last enabled element.
+        // Search backwards from the end for the last enabled element.
         for (let i = items.length - 1; i >= 0; --i) {
           const newTabStopItem = items[i];
-          if (elementIsEnabled(itemToElementMap.get(newTabStopItem))) {
-            return { newTabStopItem };
+          if (itemIsEnabled(newTabStopItem, itemToElementMap)) {
+            result = newTabStopItem;
+            break;
           }
         }
       }
     }
-    return null;
+
+    return result !== currentTabStopItem ? result : null;
   };
 }
 
@@ -88,28 +132,8 @@ export function gridRowExtremesNavigation(): KeyDownTranslator {
       return null;
     }
 
-    const rowStartIndex = Math.floor(currentItemIndex / columnsCount) * columnsCount;
-    const rowEndIndex = Math.min(items.length, rowStartIndex + columnsCount);
-    const rowItems = items.slice(rowStartIndex, rowEndIndex);
-
-    if (event.key === 'Home') {
-      // Search forwards from the first element for the first enabled element.
-      const newTabStopItem = rowItems.find((item) => elementIsEnabled(itemToElementMap.get(item)));
-      if (!isNil(newTabStopItem)) {
-        return { newTabStopItem };
-      }
-    } else if (event.key === 'End') {
-      // Search backwards from the last element for the last enabled element.
-      for (let i = rowItems.length - 1; i >= 0; --i) {
-        const newTabStopItem = rowItems[i];
-        if (elementIsEnabled(itemToElementMap.get(newTabStopItem))) {
-          return { newTabStopItem };
-        }
-      }
-    }
-
-    /* istanbul ignore next */
-    return null;
+    const rowItems = getRowItems(items, currentItemIndex, columnsCount);
+    return extremesNavigation()(event, rowItems, itemToElementMap, currentTabStopItem);
   };
 }
 
@@ -136,19 +160,11 @@ function singleStepNavigation(
 ): KeyDownTranslator {
   return (event, items, itemToElementMap, currentTabStopItem) => {
     const offset = event.key === stepBackKey ? -1 : event.key === stepForwardKey ? 1 : null;
-    if (offset) {
-      const newTabStopItem = getIdOfNextEnabledTabStop(
-        items,
-        itemToElementMap,
-        currentTabStopItem,
-        offset,
-        wraparound
-      );
-      if (newTabStopItem !== null) {
-        return { newTabStopItem };
-      }
+    if (!offset) {
+      return null;
     }
-    return null;
+    const result = getNextEnabledTabStopItem(items, itemToElementMap, currentTabStopItem, offset, wraparound);
+    return result !== currentTabStopItem ? result : null;
   };
 }
 
@@ -176,59 +192,22 @@ export function gridSingleStepNavigation(): KeyDownTranslator {
       return null;
     }
 
-    if (event.key === 'ArrowUp') {
-      const newTabStopItem = getIdOfNextEnabledTabStop(
-        items,
-        itemToElementMap,
-        currentTabStopItem,
-        -columnsCount,
-        false
-      );
-      if (newTabStopItem !== null) {
-        return { newTabStopItem };
-      }
-    } else if (event.key === 'ArrowDown') {
-      const newTabStopItem = getIdOfNextEnabledTabStop(
-        items,
-        itemToElementMap,
-        currentTabStopItem,
-        columnsCount,
-        false
-      );
-      if (newTabStopItem !== null) {
-        return { newTabStopItem };
-      }
-    } else {
-      const rowStartIndex = Math.floor(currentItemIndex / columnsCount) * columnsCount;
-      const rowEndIndex = Math.min(items.length, rowStartIndex + columnsCount);
-      const rowItems = items.slice(rowStartIndex, rowEndIndex);
+    let result: Item | null = null;
 
+    if (event.key === 'ArrowUp') {
+      result = getNextEnabledTabStopItem(items, itemToElementMap, currentTabStopItem, -columnsCount, false);
+    } else if (event.key === 'ArrowDown') {
+      result = getNextEnabledTabStopItem(items, itemToElementMap, currentTabStopItem, columnsCount, false);
+    } else {
+      const rowItems = getRowItems(items, currentItemIndex, columnsCount);
       if (event.key === 'ArrowLeft') {
-        const newTabStopItem = getIdOfNextEnabledTabStop(
-          rowItems,
-          itemToElementMap,
-          currentTabStopItem,
-          -1,
-          false
-        );
-        if (newTabStopItem !== null) {
-          return { newTabStopItem };
-        }
+        result = getNextEnabledTabStopItem(rowItems, itemToElementMap, currentTabStopItem, -1, false);
       } else if (event.key === 'ArrowRight') {
-        const newTabStopItem = getIdOfNextEnabledTabStop(
-          rowItems,
-          itemToElementMap,
-          currentTabStopItem,
-          1,
-          false
-        );
-        if (newTabStopItem !== null) {
-          return { newTabStopItem };
-        }
+        result = getNextEnabledTabStopItem(rowItems, itemToElementMap, currentTabStopItem, 1, false);
       }
     }
 
-    return null;
+    return result !== currentTabStopItem ? result : null;
   };
 }
 
@@ -239,18 +218,16 @@ export function runKeyDownTranslators(
   itemToElementMap: ItemToElementMap,
   currentTabStopItem: Item | null,
   options?: KeyDownTranslatorOptions
-): KeyDownAction | null {
-  if (!currentTabStopItem) {
-    return null;
+): Item | null {
+  let result: Item | null = null;
+
+  if (!isNil(currentTabStopItem)) {
+    let i = 0;
+    while (isNil(result) && i < keyDownTranslators.length) {
+      result = keyDownTranslators[i](event, items, itemToElementMap, currentTabStopItem, options);
+      ++i;
+    }
   }
 
-  let i = 0;
-  let action = null;
-
-  while (!action && i < keyDownTranslators.length) {
-    action = keyDownTranslators[i](event, items, itemToElementMap, currentTabStopItem, options);
-    ++i;
-  }
-
-  return action;
+  return result;
 }

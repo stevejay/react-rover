@@ -3,6 +3,7 @@ import { JSDOM } from 'jsdom';
 
 import {
   extremesNavigation,
+  getNextEnabledTabStopItem,
   gridExtremesNavigation,
   gridRowExtremesNavigation,
   gridSingleStepNavigation,
@@ -10,7 +11,7 @@ import {
   runKeyDownTranslators,
   verticalNavigation
 } from '@/keyDownTranslators';
-import { ItemList, ItemToElementMap, KeyDownAction, KeyDownTranslator } from '@/types';
+import { Item, ItemList, ItemToElementMap, KeyDownTranslator } from '@/types';
 
 import { createTabStops } from './testUtils';
 
@@ -61,7 +62,7 @@ describe('extremesNavigation', () => {
       ]);
       const translator = extremesNavigation();
       const result = translator(homeKeyEvent, items, itemToElementMap, 'three');
-      expect(result).toEqual({ newTabStopItem: 'one' });
+      expect(result).toBe('one');
     });
 
     it('should navigate to the first enabled tab stop when there are disabled tab stops', () => {
@@ -73,10 +74,10 @@ describe('extremesNavigation', () => {
       ]);
       const translator = extremesNavigation();
       const result = translator(homeKeyEvent, items, itemToElementMap, 'four');
-      expect(result).toEqual({ newTabStopItem: 'two' });
+      expect(result).toBe('two');
     });
 
-    it('should return the current tab stop when it is the first enabled tab stop', () => {
+    it('should return null when the current tab stop is the first enabled tab stop', () => {
       const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: true }],
         ['two', { disabled: false }],
@@ -84,7 +85,7 @@ describe('extremesNavigation', () => {
       ]);
       const translator = extremesNavigation();
       const result = translator(homeKeyEvent, items, itemToElementMap, 'two');
-      expect(result).toEqual({ newTabStopItem: 'two' });
+      expect(result).toBeNull();
     });
   });
 
@@ -98,7 +99,7 @@ describe('extremesNavigation', () => {
       ]);
       const translator = extremesNavigation();
       const result = translator(endKeyEvent, items, itemToElementMap, 'two');
-      expect(result).toEqual({ newTabStopItem: 'four' });
+      expect(result).toBe('four');
     });
 
     it('should navigate to the last enabled tab stop when there are disabled tab stops', () => {
@@ -110,10 +111,10 @@ describe('extremesNavigation', () => {
       ]);
       const translator = extremesNavigation();
       const result = translator(endKeyEvent, items, itemToElementMap, 'one');
-      expect(result).toEqual({ newTabStopItem: 'three' });
+      expect(result).toBe('three');
     });
 
-    it('should return the current tab stop when it is the last enabled tab stop', () => {
+    it('should return null when the current tab stop is the last enabled tab stop', () => {
       const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
@@ -121,7 +122,7 @@ describe('extremesNavigation', () => {
       ]);
       const translator = extremesNavigation();
       const result = translator(endKeyEvent, items, itemToElementMap, 'two');
-      expect(result).toEqual({ newTabStopItem: 'two' });
+      expect(result).toBeNull();
     });
   });
 
@@ -149,7 +150,7 @@ describe('horizontalNavigation', () => {
       ]);
       const translator = horizontalNavigation();
       const result = translator(arrowRightEvent, items, itemToElementMap, 'one');
-      expect(result).toEqual({ newTabStopItem: 'two' });
+      expect(result).toBe('two');
     });
 
     it('should wraparound when navigating forwards from the last tab stop', () => {
@@ -160,7 +161,7 @@ describe('horizontalNavigation', () => {
       ]);
       const translator = horizontalNavigation();
       const result = translator(arrowRightEvent, items, itemToElementMap, 'three');
-      expect(result).toEqual({ newTabStopItem: 'one' });
+      expect(result).toBe('one');
     });
 
     it('should skip disabled tab stops when wrapping around', () => {
@@ -172,7 +173,7 @@ describe('horizontalNavigation', () => {
       ]);
       const translator = horizontalNavigation();
       const result = translator(arrowRightEvent, items, itemToElementMap, 'three');
-      expect(result).toEqual({ newTabStopItem: 'one' });
+      expect(result).toBe('one');
     });
   });
 
@@ -198,7 +199,7 @@ describe('horizontalNavigation', () => {
       ]);
       const translator = horizontalNavigation();
       const result = translator(arrowLeftEvent, items, itemToElementMap, 'three');
-      expect(result).toEqual({ newTabStopItem: 'two' });
+      expect(result).toBe('two');
     });
 
     it('should wraparound when navigating backwards from the first tab stop', () => {
@@ -209,7 +210,7 @@ describe('horizontalNavigation', () => {
       ]);
       const translator = horizontalNavigation();
       const result = translator(arrowLeftEvent, items, itemToElementMap, 'one');
-      expect(result).toEqual({ newTabStopItem: 'three' });
+      expect(result).toBe('three');
     });
 
     it('should skip disabled tab stops when wrapping around', () => {
@@ -221,7 +222,7 @@ describe('horizontalNavigation', () => {
       ]);
       const translator = horizontalNavigation();
       const result = translator(arrowLeftEvent, items, itemToElementMap, 'two');
-      expect(result).toEqual({ newTabStopItem: 'four' });
+      expect(result).toBe('four');
     });
   });
 
@@ -262,7 +263,7 @@ describe('verticalNavigation', () => {
       ]);
       const translator = verticalNavigation();
       const result = translator(arrowDownEvent, items, itemToElementMap, 'one');
-      expect(result).toEqual({ newTabStopItem: 'two' });
+      expect(result).toBe('two');
     });
 
     it('should wraparound when navigating down from the last tab stop', () => {
@@ -273,7 +274,7 @@ describe('verticalNavigation', () => {
       ]);
       const translator = verticalNavigation();
       const result = translator(arrowDownEvent, items, itemToElementMap, 'three');
-      expect(result).toEqual({ newTabStopItem: 'one' });
+      expect(result).toBe('one');
     });
 
     it('should skip disabled tab stops when wrapping around', () => {
@@ -285,7 +286,7 @@ describe('verticalNavigation', () => {
       ]);
       const translator = verticalNavigation();
       const result = translator(arrowDownEvent, items, itemToElementMap, 'three');
-      expect(result).toEqual({ newTabStopItem: 'one' });
+      expect(result).toBe('one');
     });
   });
 
@@ -311,7 +312,7 @@ describe('verticalNavigation', () => {
       ]);
       const translator = verticalNavigation();
       const result = translator(arrowUpEvent, items, itemToElementMap, 'three');
-      expect(result).toEqual({ newTabStopItem: 'two' });
+      expect(result).toBe('two');
     });
 
     it('should wraparound when navigating up from the first tab stop', () => {
@@ -322,7 +323,7 @@ describe('verticalNavigation', () => {
       ]);
       const translator = verticalNavigation();
       const result = translator(arrowUpEvent, items, itemToElementMap, 'one');
-      expect(result).toEqual({ newTabStopItem: 'three' });
+      expect(result).toBe('three');
     });
 
     it('should skip disabled tab stops when navigating up', () => {
@@ -334,7 +335,7 @@ describe('verticalNavigation', () => {
       ]);
       const translator = verticalNavigation();
       const result = translator(arrowUpEvent, items, itemToElementMap, 'two');
-      expect(result).toEqual({ newTabStopItem: 'four' });
+      expect(result).toBe('four');
     });
   });
 
@@ -368,8 +369,8 @@ describe('verticalNavigation', () => {
 describe('runKeyDownTranslators', () => {
   const translatorThatReturnsNull: KeyDownTranslator = () => null;
 
-  function translatorThatReturns(action: KeyDownAction): KeyDownTranslator {
-    return () => action;
+  function translatorThatReturns(item: Item): KeyDownTranslator {
+    return () => item;
   }
 
   it('returns null when no translators return an action', () => {
@@ -379,18 +380,15 @@ describe('runKeyDownTranslators', () => {
   });
 
   it('returns null when the current tab stop is null', () => {
-    const translators = [translatorThatReturns({ newTabStopItem: 'two' })];
+    const translators = [translatorThatReturns('two')];
     const result = runKeyDownTranslators(translators, arrowDownEvent, [], new Map(), null);
     expect(result).toBeNull();
   });
 
   it('returns the first action returned by a translator', () => {
-    const translators = [
-      translatorThatReturns({ newTabStopItem: 'two' }),
-      translatorThatReturns({ newTabStopItem: 'three' })
-    ];
+    const translators = [translatorThatReturns('two'), translatorThatReturns('three')];
     const result = runKeyDownTranslators(translators, arrowDownEvent, [], new Map(), 'one');
-    expect(result).toEqual({ newTabStopItem: 'two' });
+    expect(result).toBe('two');
   });
 });
 
@@ -406,7 +404,7 @@ describe('gridExtremesNavigation', () => {
       ]);
       const translator = gridExtremesNavigation();
       const result = translator(ctrlHomeKeyEvent, items, itemToElementMap, 'four');
-      expect(result).toEqual({ newTabStopItem: 'one' });
+      expect(result).toBe('one');
     });
 
     it('should navigate to the first enabled tab stop when the first tab stop is disabled', () => {
@@ -419,7 +417,7 @@ describe('gridExtremesNavigation', () => {
       ]);
       const translator = gridExtremesNavigation();
       const result = translator(ctrlHomeKeyEvent, items, itemToElementMap, 'four');
-      expect(result).toEqual({ newTabStopItem: 'two' });
+      expect(result).toBe('two');
     });
   });
 
@@ -434,7 +432,7 @@ describe('gridExtremesNavigation', () => {
       ]);
       const translator = gridExtremesNavigation();
       const result = translator(ctrlEndKeyEvent, items, itemToElementMap, 'two');
-      expect(result).toEqual({ newTabStopItem: 'five' });
+      expect(result).toBe('five');
     });
 
     it('should navigate to the last enabled tab stop when the last tab stop is disabled', () => {
@@ -447,7 +445,7 @@ describe('gridExtremesNavigation', () => {
       ]);
       const translator = gridExtremesNavigation();
       const result = translator(ctrlEndKeyEvent, items, itemToElementMap, 'two');
-      expect(result).toEqual({ newTabStopItem: 'four' });
+      expect(result).toBe('four');
     });
   });
 
@@ -484,7 +482,7 @@ describe('gridRowExtremesNavigation', () => {
       const result = translator(homeKeyEvent, items, itemToElementMap, 'two-three', {
         columnsCount: 4
       });
-      expect(result).toEqual({ newTabStopItem: 'two-one' });
+      expect(result).toBe('two-one');
     });
 
     it('should navigate to the first enabled tab stop of the current row when the first tab stop is disabled', () => {
@@ -504,7 +502,7 @@ describe('gridRowExtremesNavigation', () => {
       const result = translator(homeKeyEvent, items, itemToElementMap, 'two-four', {
         columnsCount: 4
       });
-      expect(result).toEqual({ newTabStopItem: 'two-two' });
+      expect(result).toBe('two-two');
     });
   });
 
@@ -526,7 +524,7 @@ describe('gridRowExtremesNavigation', () => {
       const result = translator(endKeyEvent, items, itemToElementMap, 'one-two', {
         columnsCount: 4
       });
-      expect(result).toEqual({ newTabStopItem: 'one-four' });
+      expect(result).toBe('one-four');
     });
 
     it('should navigate to the end of a final ragged row', () => {
@@ -545,7 +543,7 @@ describe('gridRowExtremesNavigation', () => {
       const result = translator(endKeyEvent, items, itemToElementMap, 'two-one', {
         columnsCount: 4
       });
-      expect(result).toEqual({ newTabStopItem: 'two-three' });
+      expect(result).toBe('two-three');
     });
 
     it('should navigate to the last enabled tab stop of the current row when the last tab stop is disabled', () => {
@@ -565,7 +563,7 @@ describe('gridRowExtremesNavigation', () => {
       const result = translator(endKeyEvent, items, itemToElementMap, 'one-one', {
         columnsCount: 4
       });
-      expect(result).toEqual({ newTabStopItem: 'one-three' });
+      expect(result).toBe('one-three');
     });
   });
 
@@ -607,7 +605,7 @@ describe('gridSingleStepNavigation', () => {
       const result = translator(arrowLeftEvent, items, itemToElementMap, 'two-three', {
         columnsCount: 4
       });
-      expect(result).toEqual({ newTabStopItem: 'two-two' });
+      expect(result).toBe('two-two');
     });
 
     it('should navigate over a disabled tab stop to the left in the current row', () => {
@@ -627,7 +625,7 @@ describe('gridSingleStepNavigation', () => {
       const result = translator(arrowLeftEvent, items, itemToElementMap, 'two-three', {
         columnsCount: 4
       });
-      expect(result).toEqual({ newTabStopItem: 'two-one' });
+      expect(result).toBe('two-one');
     });
 
     it('should not navigate when at the start of the row', () => {
@@ -689,7 +687,7 @@ describe('gridSingleStepNavigation', () => {
       const result = translator(arrowRightEvent, items, itemToElementMap, 'one-two', {
         columnsCount: 4
       });
-      expect(result).toEqual({ newTabStopItem: 'one-three' });
+      expect(result).toBe('one-three');
     });
 
     it('should navigate over a disabled tab stop to the right in the current row', () => {
@@ -709,7 +707,7 @@ describe('gridSingleStepNavigation', () => {
       const result = translator(arrowRightEvent, items, itemToElementMap, 'one-two', {
         columnsCount: 4
       });
-      expect(result).toEqual({ newTabStopItem: 'one-four' });
+      expect(result).toBe('one-four');
     });
 
     it('should not navigate when at the end of the row', () => {
@@ -773,7 +771,7 @@ describe('gridSingleStepNavigation', () => {
       const result = translator(arrowUpEvent, items, itemToElementMap, 'three-two', {
         columnsCount: 3
       });
-      expect(result).toEqual({ newTabStopItem: 'two-two' });
+      expect(result).toBe('two-two');
     });
 
     it('should navigate over a disabled tab stop to the row above it', () => {
@@ -795,7 +793,7 @@ describe('gridSingleStepNavigation', () => {
       const result = translator(arrowUpEvent, items, itemToElementMap, 'three-two', {
         columnsCount: 3
       });
-      expect(result).toEqual({ newTabStopItem: 'one-two' });
+      expect(result).toBe('one-two');
     });
 
     it('should navigate one row up from the end of a ragged row', () => {
@@ -816,7 +814,7 @@ describe('gridSingleStepNavigation', () => {
       const result = translator(arrowUpEvent, items, itemToElementMap, 'three-two', {
         columnsCount: 3
       });
-      expect(result).toEqual({ newTabStopItem: 'two-two' });
+      expect(result).toBe('two-two');
     });
 
     it('should not navigate when on the first row', () => {
@@ -876,7 +874,7 @@ describe('gridSingleStepNavigation', () => {
       const result = translator(arrowDownEvent, items, itemToElementMap, 'one-two', {
         columnsCount: 3
       });
-      expect(result).toEqual({ newTabStopItem: 'two-two' });
+      expect(result).toBe('two-two');
     });
 
     it('should navigate over a disabled tab stop to the row below it', () => {
@@ -898,7 +896,7 @@ describe('gridSingleStepNavigation', () => {
       const result = translator(arrowDownEvent, items, itemToElementMap, 'one-two', {
         columnsCount: 3
       });
-      expect(result).toEqual({ newTabStopItem: 'three-two' });
+      expect(result).toBe('three-two');
     });
 
     it('should not navigate down when the next row is a ragged row and the tab stop is missing', () => {
@@ -980,5 +978,83 @@ describe('gridSingleStepNavigation', () => {
     expect(translator(ctrlEndKeyEvent, items, itemToElementMap, 'one-two', options)).toBeNull();
     expect(translator(arrowRightEvent, items, itemToElementMap, 'one-two')).toBeNull();
     expect(translator(arrowRightEvent, items, itemToElementMap, 'unknown', options)).toBeNull();
+  });
+});
+
+describe('getNextEnabledTabStopItem', () => {
+  it('should handle the current tab stop being unknown', () => {
+    const [items, itemToElementMap] = createTabStops([
+      ['one', { disabled: false }],
+      ['two', { disabled: false }],
+      ['three', { disabled: false }]
+    ]);
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'unknown', 1, true)).toBeNull();
+  });
+
+  it('should handle roving forward with wraparound', () => {
+    const [items, itemToElementMap] = createTabStops([
+      ['one', { disabled: false }],
+      ['two', { disabled: false }],
+      ['three', { disabled: false }]
+    ]);
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'two', 1, true)).toEqual('three');
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'three', 1, true)).toEqual('one');
+  });
+
+  it('should handle roving forward with no wraparound', () => {
+    const [items, itemToElementMap] = createTabStops([
+      ['one', { disabled: false }],
+      ['two', { disabled: false }],
+      ['three', { disabled: false }]
+    ]);
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'two', 1, false)).toEqual('three');
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'three', 1, false)).toBeNull();
+  });
+
+  it('should handle roving forward when there are disabled tab stops', () => {
+    const [items, itemToElementMap] = createTabStops([
+      ['one', { disabled: false }],
+      ['two', { disabled: true }],
+      ['three', { disabled: false }]
+    ]);
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'one', 1, true)).toEqual('three');
+  });
+
+  it('should handle roving forward when all other tab stops are disabled', () => {
+    const [items, itemToElementMap] = createTabStops([
+      ['one', { disabled: false }],
+      ['two', { disabled: true }],
+      ['three', { disabled: true }]
+    ]);
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'one', 1, true)).toBeNull();
+  });
+
+  it('should handle roving backwards with wraparound', () => {
+    const [items, itemToElementMap] = createTabStops([
+      ['one', { disabled: false }],
+      ['two', { disabled: false }],
+      ['three', { disabled: false }]
+    ]);
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'two', -1, true)).toEqual('one');
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'one', -1, true)).toEqual('three');
+  });
+
+  it('should handle roving backwards with no wraparound', () => {
+    const [items, itemToElementMap] = createTabStops([
+      ['one', { disabled: false }],
+      ['two', { disabled: false }],
+      ['three', { disabled: false }]
+    ]);
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'two', -1, false)).toEqual('one');
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'one', -1, false)).toBeNull();
+  });
+
+  it('should handle roving backwards when there are disabled tab stops', () => {
+    const [items, itemToElementMap] = createTabStops([
+      ['one', { disabled: false }],
+      ['two', { disabled: true }],
+      ['three', { disabled: false }]
+    ]);
+    expect(getNextEnabledTabStopItem(items, itemToElementMap, 'three', -1, true)).toEqual('one');
   });
 });

@@ -1,4 +1,4 @@
-import { getIdOfNextEnabledTabStop, ItemList, ItemToElementMap, KeyDownTranslator } from '@/index';
+import { getNextEnabledTabStopItem, ItemList, ItemToElementMap, KeyDownTranslator } from '@/index';
 
 function getRoleAttribute(element: HTMLElement | null): string | null {
   return element ? element.getAttribute('role') : null;
@@ -58,7 +58,7 @@ export function horizontalRadioGroupNavigation(wraparound = true): KeyDownTransl
       return null;
     }
 
-    const newTabStopItem = getIdOfNextEnabledTabStop(
+    const newTabStopItem = getNextEnabledTabStopItem(
       items.slice(firstIndex, lastIndex + 1),
       itemToElementMap,
       currentTabStopItem,

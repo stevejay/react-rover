@@ -21,7 +21,7 @@ export function shouldResetCurrentTabStopItem(
   return !currentElement || !elementIsEnabled(currentElement);
 }
 
-function findIndexOfTabStopItem(items: ItemList, tabStopItem: Item | null): number {
+export function findIndexOfTabStopItem(items: ItemList, tabStopItem: Item | null): number {
   return items.findIndex((item) => item === tabStopItem);
 }
 
@@ -75,47 +75,4 @@ export function addTabStopItem(
 
 export function removeTabStopItem(items: ItemList, tabStopItem: Item): ItemList {
   return items.filter((item) => item !== tabStopItem);
-}
-
-export function getIdOfNextEnabledTabStop(
-  items: ItemList,
-  itemToElementMap: ItemToElementMap,
-  currentTabStopItem: Item,
-  offset: number,
-  wraparound: boolean
-): Item | null {
-  const startIndex = findIndexOfTabStopItem(items, currentTabStopItem);
-  if (startIndex === -1) {
-    return null;
-  }
-
-  let nextIndex = startIndex + offset;
-  let result: Item | null = null;
-
-  for (;;) {
-    if (nextIndex >= items.length) {
-      if (wraparound) {
-        nextIndex = 0;
-      } else {
-        break;
-      }
-    } else if (nextIndex <= -1) {
-      if (wraparound) {
-        nextIndex = items.length - 1;
-      } else {
-        break;
-      }
-    } else if (nextIndex === startIndex) {
-      // We've looped right around back to where we started
-      // so return null as there is nothing to do.
-      break;
-    } else if (elementIsEnabled(itemToElementMap.get(items[nextIndex]))) {
-      result = items[nextIndex];
-      break;
-    } else {
-      nextIndex += offset;
-    }
-  }
-
-  return result;
 }
