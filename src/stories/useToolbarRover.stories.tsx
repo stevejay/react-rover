@@ -7,15 +7,14 @@ import { Meta, Story } from '@storybook/react';
 import {
   extremesNavigation,
   horizontalNavigation,
-  horizontalRadioGroupNavigation,
   KeyDownTranslator,
-  TabStopId,
   useToolbarRover,
   verticalNavigation
-} from '..';
+} from '@/index';
 
 import { Button } from './Button';
 import { Checkbox } from './Checkbox';
+import { horizontalRadioGroupNavigation } from './horizontalRadioGroupNavigation';
 import { Link } from './Link';
 import { Menu } from './Menu';
 import { RadioButton } from './RadioButton';
@@ -46,25 +45,30 @@ const meta: Meta = {
     }
   },
   parameters: {
-    controls: { expanded: true }
+    controls: { expanded: false, hideNoControlsWarning: true }
   }
 };
 
 export default meta;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function customTabStopChangedAction(arg: any) {
+  action('tab-stop-changed')(arg === null ? '<null>' : arg);
+}
+
 const horizontalToolbarKeyDownTranslators = [
   horizontalRadioGroupNavigation(true),
   horizontalNavigation(true),
-  extremesNavigation
+  extremesNavigation()
 ];
 
 const TextEditorToolbarTemplate: Story<void> = () => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [state, setState] = useState(initialEditorState);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTabStopChange = useCallback(action('tab-stop-changed'), []);
+  const onTabStopChange = useCallback(customTabStopChangedAction, []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
-    initialTabStopId: 'italic',
+    initialId: 'italic',
     onTabStopChange
   });
   // Prevents focus leaving the text area if it currently has focus,
@@ -209,7 +213,10 @@ const TextEditorToolbarTemplate: Story<void> = () => {
 const DynamicToolbarTemplate: Story<void> = () => {
   const [showButtonTwo, setShowButtonTwo] = useState(true);
   const [enableButtonThree, setEnableButtonThree] = useState(true);
-  const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators);
+  const onTabStopChange = useCallback(customTabStopChangedAction, []);
+  const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
+    onTabStopChange
+  });
   return (
     <StackedLayout>
       <Button label="Focus before" />
@@ -238,7 +245,7 @@ const DynamicToolbarTemplate: Story<void> = () => {
       </Toolbar>
       <div css={{ display: 'flex', gap: 16 }}>
         <Button
-          label={showButtonTwo ? 'Hide Button Two' : 'Show Button Two'}
+          label={showButtonTwo ? 'Delete Button Two' : 'Render Button Two'}
           onClick={() => setShowButtonTwo((state) => !state)}
         />
         <Button
@@ -251,7 +258,7 @@ const DynamicToolbarTemplate: Story<void> = () => {
 };
 
 type TabStopSetup = {
-  id: TabStopId;
+  id: string;
   label: string;
   disabled?: boolean;
   disabledFocusable?: boolean;
@@ -260,20 +267,20 @@ type TabStopSetup = {
 type SimpleToolbarTemplateProps = {
   keyDownTranslators: KeyDownTranslator[];
   tabStops: TabStopSetup[];
-  initialTabStopId?: TabStopId | null;
+  initialId?: string | null;
   shouldFocusOnClick?: boolean;
 };
 
 const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
   tabStops,
   keyDownTranslators,
-  initialTabStopId,
+  initialId,
   shouldFocusOnClick
 }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTabStopChange = useCallback(action('tab-stop-change'), []);
+  const onTabStopChange = useCallback(customTabStopChangedAction, []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(keyDownTranslators, {
-    initialTabStopId,
+    initialId,
     onTabStopChange,
     shouldFocusOnClick
   });
@@ -314,7 +321,7 @@ DynamicToolbar.parameters = {
 
 export const Basic = SimpleToolbarTemplate.bind({});
 Basic.args = {
-  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One' },
     { id: 'two', label: 'Two' },
@@ -328,13 +335,13 @@ Basic.parameters = {
 
 export const WithButtonTwoAsInitialTabStop = SimpleToolbarTemplate.bind({});
 WithButtonTwoAsInitialTabStop.args = {
-  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One' },
     { id: 'two', label: 'Two' },
     { id: 'three', label: 'Three' }
   ],
-  initialTabStopId: 'two'
+  initialId: 'two'
 };
 WithButtonTwoAsInitialTabStop.parameters = {
   controls: { hideNoControlsWarning: true },
@@ -343,7 +350,7 @@ WithButtonTwoAsInitialTabStop.parameters = {
 
 export const WithDisabledEndStops = SimpleToolbarTemplate.bind({});
 WithDisabledEndStops.args = {
-  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One', disabled: true },
     { id: 'two', label: 'Two' },
@@ -359,7 +366,7 @@ WithDisabledEndStops.parameters = {
 
 export const WithDisabledFocusableEndStops = SimpleToolbarTemplate.bind({});
 WithDisabledFocusableEndStops.args = {
-  keyDownTranslators: [horizontalNavigation(), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One', disabledFocusable: true },
     { id: 'two', label: 'Two' },
@@ -373,7 +380,7 @@ WithDisabledFocusableEndStops.parameters = {
 
 export const WithNoWraparound = SimpleToolbarTemplate.bind({});
 WithNoWraparound.args = {
-  keyDownTranslators: [horizontalNavigation(false), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(false), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One' },
     { id: 'two', label: 'Two' },
@@ -387,7 +394,7 @@ WithNoWraparound.parameters = {
 
 export const WithVerticalNavigation = SimpleToolbarTemplate.bind({});
 WithVerticalNavigation.args = {
-  keyDownTranslators: [verticalNavigation(), extremesNavigation],
+  keyDownTranslators: [verticalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One' },
     { id: 'two', label: 'Two' },
@@ -401,7 +408,7 @@ WithVerticalNavigation.parameters = {
 
 export const WithHorizontalAndVerticalNavigation = SimpleToolbarTemplate.bind({});
 WithHorizontalAndVerticalNavigation.args = {
-  keyDownTranslators: [horizontalNavigation(), verticalNavigation(), extremesNavigation],
+  keyDownTranslators: [horizontalNavigation(), verticalNavigation(), extremesNavigation()],
   tabStops: [
     { id: 'one', label: 'One' },
     { id: 'two', label: 'Two' },

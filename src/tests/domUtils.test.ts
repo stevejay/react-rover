@@ -17,6 +17,14 @@ describe('elementIsEnabled', () => {
     const button = dom.window.document.querySelector('button');
     expect(elementIsEnabled(button)).toBeFalsy();
   });
+
+  it('returns false if the element is null', () => {
+    expect(elementIsEnabled(null)).toBeFalsy();
+  });
+
+  it('returns false if the element is undefined', () => {
+    expect(elementIsEnabled()).toBeFalsy();
+  });
 });
 
 describe('callAllEventHandlers', () => {

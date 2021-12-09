@@ -1,3 +1,5 @@
+import { useEffect, useLayoutEffect } from 'react';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFunction<Type = any> = (...args: any[]) => Type;
 
@@ -29,6 +31,8 @@ function hasProperty<X extends object, Y extends PropertyKey>(
 }
 
 // Element can be a tab stop.
-export function elementIsEnabled(element: HTMLElement | EventTarget | null): boolean {
+export function elementIsEnabled(element?: HTMLElement | EventTarget | null): boolean {
   return !!element && (!hasProperty(element, 'disabled') || !element.disabled);
 }
+
+export const useIsomorphicLayoutEffect = typeof document !== 'undefined' ? useLayoutEffect : useEffect;

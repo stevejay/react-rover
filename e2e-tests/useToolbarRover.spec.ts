@@ -145,7 +145,7 @@ test('clicking on a disabled tab stop', async ({ page }) => {
   await expect(toolbarPage.buttonTwo).toBeFocused();
 });
 
-test('initialisation of a toolbar with an initialTabStopId value', async ({ page }) => {
+test('initialisation of a toolbar with an initialItem value', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
   const toolbarPage = new SimpleToolbarPage(page);
   await toolbarPage.goto(toolbarWithButtonTwoAsInitialTabStop);
@@ -365,7 +365,7 @@ test('the rover handles the current tab stop disappearing', async ({ page }) => 
 
   // Click on the 'Hide Button Two' button:
 
-  await page.locator('"Hide Button Two"').click();
+  await page.locator('"Delete Button Two"').click();
 
   // Focus on the before content:
 

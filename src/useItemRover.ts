@@ -1,23 +1,18 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import { useCallback, useEffect, useReducer, useRef } from 'react';
 import mergeRefs from 'merge-refs';
 
 import { callAllEventHandlers, elementIsEnabled, useIsomorphicLayoutEffect } from '@/domUtils';
 import { runKeyDownTranslators } from '@/keyDownTranslators';
 import { roverReducer } from '@/roverReducer';
-import {
-  addTabStopItem,
-  focusTabStop,
-  removeTabStopItem,
-  shouldResetCurrentTabStopItem
-} from '@/tabStopUtils';
-import type { Item, ItemList, KeyDownTranslator } from '@/types';
+import { focusTabStop, shouldResetCurrentTabStopItem } from '@/tabStopUtils';
+import { Item, ItemList, KeyDownTranslator } from '@/types';
 
 type GetTabContainerProps = (props?: { onKeyDown?: React.KeyboardEventHandler<HTMLElement> }) => {
   onKeyDown: React.KeyboardEventHandler<HTMLElement>;
 };
 
 type GetTabStopProps = (
-  id: string,
+  item: Item,
   props?: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ref?: React.Ref<any>;
@@ -30,33 +25,40 @@ type GetTabStopProps = (
   onClick?: React.MouseEventHandler<HTMLElement>;
 };
 
-export type OnTabStopChange = (item: string | null) => void;
+export type OnCurrentItemChange = (item: Item | null) => void;
 
-export type ToolbarRoverOptions = {
-  initialId?: string | null;
-  onTabStopChange?: OnTabStopChange;
+export type ItemRoverOptions = {
+  columnsCount?: number;
+  initialItem?: Item | null;
+  onCurrentItemChange?: OnCurrentItemChange;
   shouldFocusOnClick?: boolean;
 };
 
-export type ToolbarRoverResult = {
-  currentTabStopId: string | null;
+export type ItemRoverResult = {
+  currentTabStopItem: Item | null;
   getTabContainerProps: GetTabContainerProps;
   getTabStopProps: GetTabStopProps;
 };
 
-export function useToolbarRover(
+export function useItemRover(
+  items: Item[],
   keyDownTranslators: KeyDownTranslator[],
-  options: ToolbarRoverOptions = {}
-): ToolbarRoverResult {
-  const { onTabStopChange, initialId = null, shouldFocusOnClick = false } = options;
+  options: ItemRoverOptions = {}
+): ItemRoverResult {
+  const { onCurrentItemChange, columnsCount, initialItem = null, shouldFocusOnClick = false } = options;
 
   const [state, dispatch] = useReducer(roverReducer, {
-    currentTabStopItem: initialId,
+    currentTabStopItem: initialItem,
     shouldFocus: false
   });
 
   const tabStopItemsRef = useRef<ItemList>([]);
   const tabStopElementMapRef = useRef(new Map<Item, HTMLElement>());
+
+  // Update the items ref if it has changed. Must be first effect.
+  useIsomorphicLayoutEffect(() => {
+    tabStopItemsRef.current = items;
+  }, [items]);
 
   // Repair the rover state in the case that the current tab stop
   // has just been removed, or the toolbar is being created and
@@ -68,7 +70,7 @@ export function useToolbarRover(
         payload: {
           items: tabStopItemsRef.current,
           itemToElementMap: tabStopElementMapRef.current,
-          initialItem: initialId
+          initialItem
         }
       });
     }
@@ -83,8 +85,8 @@ export function useToolbarRover(
 
   // If required, notify the user that the current tab stop has changed.
   useEffect(() => {
-    onTabStopChange && onTabStopChange(state.currentTabStopItem as string | null);
-  }, [state.currentTabStopItem, onTabStopChange]);
+    onCurrentItemChange && onCurrentItemChange(state.currentTabStopItem);
+  }, [state.currentTabStopItem, onCurrentItemChange]);
 
   const getTabContainerProps: GetTabContainerProps = useCallback(
     ({ onKeyDown: userOnKeyDown, ...rest } = {}) => {
@@ -96,7 +98,8 @@ export function useToolbarRover(
             event,
             tabStopItemsRef.current,
             tabStopElementMapRef.current,
-            state.currentTabStopItem
+            state.currentTabStopItem,
+            { columnsCount }
           );
           if (action) {
             event.preventDefault();
@@ -109,7 +112,7 @@ export function useToolbarRover(
         })
       };
     },
-    [state.currentTabStopItem, keyDownTranslators]
+    [state.currentTabStopItem, keyDownTranslators, columnsCount]
   );
 
   const getTabStopProps: GetTabStopProps = useCallback(
@@ -117,10 +120,8 @@ export function useToolbarRover(
       const ref = (node: HTMLElement) => {
         if (node) {
           tabStopElementMapRef.current.set(id, node);
-          tabStopItemsRef.current = addTabStopItem(tabStopItemsRef.current, tabStopElementMapRef.current, id);
         } else {
           tabStopElementMapRef.current.delete(id);
-          tabStopItemsRef.current = removeTabStopItem(tabStopItemsRef.current, id);
         }
       };
       return {
@@ -148,7 +149,7 @@ export function useToolbarRover(
   );
 
   return {
-    currentTabStopId: state.currentTabStopItem as string | null,
+    currentTabStopItem: state.currentTabStopItem,
     getTabContainerProps,
     getTabStopProps
   };

@@ -1,53 +1,61 @@
 import { elementIsEnabled } from '@/domUtils';
-import type { TabStop, TabStopId, TabStopsList } from '@/types';
+import type { Item, ItemList, ItemToElementMap } from '@/types';
 
-export function shouldResetCurrentTabStopId(
-  tabStops: TabStopsList,
-  currentTabStopId: TabStopId | null
+export function shouldResetCurrentTabStopItem(
+  itemToElementMap: ItemToElementMap,
+  currentTabStopItem: Item | null
 ): boolean {
-  if (!currentTabStopId) {
+  if (!currentTabStopItem) {
     // Tab stops list needs to have at least one non-disabled tab stop
     // that can become the new selected tab stop.
-    return tabStops.some((tabStop) => elementIsEnabled(tabStop.element));
+    for (const [, value] of itemToElementMap) {
+      if (elementIsEnabled(value)) {
+        return true;
+      }
+    }
+    return false;
   }
-  // Return true if there is a currentTabStopId but a tab stop
-  // with that id no longer exists or it is now disabled:
-  return !tabStops.some((tabStop) => tabStop.id === currentTabStopId && elementIsEnabled(tabStop.element));
+  // Return true if there is a currentTabStopItem but a tab stop
+  // with that item no longer exists or it is now disabled:
+  const currentElement = itemToElementMap.get(currentTabStopItem);
+  return !currentElement || !elementIsEnabled(currentElement);
 }
 
-function findIndexOfTabStop(tabStops: TabStopsList, tabStopId: TabStopId | null): number {
-  return tabStops.findIndex((tabStop) => tabStop.id === tabStopId);
+function findIndexOfTabStop(items: ItemList, tabStopItem: Item | null): number {
+  return items.findIndex((item) => item === tabStopItem);
 }
 
-export function findTabStop(tabStops: TabStopsList, tabStopId: TabStopId | null): TabStop | null {
-  const index = findIndexOfTabStop(tabStops, tabStopId);
-  return index === -1 ? null : tabStops[index];
+export function findTabStop(items: ItemList, tabStopItem: Item | null): Item | null {
+  const index = findIndexOfTabStop(items, tabStopItem);
+  return index === -1 ? null : items[index];
 }
 
-export function focusTabStop(tabStops: TabStopsList, tabStopId: TabStopId | null): void {
-  const currentTabStop = findTabStop(tabStops, tabStopId);
-  if (currentTabStop) {
-    currentTabStop.element.focus();
-  }
+export function focusTabStop(itemToElementMap: ItemToElementMap, tabStopItem: Item | null): void {
+  tabStopItem && itemToElementMap.get(tabStopItem)?.focus();
 }
 
 const DOCUMENT_POSITION_FOLLOWING = 4;
 
-export function addTabStop(
-  tabStops: TabStopsList,
-  tabStopId: TabStopId,
-  tabStopElement: HTMLElement
-): TabStopsList {
-  // Iterate backwards through state.tabStops since it is
+export function addTabStopItem(
+  items: ItemList,
+  itemToElementMap: ItemToElementMap,
+  tabStopItem: Item
+): ItemList {
+  // Iterate backwards through items since it is
   // most likely that the tab stop will be inserted
   // at the end of the array.
   let indexToInsertAt = -1;
-  for (let i = tabStops.length - 1; i >= 0; --i) {
-    const loopTabStop = tabStops[i];
+  const tabStopElement = itemToElementMap.get(tabStopItem);
+
+  for (let i = items.length - 1; i >= 0; --i) {
+    const loopTabStopId = items[i];
     // The compareDocumentPosition condition is true if node follows loopTabStop.node:
+    const loopTabStopElement = itemToElementMap.get(loopTabStopId);
     if (
       indexToInsertAt === -1 &&
-      !!(loopTabStop.element.compareDocumentPosition(tabStopElement) & DOCUMENT_POSITION_FOLLOWING)
+      loopTabStopElement &&
+      tabStopElement &&
+      !!(loopTabStopElement.compareDocumentPosition(tabStopElement) & DOCUMENT_POSITION_FOLLOWING)
     ) {
       indexToInsertAt = i + 1;
       break;
@@ -61,39 +69,40 @@ export function addTabStop(
     indexToInsertAt = 0;
   }
 
-  const newTabStop = { id: tabStopId, element: tabStopElement };
-  const newTabStops = tabStops.slice();
-  newTabStops.splice(indexToInsertAt, 0, newTabStop);
-  return newTabStops;
+  const newTabStopItems = items.slice();
+  newTabStopItems.splice(indexToInsertAt, 0, tabStopItem);
+  return newTabStopItems;
 }
 
-export function removeTabStop(tabStops: TabStopsList, tabStopId: TabStopId): TabStopsList {
-  return tabStops.filter((x) => x.id !== tabStopId);
+export function removeTabStopItem(items: ItemList, tabStopItem: Item): ItemList {
+  return items.filter((item) => item !== tabStopItem);
 }
 
-export function getNextEnabledTabStop(
-  tabStops: TabStopsList,
-  currentTabStopId: TabStopId,
-  offset: 1 | -1,
+export function getIdOfNextEnabledTabStop(
+  items: ItemList,
+  itemToElementMap: ItemToElementMap,
+  currentTabStopItem: Item,
+  offset: number,
   wraparound: boolean
-): TabStop | null {
-  const startIndex = findIndexOfTabStop(tabStops, currentTabStopId);
+): Item | null {
+  const startIndex = findIndexOfTabStop(items, currentTabStopItem);
   if (startIndex === -1) {
     return null;
   }
+
   let nextIndex = startIndex + offset;
-  let result: TabStop | null = null;
+  let result: Item | null = null;
 
   for (;;) {
-    if (nextIndex === tabStops.length) {
+    if (nextIndex >= items.length) {
       if (wraparound) {
         nextIndex = 0;
       } else {
         break;
       }
-    } else if (nextIndex === -1) {
+    } else if (nextIndex <= -1) {
       if (wraparound) {
-        nextIndex = tabStops.length - 1;
+        nextIndex = items.length - 1;
       } else {
         break;
       }
@@ -101,8 +110,8 @@ export function getNextEnabledTabStop(
       // We've looped right around back to where we started
       // so return null as there is nothing to do.
       break;
-    } else if (elementIsEnabled(tabStops[nextIndex].element)) {
-      result = tabStops[nextIndex];
+    } else if (elementIsEnabled(itemToElementMap.get(items[nextIndex]))) {
+      result = items[nextIndex];
       break;
     } else {
       nextIndex += offset;

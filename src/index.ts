@@ -1,8 +1,10 @@
 export {
   extremesNavigation,
+  gridExtremesNavigation,
+  gridRowExtremesNavigation,
   horizontalNavigation,
-  horizontalRadioGroupNavigation,
   verticalNavigation
 } from '@/keyDownTranslators';
+export { findTabStop, getIdOfNextEnabledTabStop } from '@/tabStopUtils';
 export * from '@/types';
 export { useToolbarRover } from '@/useToolbarRover';

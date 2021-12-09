@@ -9,7 +9,15 @@ module.exports = {
   parserOptions: {
     project: ['./tsconfig.json', './tsconfig.eslint.json']
   },
-  plugins: ['import', 'unicorn', 'jest', 'testing-library', 'jsx-a11y', 'simple-import-sort'],
+  plugins: [
+    'import',
+    'unicorn',
+    'jest',
+    'testing-library',
+    'jsx-a11y',
+    'eslint-plugin-tsdoc',
+    'simple-import-sort'
+  ],
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
@@ -53,7 +61,9 @@ module.exports = {
         }
       }
     ],
-    'testing-library/no-node-access': 0
+    'testing-library/no-node-access': 0,
+    // Can't enable this until https://github.com/microsoft/tsdoc/issues/220 is fixed:
+    'tsdoc/syntax': 0
   },
   overrides: [
     {
