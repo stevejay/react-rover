@@ -82,7 +82,7 @@ export function getIdOfNextEnabledTabStop(
   items: ItemList,
   itemToElementMap: ItemToElementMap,
   currentTabStopItem: Item,
-  offset: 1 | -1,
+  offset: number,
   wraparound: boolean
 ): Item | null {
   const startIndex = findIndexOfTabStop(items, currentTabStopItem);
@@ -94,13 +94,13 @@ export function getIdOfNextEnabledTabStop(
   let result: Item | null = null;
 
   for (;;) {
-    if (nextIndex === items.length) {
+    if (nextIndex >= items.length) {
       if (wraparound) {
         nextIndex = 0;
       } else {
         break;
       }
-    } else if (nextIndex === -1) {
+    } else if (nextIndex <= -1) {
       if (wraparound) {
         nextIndex = items.length - 1;
       } else {

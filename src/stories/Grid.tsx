@@ -2,16 +2,16 @@
 import { forwardRef, HTMLAttributes } from 'react';
 
 export type GridProps = HTMLAttributes<HTMLDivElement> & {
-  columns: number;
+  columnsCount: number;
 };
 
-export const Grid = forwardRef<HTMLDivElement, GridProps>(({ columns, children, ...rest }, ref) => (
+export const Grid = forwardRef<HTMLDivElement, GridProps>(({ columnsCount, children, ...rest }, ref) => (
   <div
     {...rest}
     ref={ref}
     css={{
       display: 'grid',
-      gridTemplateColumns: `repeat(${columns}, 1fr)`,
+      gridTemplateColumns: `repeat(${columnsCount}, 1fr)`,
       gap: 8,
       padding: 8,
       backgroundColor: '#ececea'

@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import mergeRefs from 'merge-refs';
 
-import { callAllEventHandlers, elementIsEnabled } from '@/domUtils';
+import { callAllEventHandlers, elementIsEnabled, useIsomorphicLayoutEffect } from '@/domUtils';
 import { runKeyDownTranslators } from '@/keyDownTranslators';
-import { useIsomorphicLayoutEffect } from '@/reactUtils';
 import { roverReducer } from '@/roverReducer';
 import {
   addTabStopItem,
@@ -56,19 +55,19 @@ export function useToolbarRover(
     shouldFocus: false
   });
 
-  const tabStopsItemsRef = useRef<ItemList>([]);
-  const tabStopsElementMapRef = useRef(new Map<Item, HTMLElement>());
+  const tabStopItemsRef = useRef<ItemList>([]);
+  const tabStopElementMapRef = useRef(new Map<Item, HTMLElement>());
 
   // Repair the rover state in the case that the current tab stop
   // has just been removed, or the toolbar is being created and
   // initialItem is not set.
   useIsomorphicLayoutEffect(() => {
-    if (shouldResetCurrentTabStopItem(tabStopsElementMapRef.current, state.currentTabStopItem)) {
+    if (shouldResetCurrentTabStopItem(tabStopElementMapRef.current, state.currentTabStopItem)) {
       dispatch({
         type: 'resetTabStop',
         payload: {
-          items: tabStopsItemsRef.current,
-          itemToElementMap: tabStopsElementMapRef.current,
+          items: tabStopItemsRef.current,
+          itemToElementMap: tabStopElementMapRef.current,
           initialItem: initialId
         }
       });
@@ -78,13 +77,13 @@ export function useToolbarRover(
   // If necessary, focus on the new current tab stop.
   useEffect(() => {
     if (state.currentTabStopItem && state.shouldFocus) {
-      focusTabStop(tabStopsElementMapRef.current, state.currentTabStopItem);
+      focusTabStop(tabStopElementMapRef.current, state.currentTabStopItem);
     }
   }, [state.currentTabStopItem, state.shouldFocus]);
 
   // If required, notify the user that the current tab stop has changed.
   useEffect(() => {
-    onTabStopChange && onTabStopChange(state.currentTabStopItem as string);
+    onTabStopChange && onTabStopChange(state.currentTabStopItem as string | null);
   }, [state.currentTabStopItem, onTabStopChange]);
 
   const getTabContainerProps: GetTabContainerProps = useCallback(
@@ -94,17 +93,17 @@ export function useToolbarRover(
         onKeyDown: callAllEventHandlers(userOnKeyDown, (event: React.KeyboardEvent<HTMLElement>) => {
           const action = runKeyDownTranslators(
             keyDownTranslators,
-            tabStopsItemsRef.current,
-            tabStopsElementMapRef.current,
-            state.currentTabStopItem,
-            event
+            event,
+            tabStopItemsRef.current,
+            tabStopElementMapRef.current,
+            state.currentTabStopItem
           );
           if (action) {
             event.preventDefault();
             event.stopPropagation();
             dispatch({
               type: 'updateTabStopOnKeyDown',
-              payload: { items: tabStopsItemsRef.current, ...action }
+              payload: { items: tabStopItemsRef.current, ...action }
             });
           }
         })
@@ -117,15 +116,11 @@ export function useToolbarRover(
     (id, { ref: userRef, onClick: userOnClick, ...rest } = {}) => {
       const ref = (node: HTMLElement) => {
         if (node) {
-          tabStopsElementMapRef.current.set(id, node);
-          tabStopsItemsRef.current = addTabStopItem(
-            tabStopsItemsRef.current,
-            tabStopsElementMapRef.current,
-            id
-          );
+          tabStopElementMapRef.current.set(id, node);
+          tabStopItemsRef.current = addTabStopItem(tabStopItemsRef.current, tabStopElementMapRef.current, id);
         } else {
-          tabStopsElementMapRef.current.delete(id);
-          tabStopsItemsRef.current = removeTabStopItem(tabStopsItemsRef.current, id);
+          tabStopElementMapRef.current.delete(id);
+          tabStopItemsRef.current = removeTabStopItem(tabStopItemsRef.current, id);
         }
       };
       return {
@@ -139,7 +134,7 @@ export function useToolbarRover(
               dispatch({
                 type: 'updateTabStopOnClick',
                 payload: {
-                  items: tabStopsItemsRef.current,
+                  items: tabStopItemsRef.current,
                   newTabStopItem: id,
                   shouldFocus: shouldFocusOnClick
                 }
@@ -153,7 +148,7 @@ export function useToolbarRover(
   );
 
   return {
-    currentTabStopId: state.currentTabStopItem as string,
+    currentTabStopId: state.currentTabStopItem as string | null,
     getTabContainerProps,
     getTabStopProps
   };

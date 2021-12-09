@@ -51,6 +51,11 @@ const meta: Meta = {
 
 export default meta;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function customTabStopChangedAction(arg: any) {
+  action('tab-stop-changed')(arg === null ? '<null>' : arg);
+}
+
 const horizontalToolbarKeyDownTranslators = [
   horizontalRadioGroupNavigation(true),
   horizontalNavigation(true),
@@ -61,7 +66,7 @@ const TextEditorToolbarTemplate: Story<void> = () => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [state, setState] = useState(initialEditorState);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTabStopChange = useCallback(action('tab-stop-changed'), []);
+  const onTabStopChange = useCallback(customTabStopChangedAction, []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
     initialId: 'italic',
     onTabStopChange
@@ -208,7 +213,10 @@ const TextEditorToolbarTemplate: Story<void> = () => {
 const DynamicToolbarTemplate: Story<void> = () => {
   const [showButtonTwo, setShowButtonTwo] = useState(true);
   const [enableButtonThree, setEnableButtonThree] = useState(true);
-  const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators);
+  const onTabStopChange = useCallback(customTabStopChangedAction, []);
+  const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
+    onTabStopChange
+  });
   return (
     <StackedLayout>
       <Button label="Focus before" />
@@ -237,7 +245,7 @@ const DynamicToolbarTemplate: Story<void> = () => {
       </Toolbar>
       <div css={{ display: 'flex', gap: 16 }}>
         <Button
-          label={showButtonTwo ? 'Hide Button Two' : 'Show Button Two'}
+          label={showButtonTwo ? 'Delete Button Two' : 'Render Button Two'}
           onClick={() => setShowButtonTwo((state) => !state)}
         />
         <Button
@@ -270,7 +278,7 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
   shouldFocusOnClick
 }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTabStopChange = useCallback(action('tab-stop-change'), []);
+  const onTabStopChange = useCallback(customTabStopChangedAction, []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(keyDownTranslators, {
     initialId,
     onTabStopChange,

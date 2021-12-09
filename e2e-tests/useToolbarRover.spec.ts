@@ -365,7 +365,7 @@ test('the rover handles the current tab stop disappearing', async ({ page }) => 
 
   // Click on the 'Hide Button Two' button:
 
-  await page.locator('"Hide Button Two"').click();
+  await page.locator('"Delete Button Two"').click();
 
   // Focus on the before content:
 

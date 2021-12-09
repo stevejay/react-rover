@@ -4,7 +4,12 @@ import { action } from '@storybook/addon-actions';
 import { Meta, Story } from '@storybook/react';
 
 import { extremesNavigation } from '@/index';
-import { gridExtremesNavigation, gridRowExtremesNavigation, verticalNavigation } from '@/keyDownTranslators';
+import {
+  gridExtremesNavigation,
+  gridRowExtremesNavigation,
+  gridSingleStepNavigation,
+  verticalNavigation
+} from '@/keyDownTranslators';
 import { useItemRover } from '@/useItemRover';
 
 import { Button } from './Button';
@@ -36,38 +41,30 @@ function createItems(count: number): GridItem[] {
 }
 
 type GridItem = { id: string; label: string };
+type GridTemplateProps = { columnsCount: number; itemCount: number };
 
-// [
-//   { id: 'one', label: 'One' },
-//   { id: 'two', label: 'Two' },
-//   { id: 'three', label: 'Three' },
-//   { id: 'four', label: 'Four' },
-//   { id: 'five', label: 'Five' },
-//   { id: 'six', label: 'Six' },
-//   { id: 'seven', label: 'Seven' },
-//   { id: 'eight', label: 'Eight' }
-// ];
+const gridKeyDownTranslators = [
+  gridExtremesNavigation(),
+  gridRowExtremesNavigation(),
+  gridSingleStepNavigation()
+];
 
-type GridTemplateProps = { columns: number; itemCount: number };
-
-const gridKeyDownTranslators = [gridExtremesNavigation(), gridRowExtremesNavigation];
-
-const GridTemplate: Story<GridTemplateProps> = ({ columns, itemCount }) => {
+const GridTemplate: Story<GridTemplateProps> = ({ columnsCount, itemCount }) => {
   const [items] = useState<GridItem[]>(() => createItems(itemCount));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onCurrentItemChange = useCallback(action('current-item-changed'), []);
+  const onCurrentItemChange = useCallback(() => action('current-item-changed'), []);
   const { getTabContainerProps, getTabStopProps } = useItemRover(items, gridKeyDownTranslators, {
     initialItem: items[1],
-    onCurrentItemChange
+    onCurrentItemChange,
+    columnsCount
   });
   return (
     <StackedLayout>
       <Button label="Focus before" />
-      <Grid columns={columns} aria-label="Cells" {...getTabContainerProps()}>
-        {items.map((item, index) => {
-          const columnIndex = index % columns;
-          return <Button key={item.id} label={item.label} {...getTabStopProps(item, columnIndex)} />;
-        })}
+      <Grid columnsCount={columnsCount} aria-label="Cells" {...getTabContainerProps()}>
+        {items.map((item) => (
+          <Button key={item.id} label={item.label} {...getTabStopProps(item)} />
+        ))}
       </Grid>
       <Button label="Focus after" />
     </StackedLayout>
@@ -81,7 +78,7 @@ const oneDimensionalKeyDownTranslators = [verticalNavigation(), extremesNavigati
 const OneDimensionalTemplate: Story<OneDimensionalTemplateProps> = ({ itemCount }) => {
   const [items] = useState<GridItem[]>(() => createItems(itemCount));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onCurrentItemChange = useCallback(action('current-item-changed'), []);
+  const onCurrentItemChange = useCallback(() => action('current-item-changed'), []);
   const { getTabContainerProps, getTabStopProps } = useItemRover(items, oneDimensionalKeyDownTranslators, {
     initialItem: items[1],
     onCurrentItemChange
@@ -89,7 +86,7 @@ const OneDimensionalTemplate: Story<OneDimensionalTemplateProps> = ({ itemCount 
   return (
     <StackedLayout>
       <Button label="Focus before" />
-      <Grid columns={1} aria-label="Cells" {...getTabContainerProps()}>
+      <Grid columnsCount={1} aria-label="Cells" {...getTabContainerProps()}>
         {items.map((item) => (
           <Button key={item.id} label={item.label} {...getTabStopProps(item)} />
         ))}
@@ -101,13 +98,13 @@ const OneDimensionalTemplate: Story<OneDimensionalTemplateProps> = ({ itemCount 
 
 export const MassiveGrid = GridTemplate.bind({});
 MassiveGrid.args = {
-  columns: 12,
+  columnsCount: 12,
   itemCount: 1000
 };
 
 export const SmallGrid = GridTemplate.bind({});
 SmallGrid.args = {
-  columns: 3,
+  columnsCount: 3,
   itemCount: 8
 };
 

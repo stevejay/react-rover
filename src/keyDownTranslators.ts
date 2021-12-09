@@ -1,6 +1,35 @@
 import { elementIsEnabled } from '@/domUtils';
 import { getIdOfNextEnabledTabStop } from '@/tabStopUtils';
-import type { Item, ItemList, ItemToElementMap, KeyDownAction, KeyDownTranslator } from '@/types';
+import type {
+  Item,
+  ItemList,
+  ItemToElementMap,
+  KeyDownAction,
+  KeyDownTranslator,
+  KeyDownTranslatorOptions
+} from '@/types';
+import { isNil } from '@/utils';
+
+function getNormalisedOptions(options?: KeyDownTranslatorOptions) {
+  return { columnsCount: options?.columnsCount || null };
+}
+
+/**
+ * A key down translator for the Home and End keys such that they select
+ * the very first and very last enabled tab stops respectively.
+ */
+export function extremesNavigation(): KeyDownTranslator {
+  return generalisedExtremesNavigation(false);
+}
+
+/**
+ * A key down translator for the Ctrl+Home and Ctrl+End key combinations
+ * in a grid such that they select the very first and very last enabled
+ * tab stops respectively.
+ */
+export function gridExtremesNavigation(): KeyDownTranslator {
+  return generalisedExtremesNavigation(true);
+}
 
 function generalisedExtremesNavigation(requireCtrl: boolean): KeyDownTranslator {
   return (event, items, itemToElementMap) => {
@@ -8,7 +37,7 @@ function generalisedExtremesNavigation(requireCtrl: boolean): KeyDownTranslator 
       if (event.key === 'Home') {
         // Search forwards from the first element for the first enabled element.
         const newTabStopItem = items.find((item) => elementIsEnabled(itemToElementMap.get(item)));
-        if (newTabStopItem !== undefined) {
+        if (!isNil(newTabStopItem)) {
           return { newTabStopItem };
         }
       } else if (event.key === 'End') {
@@ -25,146 +54,71 @@ function generalisedExtremesNavigation(requireCtrl: boolean): KeyDownTranslator 
   };
 }
 
-export function extremesNavigation(): KeyDownTranslator {
-  return generalisedExtremesNavigation(false);
-}
-
-export function gridExtremesNavigation(): KeyDownTranslator {
-  return generalisedExtremesNavigation(true);
-}
-
-// TODO wraparound option?
-// export const gridStepNavigation: KeyDownTranslator = (
-//   event: React.KeyboardEvent,
-//   items: ItemList,
-//   itemToElementMap: ItemToElementMap,
-//   currentTabStopItem: Item
-// ) => {
-//   if (
-//     event.key !== 'ArrowLeft' &&
-//     event.key !== 'ArrowRight' &&
-//     event.key !== 'ArrowUp' &&
-//     event.key !== 'ArrowDown'
-//   ) {
-//     return null;
-//   }
-
-//   const currentTabStopElement = itemToElementMap.get(currentTabStopItem);
-//   if (!currentTabStopElement) {
-//     return null;
-//   }
-
-//   const dataRow = getColumnIndex(currentTabStopElement);
-//   if (!dataRow) {
-//     return null;
-//   }
-
-// };
-
-function getColumnIndex(element?: HTMLElement | null): number | null {
-  return element ? parseInt(element.dataset.columnIndex || '', 10) || null : null;
-}
-
-export const gridRowExtremesNavigation: KeyDownTranslator = (
-  event: React.KeyboardEvent,
-  items: ItemList,
-  itemToElementMap: ItemToElementMap,
-  currentTabStopItem: Item
-) => {
-  if (event.key !== 'Home' && event.key !== 'End') {
-    return null;
-  }
-
-  const currentTabStopIndex = items.findIndex((item) => item === currentTabStopItem);
-  if (currentTabStopIndex === -1) {
-    return null;
-  }
-
-  //   const currentTabStopElement = itemToElementMap.get(currentTabStopItem);
-  //   if (!currentTabStopElement) {
-  //     return null;
-  //   }
-
-  const [firstIndex, lastIndex] = getGridRowTabStopRange(
-    items,
-    itemToElementMap,
-    currentTabStopItem,
-    currentTabStopIndex
-  );
-
-  if (firstIndex === -1 || lastIndex === -1) {
-    /* istanbul ignore next */
-    return null;
-  }
-
-  const rowItems = items.slice(firstIndex, lastIndex + 1);
-
-  if (event.key === 'Home') {
-    // Search forwards from the first element for the first enabled element.
-    const newTabStopItem = rowItems.find((item) => elementIsEnabled(itemToElementMap.get(item)));
-    if (newTabStopItem !== undefined) {
-      return { newTabStopItem };
+/**
+ * A key down translator for the Home and End keys in a grid
+ * such that they select the first and last enabled tab stops
+ * in the current row.
+ */
+export function gridRowExtremesNavigation(): KeyDownTranslator {
+  return (
+    event: React.KeyboardEvent,
+    items: ItemList,
+    itemToElementMap: ItemToElementMap,
+    currentTabStopItem: Item,
+    options?: KeyDownTranslatorOptions
+  ) => {
+    // It's only for grids.
+    const { columnsCount } = getNormalisedOptions(options);
+    if (!columnsCount) {
+      return null;
     }
-  } else if (event.key === 'End') {
-    // Search backwards from the last element for the last enabled element.
-    for (let i = rowItems.length - 1; i >= 0; --i) {
-      const newTabStopItem = rowItems[i];
-      if (elementIsEnabled(itemToElementMap.get(newTabStopItem))) {
+
+    // This translator should not respond to Ctrl+Home or Ctrl+End.
+    if (event.ctrlKey || (event.key !== 'Home' && event.key !== 'End')) {
+      return null;
+    }
+
+    const currentItemIndex = items.findIndex((item) => item === currentTabStopItem);
+    if (currentItemIndex === -1) {
+      return null;
+    }
+
+    const rowStartIndex = Math.floor(currentItemIndex / columnsCount) * columnsCount;
+    const rowEndIndex = Math.min(items.length, rowStartIndex + columnsCount);
+    const rowItems = items.slice(rowStartIndex, rowEndIndex);
+
+    if (event.key === 'Home') {
+      // Search forwards from the first element for the first enabled element.
+      const newTabStopItem = rowItems.find((item) => elementIsEnabled(itemToElementMap.get(item)));
+      if (!isNil(newTabStopItem)) {
         return { newTabStopItem };
       }
-    }
-  }
-
-  return null;
-};
-
-function getGridRowTabStopRange(
-  items: ItemList,
-  itemToElementMap: ItemToElementMap,
-  currentTabStopItem: Item,
-  currentTabStopIndex: number
-): [number, number] {
-  const currentTabStopElement = itemToElementMap.get(currentTabStopItem);
-  if (!currentTabStopElement) {
-    return [-1, -1];
-  }
-
-  const columnIndex = getColumnIndex();
-  if (columnIndex === null) {
-    return [-1, -1];
-  }
-
-  let firstIndex = currentTabStopIndex;
-  let lastIndex = currentTabStopIndex;
-
-  if (columnIndex > 0) {
-    for (let i = currentTabStopIndex - 1; i >= 0; --i) {
-      const loopElement = itemToElementMap.get(items[i]);
-      const loopColumnIndex = getColumnIndex(loopElement);
-      if (loopColumnIndex === 0) {
-        firstIndex = loopColumnIndex;
-        break;
+    } else if (event.key === 'End') {
+      // Search backwards from the last element for the last enabled element.
+      for (let i = rowItems.length - 1; i >= 0; --i) {
+        const newTabStopItem = rowItems[i];
+        if (elementIsEnabled(itemToElementMap.get(newTabStopItem))) {
+          return { newTabStopItem };
+        }
       }
     }
-  }
 
-  for (let i = currentTabStopIndex + 1; i < items.length; ++i) {
-    const loopElement = itemToElementMap.get(items[i]);
-    const loopColumnIndex = getColumnIndex(loopElement);
-    if (loopColumnIndex === 0) {
-      break;
-    } else if (loopColumnIndex !== null) {
-      lastIndex = loopColumnIndex;
-    }
-  }
-
-  return [firstIndex, lastIndex];
+    return null;
+  };
 }
 
+/**
+ * A key down translator for the ArrowLeft and ArrowRight keys such
+ * that they select the previous and next enabled tab stops respectively.
+ */
 export function horizontalNavigation(wraparound = true): KeyDownTranslator {
   return singleStepNavigation(wraparound, 'ArrowLeft', 'ArrowRight');
 }
 
+/**
+ * A key down translator for the ArrowUp and ArrowDown keys such
+ * that they select the previous and next enabled tab stops respectively.
+ */
 export function verticalNavigation(wraparound = true): KeyDownTranslator {
   return singleStepNavigation(wraparound, 'ArrowUp', 'ArrowDown');
 }
@@ -192,12 +146,93 @@ function singleStepNavigation(
   };
 }
 
+/**
+ * A key down translator for the Arrow keys in a grid such that they select
+ * the closest enabled tab stops to the left/right/top/bottom of the current
+ * tab stop (according to the exact arrow key pressed).
+ */
+export function gridSingleStepNavigation(): KeyDownTranslator {
+  return (
+    event: React.KeyboardEvent,
+    items: ItemList,
+    itemToElementMap: ItemToElementMap,
+    currentTabStopItem: Item,
+    options?: KeyDownTranslatorOptions
+  ) => {
+    // It's only for grids.
+    const { columnsCount } = getNormalisedOptions(options);
+    if (!columnsCount) {
+      return null;
+    }
+
+    const currentItemIndex = items.findIndex((item) => item === currentTabStopItem);
+    if (currentItemIndex === -1) {
+      return null;
+    }
+
+    if (event.key === 'ArrowUp') {
+      const newTabStopItem = getIdOfNextEnabledTabStop(
+        items,
+        itemToElementMap,
+        currentTabStopItem,
+        -columnsCount,
+        false
+      );
+      if (newTabStopItem !== null) {
+        return { newTabStopItem };
+      }
+    } else if (event.key === 'ArrowDown') {
+      const newTabStopItem = getIdOfNextEnabledTabStop(
+        items,
+        itemToElementMap,
+        currentTabStopItem,
+        columnsCount,
+        false
+      );
+      if (newTabStopItem !== null) {
+        return { newTabStopItem };
+      }
+    } else {
+      const rowStartIndex = Math.floor(currentItemIndex / columnsCount) * columnsCount;
+      const rowEndIndex = Math.min(items.length, rowStartIndex + columnsCount);
+      const rowItems = items.slice(rowStartIndex, rowEndIndex);
+
+      if (event.key === 'ArrowLeft') {
+        const newTabStopItem = getIdOfNextEnabledTabStop(
+          rowItems,
+          itemToElementMap,
+          currentTabStopItem,
+          -1,
+          false
+        );
+        if (newTabStopItem !== null) {
+          return { newTabStopItem };
+        }
+      } else if (event.key === 'ArrowRight') {
+        const newTabStopItem = getIdOfNextEnabledTabStop(
+          rowItems,
+          itemToElementMap,
+          currentTabStopItem,
+          1,
+          false
+        );
+        if (newTabStopItem !== null) {
+          return { newTabStopItem };
+        }
+      }
+    }
+
+    return null;
+  };
+}
+
 export function runKeyDownTranslators(
   keyDownTranslators: KeyDownTranslator[],
+  event: React.KeyboardEvent,
   items: ItemList,
   itemToElementMap: ItemToElementMap,
   currentTabStopItem: Item | null,
-  event: React.KeyboardEvent
+  options?: KeyDownTranslatorOptions
 ): KeyDownAction | null {
   if (!currentTabStopItem) {
     return null;
@@ -205,8 +240,9 @@ export function runKeyDownTranslators(
 
   let i = 0;
   let action = null;
+
   while (!action && i < keyDownTranslators.length) {
-    action = keyDownTranslators[i](event, items, itemToElementMap, currentTabStopItem);
+    action = keyDownTranslators[i](event, items, itemToElementMap, currentTabStopItem, options);
     ++i;
   }
 

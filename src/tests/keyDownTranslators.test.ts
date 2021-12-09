@@ -506,7 +506,7 @@ describe('runKeyDownTranslators', () => {
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
-    const result = runKeyDownTranslators(translators, items, itemToElementMap, 'two', arrowDownEvent);
+    const result = runKeyDownTranslators(translators, arrowDownEvent, items, itemToElementMap, 'two');
     expect(result).toBeNull();
   });
 
@@ -517,7 +517,7 @@ describe('runKeyDownTranslators', () => {
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
-    const result = runKeyDownTranslators(translators, items, itemToElementMap, null, arrowDownEvent);
+    const result = runKeyDownTranslators(translators, arrowDownEvent, items, itemToElementMap, null);
     expect(result).toBeNull();
   });
 
@@ -531,7 +531,7 @@ describe('runKeyDownTranslators', () => {
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
-    const result = runKeyDownTranslators(translators, items, itemToElementMap, 'one', arrowDownEvent);
+    const result = runKeyDownTranslators(translators, arrowDownEvent, items, itemToElementMap, 'one');
     expect(result).toEqual({ newTabStopItem: 'two' });
   });
 });

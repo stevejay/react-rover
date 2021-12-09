@@ -36,11 +36,18 @@ tab-stop-change: {name: "tab-stop-change", args: null}
 To rebuild:
 
 ```bash
-docker-compose up --build -d
+docker-compose up --force-recreate --build --detach
+docker image prune -f
 ```
 
 To view:
 
 ```bash
-http://127.0.0.1:6007/
+open http://127.0.0.1:6007/
+```
+
+To bring down (preserving any volumes; use `-v` to remove those too):
+
+```bash
+docker-compose down
 ```

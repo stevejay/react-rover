@@ -1,16 +1,10 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import mergeRefs from 'merge-refs';
 
-import { callAllEventHandlers, elementIsEnabled } from '@/domUtils';
+import { callAllEventHandlers, elementIsEnabled, useIsomorphicLayoutEffect } from '@/domUtils';
 import { runKeyDownTranslators } from '@/keyDownTranslators';
-import { useIsomorphicLayoutEffect } from '@/reactUtils';
 import { roverReducer } from '@/roverReducer';
-import {
-  addTabStopItem,
-  focusTabStop,
-  removeTabStopItem,
-  shouldResetCurrentTabStopItem
-} from '@/tabStopUtils';
+import { focusTabStop, shouldResetCurrentTabStopItem } from '@/tabStopUtils';
 import { Item, ItemList, KeyDownTranslator } from '@/types';
 
 type GetTabContainerProps = (props?: { onKeyDown?: React.KeyboardEventHandler<HTMLElement> }) => {
@@ -19,7 +13,6 @@ type GetTabContainerProps = (props?: { onKeyDown?: React.KeyboardEventHandler<HT
 
 type GetTabStopProps = (
   item: Item,
-  columnIndex?: number,
   props?: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ref?: React.Ref<any>;
@@ -35,6 +28,7 @@ type GetTabStopProps = (
 export type OnCurrentItemChange = (item: Item | null) => void;
 
 export type ItemRoverOptions = {
+  columnsCount?: number;
   initialItem?: Item | null;
   onCurrentItemChange?: OnCurrentItemChange;
   shouldFocusOnClick?: boolean;
@@ -51,26 +45,31 @@ export function useItemRover(
   keyDownTranslators: KeyDownTranslator[],
   options: ItemRoverOptions = {}
 ): ItemRoverResult {
-  const { onCurrentItemChange, initialItem = null, shouldFocusOnClick = false } = options;
+  const { onCurrentItemChange, columnsCount, initialItem = null, shouldFocusOnClick = false } = options;
 
   const [state, dispatch] = useReducer(roverReducer, {
     currentTabStopItem: initialItem,
     shouldFocus: false
   });
 
-  const tabStopsItemsRef = useRef<ItemList>([]);
-  const tabStopsElementMapRef = useRef(new Map<Item, HTMLElement>());
+  const tabStopItemsRef = useRef<ItemList>([]);
+  const tabStopElementMapRef = useRef(new Map<Item, HTMLElement>());
+
+  // Update the items ref if it has changed. Must be first effect.
+  useIsomorphicLayoutEffect(() => {
+    tabStopItemsRef.current = items;
+  }, [items]);
 
   // Repair the rover state in the case that the current tab stop
   // has just been removed, or the toolbar is being created and
   // initialItem is not set.
   useIsomorphicLayoutEffect(() => {
-    if (shouldResetCurrentTabStopItem(tabStopsElementMapRef.current, state.currentTabStopItem)) {
+    if (shouldResetCurrentTabStopItem(tabStopElementMapRef.current, state.currentTabStopItem)) {
       dispatch({
         type: 'resetTabStop',
         payload: {
-          items: tabStopsItemsRef.current,
-          itemToElementMap: tabStopsElementMapRef.current,
+          items: tabStopItemsRef.current,
+          itemToElementMap: tabStopElementMapRef.current,
           initialItem
         }
       });
@@ -80,7 +79,7 @@ export function useItemRover(
   // If necessary, focus on the new current tab stop.
   useEffect(() => {
     if (state.currentTabStopItem && state.shouldFocus) {
-      focusTabStop(tabStopsElementMapRef.current, state.currentTabStopItem);
+      focusTabStop(tabStopElementMapRef.current, state.currentTabStopItem);
     }
   }, [state.currentTabStopItem, state.shouldFocus]);
 
@@ -96,41 +95,33 @@ export function useItemRover(
         onKeyDown: callAllEventHandlers(userOnKeyDown, (event: React.KeyboardEvent<HTMLElement>) => {
           const action = runKeyDownTranslators(
             keyDownTranslators,
-            tabStopsItemsRef.current,
-            tabStopsElementMapRef.current,
+            event,
+            tabStopItemsRef.current,
+            tabStopElementMapRef.current,
             state.currentTabStopItem,
-            event
+            { columnsCount }
           );
           if (action) {
             event.preventDefault();
             event.stopPropagation();
             dispatch({
               type: 'updateTabStopOnKeyDown',
-              payload: { items: tabStopsItemsRef.current, ...action }
+              payload: { items: tabStopItemsRef.current, ...action }
             });
           }
         })
       };
     },
-    [state.currentTabStopItem, keyDownTranslators]
+    [state.currentTabStopItem, keyDownTranslators, columnsCount]
   );
 
   const getTabStopProps: GetTabStopProps = useCallback(
-    (id, columnIndex, { ref: userRef, onClick: userOnClick, ...rest } = {}) => {
+    (id, { ref: userRef, onClick: userOnClick, ...rest } = {}) => {
       const ref = (node: HTMLElement) => {
         if (node) {
-          tabStopsElementMapRef.current.set(id, node);
-          if (columnIndex !== undefined) {
-            node.dataset.columnIndex = `${columnIndex}`;
-          }
-          tabStopsItemsRef.current = addTabStopItem(
-            tabStopsItemsRef.current,
-            tabStopsElementMapRef.current,
-            id
-          );
+          tabStopElementMapRef.current.set(id, node);
         } else {
-          tabStopsElementMapRef.current.delete(id);
-          tabStopsItemsRef.current = removeTabStopItem(tabStopsItemsRef.current, id);
+          tabStopElementMapRef.current.delete(id);
         }
       };
       return {
@@ -144,7 +135,7 @@ export function useItemRover(
               dispatch({
                 type: 'updateTabStopOnClick',
                 payload: {
-                  items: tabStopsItemsRef.current,
+                  items: tabStopItemsRef.current,
                   newTabStopItem: id,
                   shouldFocus: shouldFocusOnClick
                 }

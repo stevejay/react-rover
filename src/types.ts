@@ -39,9 +39,12 @@ export type KeyDownAction = {
   newTabStopItem: Item;
 };
 
+export type KeyDownTranslatorOptions = { columnsCount?: number };
+
 export type KeyDownTranslator = (
   event: React.KeyboardEvent,
   items: ItemList,
   itemToElementMap: ItemToElementMap,
-  currentTabStopItem: Item
+  currentTabStopItem: Item,
+  options?: KeyDownTranslatorOptions
 ) => KeyDownAction | null;
