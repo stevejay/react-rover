@@ -5,8 +5,8 @@ import { JSDOM } from 'jsdom';
 
 import {
   addTabStopItem,
-  findTabStop,
-  focusTabStop,
+  findTabStopItem,
+  focusTabStopItem,
   getIdOfNextEnabledTabStop,
   removeTabStopItem,
   shouldResetCurrentTabStopItem
@@ -78,13 +78,13 @@ describe('shouldResetCurrentTabStopItem', () => {
   });
 });
 
-describe('findTabStop', () => {
+describe('findTabStopItem', () => {
   it('should return null when the tab stop does not exist', () => {
     const [items] = createTabStops([
       ['one', {}],
       ['two', {}]
     ]);
-    expect(findTabStop(items, 'unknown')).toBeNull();
+    expect(findTabStopItem(items, 'unknown')).toBeNull();
   });
 
   it('should return null when the tab stop id to find is null', () => {
@@ -92,7 +92,7 @@ describe('findTabStop', () => {
       ['one', {}],
       ['two', {}]
     ]);
-    expect(findTabStop(items, null)).toBeNull();
+    expect(findTabStopItem(items, null)).toBeNull();
   });
 
   it('should return the tab stop when it exists', () => {
@@ -100,17 +100,17 @@ describe('findTabStop', () => {
       ['one', {}],
       ['two', {}]
     ]);
-    expect(findTabStop(items, 'one')).toBe('one');
+    expect(findTabStopItem(items, 'one')).toBe('one');
   });
 });
 
-describe('focusTabStop', () => {
+describe('focusTabStopItem', () => {
   it('should focus the tab stop if it exists', () => {
     const [, itemToElementMap] = createTabStops([
       ['one', { focus: jest.fn() }],
       ['two', { focus: jest.fn() }]
     ]);
-    focusTabStop(itemToElementMap, 'two');
+    focusTabStopItem(itemToElementMap, 'two');
     expect(itemToElementMap.get('one')!.focus).not.toHaveBeenCalled();
     expect(itemToElementMap.get('two')!.focus).toHaveBeenCalled();
   });
@@ -120,7 +120,7 @@ describe('focusTabStop', () => {
       ['one', { focus: jest.fn() }],
       ['two', { focus: jest.fn() }]
     ]);
-    focusTabStop(itemToElementMap, 'unknown');
+    focusTabStopItem(itemToElementMap, 'unknown');
     expect(itemToElementMap.get('one')!.focus).not.toHaveBeenCalled();
     expect(itemToElementMap.get('two')!.focus).not.toHaveBeenCalled();
   });

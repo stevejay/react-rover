@@ -16,7 +16,7 @@ import { runKeyDownTranslators } from '@/keyDownTranslators';
 import { roverReducer } from '@/roverReducer';
 import {
   addTabStopItem,
-  focusTabStop,
+  focusTabStopItem,
   removeTabStopItem,
   shouldResetCurrentTabStopItem
 } from '@/tabStopUtils';
@@ -58,10 +58,10 @@ export function useToolbarRover(
   keyDownTranslators: KeyDownTranslator[],
   options: ToolbarRoverOptions = {}
 ): ToolbarRoverResult {
-  const { onTabStopChange, initialId = null, shouldFocusOnClick = false } = options;
+  const { onTabStopChange, initialId: initialItem = null, shouldFocusOnClick = false } = options;
 
   const [state, dispatch] = useReducer(roverReducer, {
-    currentTabStopItem: initialId,
+    currentTabStopItem: initialItem,
     shouldFocus: false
   });
 
@@ -78,7 +78,7 @@ export function useToolbarRover(
         payload: {
           items: tabStopItemsRef.current,
           itemToElementMap: tabStopElementMapRef.current,
-          initialItem: initialId
+          initialItem
         }
       });
     }
@@ -87,7 +87,7 @@ export function useToolbarRover(
   // If necessary, focus on the new current tab stop.
   useEffect(() => {
     if (state.currentTabStopItem && state.shouldFocus) {
-      focusTabStop(tabStopElementMapRef.current, state.currentTabStopItem);
+      focusTabStopItem(tabStopElementMapRef.current, state.currentTabStopItem);
     }
   }, [state.currentTabStopItem, state.shouldFocus]);
 

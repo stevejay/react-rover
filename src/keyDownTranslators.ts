@@ -12,6 +12,9 @@ import type {
 } from '@/types';
 import { isNil } from '@/utils';
 
+// TODO there is an inconsistency about how I handle returning the current item as the
+// new tab item - should I always return null in that case?
+
 function getNormalisedOptions(options?: KeyDownTranslatorOptions) {
   return { columnsCount: options?.columnsCount || null };
 }
@@ -59,7 +62,7 @@ function generalisedExtremesNavigation(requireCtrl: boolean): KeyDownTranslator 
 /**
  * A key down translator for the Home and End keys in a grid
  * such that they select the first and last enabled tab stops
- * in the current row.
+ * respectively in the current row.
  */
 export function gridRowExtremesNavigation(): KeyDownTranslator {
   return (
@@ -105,6 +108,7 @@ export function gridRowExtremesNavigation(): KeyDownTranslator {
       }
     }
 
+    /* istanbul ignore next */
     return null;
   };
 }

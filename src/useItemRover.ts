@@ -14,7 +14,7 @@ import mergeRefs from 'merge-refs';
 import { callAllEventHandlers, elementIsEnabled, useIsomorphicLayoutEffect } from '@/domUtils';
 import { runKeyDownTranslators } from '@/keyDownTranslators';
 import { roverReducer } from '@/roverReducer';
-import { focusTabStop, shouldResetCurrentTabStopItem } from '@/tabStopUtils';
+import { focusTabStopItem, shouldResetCurrentTabStopItem } from '@/tabStopUtils';
 import { Item, ItemList, KeyDownTranslator } from '@/types';
 
 type GetTabContainerProps = (props?: { onKeyDown?: KeyboardEventHandler<HTMLElement> }) => {
@@ -89,7 +89,7 @@ export function useItemRover(
   // If necessary, focus on the new current tab stop.
   useEffect(() => {
     if (state.currentTabStopItem && state.shouldFocus) {
-      focusTabStop(tabStopElementMapRef.current, state.currentTabStopItem);
+      focusTabStopItem(tabStopElementMapRef.current, state.currentTabStopItem);
     }
   }, [state.currentTabStopItem, state.shouldFocus]);
 

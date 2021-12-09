@@ -3,6 +3,9 @@ import { JSDOM } from 'jsdom';
 
 import {
   extremesNavigation,
+  gridExtremesNavigation,
+  gridRowExtremesNavigation,
+  gridSingleStepNavigation,
   horizontalNavigation,
   runKeyDownTranslators,
   verticalNavigation
@@ -17,6 +20,14 @@ const arrowUpEvent = { key: 'ArrowUp' } as unknown as KeyboardEvent<Element>;
 const arrowDownEvent = { key: 'ArrowDown' } as unknown as KeyboardEvent<Element>;
 const homeKeyEvent = { key: 'Home' } as unknown as KeyboardEvent<Element>;
 const endKeyEvent = { key: 'End' } as unknown as KeyboardEvent<Element>;
+const ctrlHomeKeyEvent = {
+  key: 'Home',
+  ctrlKey: true
+} as unknown as KeyboardEvent<Element>;
+const ctrlEndKeyEvent = {
+  key: 'End',
+  ctrlKey: true
+} as unknown as KeyboardEvent<Element>;
 
 export function createTabStopsWithRadioGroupFromDOM(domString: string): [ItemList, ItemToElementMap] {
   const dom = new JSDOM(domString);
@@ -45,7 +56,8 @@ describe('extremesNavigation', () => {
       const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
-        ['three', { disabled: false }]
+        ['three', { disabled: false }],
+        ['four', { disabled: false }]
       ]);
       const translator = extremesNavigation();
       const result = translator(homeKeyEvent, items, itemToElementMap, 'three');
@@ -56,10 +68,11 @@ describe('extremesNavigation', () => {
       const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: true }],
         ['two', { disabled: false }],
-        ['three', { disabled: false }]
+        ['three', { disabled: false }],
+        ['four', { disabled: false }]
       ]);
       const translator = extremesNavigation();
-      const result = translator(homeKeyEvent, items, itemToElementMap, 'three');
+      const result = translator(homeKeyEvent, items, itemToElementMap, 'four');
       expect(result).toEqual({ newTabStopItem: 'two' });
     });
 
@@ -80,22 +93,24 @@ describe('extremesNavigation', () => {
       const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
-        ['three', { disabled: false }]
+        ['three', { disabled: false }],
+        ['four', { disabled: false }]
       ]);
       const translator = extremesNavigation();
-      const result = translator(endKeyEvent, items, itemToElementMap, 'one');
-      expect(result).toEqual({ newTabStopItem: 'three' });
+      const result = translator(endKeyEvent, items, itemToElementMap, 'two');
+      expect(result).toEqual({ newTabStopItem: 'four' });
     });
 
     it('should navigate to the last enabled tab stop when there are disabled tab stops', () => {
       const [items, itemToElementMap] = createTabStops([
         ['one', { disabled: false }],
         ['two', { disabled: false }],
-        ['three', { disabled: true }]
+        ['three', { disabled: false }],
+        ['four', { disabled: true }]
       ]);
       const translator = extremesNavigation();
       const result = translator(endKeyEvent, items, itemToElementMap, 'one');
-      expect(result).toEqual({ newTabStopItem: 'two' });
+      expect(result).toEqual({ newTabStopItem: 'three' });
     });
 
     it('should return the current tab stop when it is the last enabled tab stop', () => {
@@ -147,6 +162,18 @@ describe('horizontalNavigation', () => {
       const result = translator(arrowRightEvent, items, itemToElementMap, 'three');
       expect(result).toEqual({ newTabStopItem: 'one' });
     });
+
+    it('should skip disabled tab stops when wrapping around', () => {
+      const [items, itemToElementMap] = createTabStops([
+        ['one', { disabled: false }],
+        ['two', { disabled: false }],
+        ['three', { disabled: false }],
+        ['four', { disabled: true }]
+      ]);
+      const translator = horizontalNavigation();
+      const result = translator(arrowRightEvent, items, itemToElementMap, 'three');
+      expect(result).toEqual({ newTabStopItem: 'one' });
+    });
   });
 
   describe('when navigating forwards without wraparound', () => {
@@ -184,6 +211,18 @@ describe('horizontalNavigation', () => {
       const result = translator(arrowLeftEvent, items, itemToElementMap, 'one');
       expect(result).toEqual({ newTabStopItem: 'three' });
     });
+
+    it('should skip disabled tab stops when wrapping around', () => {
+      const [items, itemToElementMap] = createTabStops([
+        ['one', { disabled: true }],
+        ['two', { disabled: false }],
+        ['three', { disabled: false }],
+        ['four', { disabled: false }]
+      ]);
+      const translator = horizontalNavigation();
+      const result = translator(arrowLeftEvent, items, itemToElementMap, 'two');
+      expect(result).toEqual({ newTabStopItem: 'four' });
+    });
   });
 
   describe('when navigating backwards without wraparound', () => {
@@ -197,28 +236,6 @@ describe('horizontalNavigation', () => {
       const result = translator(arrowLeftEvent, items, itemToElementMap, 'one');
       expect(result).toBeNull();
     });
-  });
-
-  it('should skip disabled tab stops when navigation forwards', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: false }],
-      ['three', { disabled: true }]
-    ]);
-    const translator = horizontalNavigation();
-    const result = translator(arrowRightEvent, items, itemToElementMap, 'two');
-    expect(result).toEqual({ newTabStopItem: 'one' });
-  });
-
-  it('should skip disabled tab stops when navigating backwards', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: true }],
-      ['two', { disabled: false }],
-      ['three', { disabled: false }]
-    ]);
-    const translator = horizontalNavigation();
-    const result = translator(arrowLeftEvent, items, itemToElementMap, 'two');
-    expect(result).toEqual({ newTabStopItem: 'three' });
   });
 
   it('should not respond to non-horizontal navigation', () => {
@@ -253,6 +270,18 @@ describe('verticalNavigation', () => {
         ['one', { disabled: false }],
         ['two', { disabled: false }],
         ['three', { disabled: false }]
+      ]);
+      const translator = verticalNavigation();
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'three');
+      expect(result).toEqual({ newTabStopItem: 'one' });
+    });
+
+    it('should skip disabled tab stops when wrapping around', () => {
+      const [items, itemToElementMap] = createTabStops([
+        ['one', { disabled: false }],
+        ['two', { disabled: false }],
+        ['three', { disabled: false }],
+        ['four', { disabled: true }]
       ]);
       const translator = verticalNavigation();
       const result = translator(arrowDownEvent, items, itemToElementMap, 'three');
@@ -295,6 +324,18 @@ describe('verticalNavigation', () => {
       const result = translator(arrowUpEvent, items, itemToElementMap, 'one');
       expect(result).toEqual({ newTabStopItem: 'three' });
     });
+
+    it('should skip disabled tab stops when navigating up', () => {
+      const [items, itemToElementMap] = createTabStops([
+        ['one', { disabled: true }],
+        ['two', { disabled: false }],
+        ['three', { disabled: false }],
+        ['four', { disabled: false }]
+      ]);
+      const translator = verticalNavigation();
+      const result = translator(arrowUpEvent, items, itemToElementMap, 'two');
+      expect(result).toEqual({ newTabStopItem: 'four' });
+    });
   });
 
   describe('when navigating up without wraparound', () => {
@@ -308,28 +349,6 @@ describe('verticalNavigation', () => {
       const result = translator(arrowUpEvent, items, itemToElementMap, 'one');
       expect(result).toBeNull();
     });
-  });
-
-  it('should skip disabled tab stops when navigating down', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: false }],
-      ['three', { disabled: true }]
-    ]);
-    const translator = verticalNavigation();
-    const result = translator(arrowDownEvent, items, itemToElementMap, 'two');
-    expect(result).toEqual({ newTabStopItem: 'one' });
-  });
-
-  it('should skip disabled tab stops when navigating up', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: true }],
-      ['two', { disabled: false }],
-      ['three', { disabled: false }]
-    ]);
-    const translator = verticalNavigation();
-    const result = translator(arrowUpEvent, items, itemToElementMap, 'two');
-    expect(result).toEqual({ newTabStopItem: 'three' });
   });
 
   it('should not respond to non-vertical navigation', () => {
@@ -346,193 +365,620 @@ describe('verticalNavigation', () => {
   });
 });
 
-/*
-describe('horizontalRadioGroupNavigation', () => {
-  describe('when navigating a radio group with wraparound', () => {
-    it('should navigate forwards from the first radio group tab stop', () => {
-      const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
-        <!DOCTYPE html>
-        <button id='before'></button>
-        <div role="radiogroup">
-            <button id='one' role="radio"></button>
-            <button id='two' role="radio"></button>
-            <button id='three' role="radio"></button>
-        </div>
-        <button id='after'></button>`);
-
-      const translator = horizontalRadioGroupNavigation();
-      const result = translator(arrowDownEvent, items, itemToElementMap, 'one');
-      expect(result).toEqual({ newTabStopItem: 'two' });
-    });
-
-    it('should wraparound when navigating forwards from the last radio group tab stop', () => {
-      const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
-        <!DOCTYPE html>
-        <button id='before'></button>
-        <div role="radiogroup">
-            <button id='one' role="radio"></button>
-            <button id='two' role="radio"></button>
-            <button id='three' role="radio"></button>
-        </div>
-        <button id='after'></button>`);
-
-      const translator = horizontalRadioGroupNavigation();
-      const result = translator(arrowDownEvent, items, itemToElementMap, 'three');
-      expect(result).toEqual({ newTabStopItem: 'one' });
-    });
-  });
-
-  describe('horizontalRadioGroupNavigation when navigating a radio group without wraparound', () => {
-    it('should not wraparound when navigating forwards from the last radio group tab stop', () => {
-      const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
-        <!DOCTYPE html>
-        <button id='before'></button>
-        <div role="radiogroup">
-            <button id='one' role="radio"></button>
-            <button id='two' role="radio"></button>
-            <button id='three' role="radio"></button>
-        </div>
-        <button id='after'></button>`);
-
-      const translator = horizontalRadioGroupNavigation(false);
-      const result = translator(arrowDownEvent, items, itemToElementMap, 'three');
-      expect(result).toBeNull();
-    });
-  });
-
-  it('should skip disabled tab stops when navigating forwards in the radio group', () => {
-    const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
-        <!DOCTYPE html>
-        <button id='before'></button>
-        <div role="radiogroup">
-            <button id='one' role="radio"></button>
-            <button id='two' role="radio"></button>
-            <button id='three' role="radio" disabled></button>
-        </div>
-        <button id='after'></button>`);
-
-    const translator = horizontalRadioGroupNavigation();
-    const result = translator(arrowDownEvent, items, itemToElementMap, 'two');
-    expect(result).toEqual({ newTabStopItem: 'one' });
-  });
-
-  it('should skip disabled tab stops when navigating backwards in the radio group', () => {
-    const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
-        <!DOCTYPE html>
-        <button id='before'></button>
-        <div role="radiogroup">
-            <button id='one' role="radio" disabled></button>
-            <button id='two' role="radio"></button>
-            <button id='three' role="radio"></button>
-        </div>
-        <button id='after'></button>`);
-
-    const translator = horizontalRadioGroupNavigation();
-    const result = translator(arrowUpEvent, items, itemToElementMap, 'two');
-    expect(result).toEqual({ newTabStopItem: 'three' });
-  });
-
-  it('should not respond to non- horizontal radio group navigation', () => {
-    const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
-        <!DOCTYPE html>
-        <button id='before'></button>
-        <div role="radiogroup">
-            <button id='one' role="radio"></button>
-            <button id='two' role="radio"></button>
-            <button id='three' role="radio"></button>
-        </div>
-        <button id='after'></button>`);
-
-    const translator = horizontalRadioGroupNavigation();
-    expect(translator(arrowLeftEvent, items, itemToElementMap, 'two')).toBeNull();
-    expect(translator(arrowRightEvent, items, itemToElementMap, 'two')).toBeNull();
-    expect(translator(homeKeyEvent, items, itemToElementMap, 'two')).toBeNull();
-    expect(translator(endKeyEvent, items, itemToElementMap, 'two')).toBeNull();
-  });
-
-  it('should not respond when the parent element does not have the radiogroup role', () => {
-    const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
-        <!DOCTYPE html>
-        <button id='before'></button>
-        <div>
-            <button id='one' role="radio"></button>
-            <button id='two' role="radio"></button>
-            <button id='three' role="radio"></button>
-        </div>
-        <button id='after'></button>`);
-
-    const translator = horizontalRadioGroupNavigation();
-    expect(translator(arrowUpEvent, items, itemToElementMap, 'one')).toBeNull();
-    expect(translator(arrowDownEvent, items, itemToElementMap, 'one')).toBeNull();
-  });
-
-  it('should not respond when the tab stop has the radio role but is not in a radio group', () => {
-    const [items, itemToElementMap] = createTabStopsWithRadioGroupFromDOM(`
-        <!DOCTYPE html>
-        <button id='before'></button>
-        <button id='one' role="radio"></button>
-        <button id='two' role="radio"></button>
-        <button id='three' role="radio"></button>
-        <button id='after'></button>`);
-
-    const translator = horizontalRadioGroupNavigation();
-    expect(translator(arrowUpEvent, items, itemToElementMap, 'one')).toBeNull();
-    expect(translator(arrowDownEvent, items, itemToElementMap, 'one')).toBeNull();
-  });
-
-  it('should not respond when the tab stop is not in a radio group', () => {
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: false }],
-      ['three', { disabled: false }]
-    ]);
-    const translator = horizontalRadioGroupNavigation();
-    expect(translator(arrowUpEvent, items, itemToElementMap, 'two')).toBeNull();
-    expect(translator(arrowDownEvent, items, itemToElementMap, 'two')).toBeNull();
-  });
-});
-*/
-
 describe('runKeyDownTranslators', () => {
   const translatorThatReturnsNull: KeyDownTranslator = () => null;
 
-  function translatorThatReturnsAnAction(action: KeyDownAction): KeyDownTranslator {
+  function translatorThatReturns(action: KeyDownAction): KeyDownTranslator {
     return () => action;
   }
 
   it('returns null when no translators return an action', () => {
     const translators = [translatorThatReturnsNull, translatorThatReturnsNull];
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: false }],
-      ['three', { disabled: false }]
-    ]);
-    const result = runKeyDownTranslators(translators, arrowDownEvent, items, itemToElementMap, 'two');
+    const result = runKeyDownTranslators(translators, arrowDownEvent, [], new Map(), 'two');
     expect(result).toBeNull();
   });
 
   it('returns null when the current tab stop is null', () => {
-    const translators = [translatorThatReturnsAnAction({ newTabStopItem: 'two' })];
-    const [items, itemToElementMap] = createTabStops([
-      ['one', { disabled: false }],
-      ['two', { disabled: false }],
-      ['three', { disabled: false }]
-    ]);
-    const result = runKeyDownTranslators(translators, arrowDownEvent, items, itemToElementMap, null);
+    const translators = [translatorThatReturns({ newTabStopItem: 'two' })];
+    const result = runKeyDownTranslators(translators, arrowDownEvent, [], new Map(), null);
     expect(result).toBeNull();
   });
 
   it('returns the first action returned by a translator', () => {
     const translators = [
-      translatorThatReturnsAnAction({ newTabStopItem: 'two' }),
-      translatorThatReturnsAnAction({ newTabStopItem: 'three' })
+      translatorThatReturns({ newTabStopItem: 'two' }),
+      translatorThatReturns({ newTabStopItem: 'three' })
     ];
+    const result = runKeyDownTranslators(translators, arrowDownEvent, [], new Map(), 'one');
+    expect(result).toEqual({ newTabStopItem: 'two' });
+  });
+});
+
+describe('gridExtremesNavigation', () => {
+  describe('when Ctrl+Home is pressed', () => {
+    it('should navigate to the start of the grid', () => {
+      const [items, itemToElementMap] = createTabStops([
+        ['one', { disabled: false }],
+        ['two', { disabled: false }],
+        ['three', { disabled: false }],
+        ['four', { disabled: false }],
+        ['five', { disabled: false }]
+      ]);
+      const translator = gridExtremesNavigation();
+      const result = translator(ctrlHomeKeyEvent, items, itemToElementMap, 'four');
+      expect(result).toEqual({ newTabStopItem: 'one' });
+    });
+
+    it('should navigate to the first enabled tab stop when the first tab stop is disabled', () => {
+      const [items, itemToElementMap] = createTabStops([
+        ['one', { disabled: true }],
+        ['two', { disabled: false }],
+        ['three', { disabled: false }],
+        ['four', { disabled: false }],
+        ['five', { disabled: false }]
+      ]);
+      const translator = gridExtremesNavigation();
+      const result = translator(ctrlHomeKeyEvent, items, itemToElementMap, 'four');
+      expect(result).toEqual({ newTabStopItem: 'two' });
+    });
+  });
+
+  describe('when Ctrl+End is pressed', () => {
+    it('should navigate to the end of the grid', () => {
+      const [items, itemToElementMap] = createTabStops([
+        ['one', { disabled: false }],
+        ['two', { disabled: false }],
+        ['three', { disabled: false }],
+        ['four', { disabled: false }],
+        ['five', { disabled: false }]
+      ]);
+      const translator = gridExtremesNavigation();
+      const result = translator(ctrlEndKeyEvent, items, itemToElementMap, 'two');
+      expect(result).toEqual({ newTabStopItem: 'five' });
+    });
+
+    it('should navigate to the last enabled tab stop when the last tab stop is disabled', () => {
+      const [items, itemToElementMap] = createTabStops([
+        ['one', { disabled: false }],
+        ['two', { disabled: false }],
+        ['three', { disabled: false }],
+        ['four', { disabled: false }],
+        ['five', { disabled: true }]
+      ]);
+      const translator = gridExtremesNavigation();
+      const result = translator(ctrlEndKeyEvent, items, itemToElementMap, 'two');
+      expect(result).toEqual({ newTabStopItem: 'four' });
+    });
+  });
+
+  it('should not respond to non-extremes navigation', () => {
     const [items, itemToElementMap] = createTabStops([
       ['one', { disabled: false }],
       ['two', { disabled: false }],
       ['three', { disabled: false }]
     ]);
-    const result = runKeyDownTranslators(translators, arrowDownEvent, items, itemToElementMap, 'one');
-    expect(result).toEqual({ newTabStopItem: 'two' });
+    const translator = gridExtremesNavigation();
+    expect(translator(arrowLeftEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(arrowRightEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(homeKeyEvent, items, itemToElementMap, 'two')).toBeNull();
+    expect(translator(endKeyEvent, items, itemToElementMap, 'two')).toBeNull();
+  });
+});
+
+describe('gridRowExtremesNavigation', () => {
+  describe('when Home is pressed', () => {
+    it('should navigate to the start of the current row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        ['one-four', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridRowExtremesNavigation();
+      const result = translator(homeKeyEvent, items, itemToElementMap, 'two-three', {
+        columnsCount: 4
+      });
+      expect(result).toEqual({ newTabStopItem: 'two-one' });
+    });
+
+    it('should navigate to the first enabled tab stop of the current row when the first tab stop is disabled', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        ['one-four', { disabled: false }],
+        // row
+        ['two-one', { disabled: true }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridRowExtremesNavigation();
+      const result = translator(homeKeyEvent, items, itemToElementMap, 'two-four', {
+        columnsCount: 4
+      });
+      expect(result).toEqual({ newTabStopItem: 'two-two' });
+    });
+  });
+
+  describe('when End is pressed', () => {
+    it('should navigate to the end of the current row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        ['one-four', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridRowExtremesNavigation();
+      const result = translator(endKeyEvent, items, itemToElementMap, 'one-two', {
+        columnsCount: 4
+      });
+      expect(result).toEqual({ newTabStopItem: 'one-four' });
+    });
+
+    it('should navigate to the end of a final ragged row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        ['one-four', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }]
+      ]);
+      const translator = gridRowExtremesNavigation();
+      const result = translator(endKeyEvent, items, itemToElementMap, 'two-one', {
+        columnsCount: 4
+      });
+      expect(result).toEqual({ newTabStopItem: 'two-three' });
+    });
+
+    it('should navigate to the last enabled tab stop of the current row when the last tab stop is disabled', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        ['one-four', { disabled: true }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridRowExtremesNavigation();
+      const result = translator(endKeyEvent, items, itemToElementMap, 'one-one', {
+        columnsCount: 4
+      });
+      expect(result).toEqual({ newTabStopItem: 'one-three' });
+    });
+  });
+
+  it('should not respond to non- row extremes navigation', () => {
+    const [items, itemToElementMap] = createTabStops([
+      ['one-one', { disabled: false }],
+      ['one-two', { disabled: false }],
+      ['one-three', { disabled: false }]
+    ]);
+
+    const translator = gridRowExtremesNavigation();
+    const options = { columnsCount: 3 };
+
+    expect(translator(arrowLeftEvent, items, itemToElementMap, 'one-two', options)).toBeNull();
+    expect(translator(arrowRightEvent, items, itemToElementMap, 'one-two', options)).toBeNull();
+    expect(translator(ctrlHomeKeyEvent, items, itemToElementMap, 'one-two', options)).toBeNull();
+    expect(translator(ctrlEndKeyEvent, items, itemToElementMap, 'one-two', options)).toBeNull();
+    expect(translator(endKeyEvent, items, itemToElementMap, 'unknown', options)).toBeNull();
+    expect(translator(endKeyEvent, items, itemToElementMap, 'one-two')).toBeNull();
+  });
+});
+
+describe('gridSingleStepNavigation', () => {
+  describe('when ArrowLeft is pressed', () => {
+    it('should navigate one tab stop to the left in the current row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        ['one-four', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowLeftEvent, items, itemToElementMap, 'two-three', {
+        columnsCount: 4
+      });
+      expect(result).toEqual({ newTabStopItem: 'two-two' });
+    });
+
+    it('should navigate over a disabled tab stop to the left in the current row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        ['one-four', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: true }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowLeftEvent, items, itemToElementMap, 'two-three', {
+        columnsCount: 4
+      });
+      expect(result).toEqual({ newTabStopItem: 'two-one' });
+    });
+
+    it('should not navigate when at the start of the row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        ['one-four', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowLeftEvent, items, itemToElementMap, 'two-one', {
+        columnsCount: 4
+      });
+      expect(result).toBeNull();
+    });
+
+    it('should not navigate when there are only disabled tab stops to the left in the current row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        ['one-four', { disabled: false }],
+        // row
+        ['two-one', { disabled: true }],
+        ['two-two', { disabled: true }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowLeftEvent, items, itemToElementMap, 'two-three', {
+        columnsCount: 4
+      });
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('when ArrowRight is pressed', () => {
+    it('should navigate one tab stop to the right in the current row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        ['one-four', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowRightEvent, items, itemToElementMap, 'one-two', {
+        columnsCount: 4
+      });
+      expect(result).toEqual({ newTabStopItem: 'one-three' });
+    });
+
+    it('should navigate over a disabled tab stop to the right in the current row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: true }],
+        ['one-four', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowRightEvent, items, itemToElementMap, 'one-two', {
+        columnsCount: 4
+      });
+      expect(result).toEqual({ newTabStopItem: 'one-four' });
+    });
+
+    it('should not navigate when at the end of the row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        ['one-four', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowRightEvent, items, itemToElementMap, 'one-four', {
+        columnsCount: 4
+      });
+      expect(result).toBeNull();
+    });
+
+    it('should not navigate when there are only disabled tab stops to the right in the current row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: true }],
+        ['one-four', { disabled: true }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        ['two-four', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowRightEvent, items, itemToElementMap, 'one-two', {
+        columnsCount: 4
+      });
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('when ArrowUp is pressed', () => {
+    it('should navigate one row up', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        // row
+        ['three-one', { disabled: false }],
+        ['three-two', { disabled: false }],
+        ['three-three', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowUpEvent, items, itemToElementMap, 'three-two', {
+        columnsCount: 3
+      });
+      expect(result).toEqual({ newTabStopItem: 'two-two' });
+    });
+
+    it('should navigate over a disabled tab stop to the row above it', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: true }],
+        ['two-three', { disabled: false }],
+        // row
+        ['three-one', { disabled: false }],
+        ['three-two', { disabled: false }],
+        ['three-three', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowUpEvent, items, itemToElementMap, 'three-two', {
+        columnsCount: 3
+      });
+      expect(result).toEqual({ newTabStopItem: 'one-two' });
+    });
+
+    it('should navigate one row up from the end of a ragged row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        // row
+        ['three-one', { disabled: false }],
+        ['three-two', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowUpEvent, items, itemToElementMap, 'three-two', {
+        columnsCount: 3
+      });
+      expect(result).toEqual({ newTabStopItem: 'two-two' });
+    });
+
+    it('should not navigate when on the first row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowUpEvent, items, itemToElementMap, 'one-two', {
+        columnsCount: 3
+      });
+      expect(result).toBeNull();
+    });
+
+    it('should not navigate when there are only disabled tab stops above', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: true }],
+        ['one-three', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowUpEvent, items, itemToElementMap, 'two-two', {
+        columnsCount: 3
+      });
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('when ArrowDown is pressed', () => {
+    it('should navigate one row down', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        // row
+        ['three-one', { disabled: false }],
+        ['three-two', { disabled: false }],
+        ['three-three', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'one-two', {
+        columnsCount: 3
+      });
+      expect(result).toEqual({ newTabStopItem: 'two-two' });
+    });
+
+    it('should navigate over a disabled tab stop to the row below it', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: true }],
+        ['two-three', { disabled: false }],
+        // row
+        ['three-one', { disabled: false }],
+        ['three-two', { disabled: false }],
+        ['three-three', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'one-two', {
+        columnsCount: 3
+      });
+      expect(result).toEqual({ newTabStopItem: 'three-two' });
+    });
+
+    it('should not navigate down when the next row is a ragged row and the tab stop is missing', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }],
+        // row
+        ['three-one', { disabled: false }],
+        ['three-two', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'two-three', {
+        columnsCount: 3
+      });
+      expect(result).toBeNull();
+    });
+
+    it('should not navigate when on the last row', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: false }],
+        ['two-three', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'two-two', {
+        columnsCount: 3
+      });
+      expect(result).toBeNull();
+    });
+
+    it('should not navigate when there are only disabled tab stops below', () => {
+      const [items, itemToElementMap] = createTabStops([
+        // row
+        ['one-one', { disabled: false }],
+        ['one-two', { disabled: false }],
+        ['one-three', { disabled: false }],
+        // row
+        ['two-one', { disabled: false }],
+        ['two-two', { disabled: true }],
+        ['two-three', { disabled: false }]
+      ]);
+      const translator = gridSingleStepNavigation();
+      const result = translator(arrowDownEvent, items, itemToElementMap, 'one-two', {
+        columnsCount: 3
+      });
+      expect(result).toBeNull();
+    });
+  });
+
+  it('should not respond to non- grid single step navigation', () => {
+    const [items, itemToElementMap] = createTabStops([
+      // row
+      ['one-one', { disabled: false }],
+      ['one-two', { disabled: false }],
+      ['one-three', { disabled: false }],
+      // row
+      ['two-one', { disabled: false }],
+      ['two-two', { disabled: false }],
+      ['two-three', { disabled: false }]
+    ]);
+
+    const translator = gridSingleStepNavigation();
+    const options = { columnsCount: 3 };
+
+    expect(translator(homeKeyEvent, items, itemToElementMap, 'one-two', options)).toBeNull();
+    expect(translator(endKeyEvent, items, itemToElementMap, 'one-two', options)).toBeNull();
+    expect(translator(ctrlHomeKeyEvent, items, itemToElementMap, 'one-two', options)).toBeNull();
+    expect(translator(ctrlEndKeyEvent, items, itemToElementMap, 'one-two', options)).toBeNull();
+    expect(translator(arrowRightEvent, items, itemToElementMap, 'one-two')).toBeNull();
+    expect(translator(arrowRightEvent, items, itemToElementMap, 'unknown', options)).toBeNull();
   });
 });
