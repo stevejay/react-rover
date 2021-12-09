@@ -30,8 +30,18 @@ const meta: Meta = {
   title: 'Toolbar',
   argTypes: {
     children: {
-      control: {
-        type: 'text'
+      table: {
+        disable: true
+      }
+    },
+    keyDownTranslators: {
+      table: {
+        disable: true
+      }
+    },
+    tabStops: {
+      table: {
+        disable: true
       }
     }
   },
@@ -292,12 +302,14 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
 
 export const TextEditorToolbar = TextEditorToolbarTemplate.bind({});
 TextEditorToolbar.parameters = {
-  controls: { hideNoControlsWarning: true }
+  controls: { hideNoControlsWarning: true },
+  options: { selectedPanel: 'storybook/actions/panel' }
 };
 
 export const DynamicToolbar = DynamicToolbarTemplate.bind({});
 DynamicToolbar.parameters = {
-  controls: { hideNoControlsWarning: true }
+  controls: { hideNoControlsWarning: true },
+  options: { selectedPanel: 'storybook/actions/panel' }
 };
 
 export const Basic = SimpleToolbarTemplate.bind({});
@@ -310,7 +322,8 @@ Basic.args = {
   ]
 };
 Basic.parameters = {
-  controls: { hideNoControlsWarning: true }
+  controls: { hideNoControlsWarning: true },
+  options: { selectedPanel: 'storybook/actions/panel' }
 };
 
 export const WithButtonTwoAsInitialTabStop = SimpleToolbarTemplate.bind({});
@@ -324,7 +337,8 @@ WithButtonTwoAsInitialTabStop.args = {
   initialTabStopId: 'two'
 };
 WithButtonTwoAsInitialTabStop.parameters = {
-  controls: { hideNoControlsWarning: true }
+  controls: { hideNoControlsWarning: true },
+  options: { selectedPanel: 'storybook/actions/panel' }
 };
 
 export const WithDisabledEndStops = SimpleToolbarTemplate.bind({});
@@ -339,7 +353,8 @@ WithDisabledEndStops.args = {
   ]
 };
 WithDisabledEndStops.parameters = {
-  controls: { hideNoControlsWarning: true }
+  controls: { hideNoControlsWarning: true },
+  options: { selectedPanel: 'storybook/actions/panel' }
 };
 
 export const WithDisabledFocusableEndStops = SimpleToolbarTemplate.bind({});
@@ -352,7 +367,8 @@ WithDisabledFocusableEndStops.args = {
   ]
 };
 WithDisabledFocusableEndStops.parameters = {
-  controls: { hideNoControlsWarning: true }
+  controls: { hideNoControlsWarning: true },
+  options: { selectedPanel: 'storybook/actions/panel' }
 };
 
 export const WithNoWraparound = SimpleToolbarTemplate.bind({});
@@ -365,7 +381,8 @@ WithNoWraparound.args = {
   ]
 };
 WithNoWraparound.parameters = {
-  controls: { hideNoControlsWarning: true }
+  controls: { hideNoControlsWarning: true },
+  options: { selectedPanel: 'storybook/actions/panel' }
 };
 
 export const WithVerticalNavigation = SimpleToolbarTemplate.bind({});
@@ -378,7 +395,8 @@ WithVerticalNavigation.args = {
   ]
 };
 WithVerticalNavigation.parameters = {
-  controls: { hideNoControlsWarning: true }
+  controls: { hideNoControlsWarning: true },
+  options: { selectedPanel: 'storybook/actions/panel' }
 };
 
 export const WithHorizontalAndVerticalNavigation = SimpleToolbarTemplate.bind({});
@@ -391,5 +409,6 @@ WithHorizontalAndVerticalNavigation.args = {
   ]
 };
 WithHorizontalAndVerticalNavigation.parameters = {
-  controls: { hideNoControlsWarning: true }
+  controls: { hideNoControlsWarning: true },
+  options: { selectedPanel: 'storybook/actions/panel' }
 };

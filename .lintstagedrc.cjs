@@ -3,5 +3,6 @@ module.exports = {
   '**/*.ts?(x)': () => 'yarn tsc --noEmit --incremental',
   '*.css': 'yarn stylelint --cache',
   '**/*': 'yarn pretty-quick --staged',
-  '*.md': 'yarn markdownlint --config ./.markdownlint.json'
+  '*.md': 'yarn markdownlint --config ./.markdownlint.json',
+  Dockerfile: 'yarn dockerfilelint'
 };
