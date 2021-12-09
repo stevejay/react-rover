@@ -320,13 +320,10 @@ Basic.args = {
     { id: 'three', label: 'Three' }
   ]
 };
-<<<<<<< HEAD
 Basic.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
-=======
->>>>>>> partial grid support
 
 export const WithButtonTwoAsInitialTabStop = SimpleToolbarTemplate.bind({});
 WithButtonTwoAsInitialTabStop.args = {
@@ -336,15 +333,11 @@ WithButtonTwoAsInitialTabStop.args = {
     { id: 'two', label: 'Two' },
     { id: 'three', label: 'Three' }
   ],
-<<<<<<< HEAD
-  initialTabStopId: 'two'
+  initialId: 'two'
 };
 WithButtonTwoAsInitialTabStop.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
-=======
-  initialId: 'two'
->>>>>>> partial grid support
 };
 
 export const WithDisabledEndStops = SimpleToolbarTemplate.bind({});
@@ -358,13 +351,10 @@ WithDisabledEndStops.args = {
     { id: 'five', label: 'Five', disabled: true }
   ]
 };
-<<<<<<< HEAD
 WithDisabledEndStops.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
-=======
->>>>>>> partial grid support
 
 export const WithDisabledFocusableEndStops = SimpleToolbarTemplate.bind({});
 WithDisabledFocusableEndStops.args = {
@@ -375,13 +365,10 @@ WithDisabledFocusableEndStops.args = {
     { id: 'three', label: 'Three', disabledFocusable: true }
   ]
 };
-<<<<<<< HEAD
 WithDisabledFocusableEndStops.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
-=======
->>>>>>> partial grid support
 
 export const WithNoWraparound = SimpleToolbarTemplate.bind({});
 WithNoWraparound.args = {
@@ -392,13 +379,10 @@ WithNoWraparound.args = {
     { id: 'three', label: 'Three' }
   ]
 };
-<<<<<<< HEAD
 WithNoWraparound.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
-=======
->>>>>>> partial grid support
 
 export const WithVerticalNavigation = SimpleToolbarTemplate.bind({});
 WithVerticalNavigation.args = {
@@ -409,13 +393,10 @@ WithVerticalNavigation.args = {
     { id: 'three', label: 'Three' }
   ]
 };
-<<<<<<< HEAD
 WithVerticalNavigation.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
-=======
->>>>>>> partial grid support
 
 export const WithHorizontalAndVerticalNavigation = SimpleToolbarTemplate.bind({});
 WithHorizontalAndVerticalNavigation.args = {
@@ -426,10 +407,7 @@ WithHorizontalAndVerticalNavigation.args = {
     { id: 'three', label: 'Three' }
   ]
 };
-<<<<<<< HEAD
 WithHorizontalAndVerticalNavigation.parameters = {
   controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
-=======
->>>>>>> partial grid support
