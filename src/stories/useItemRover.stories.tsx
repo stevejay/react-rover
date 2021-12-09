@@ -52,10 +52,10 @@ const gridKeyDownTranslators = [
 const GridTemplate: Story<GridTemplateProps> = ({ columnsCount, itemCount }) => {
   const [items] = useState<GridItem[]>(() => createItems(itemCount));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onCurrentItemChange = useCallback(() => action('current-item-changed'), []);
+  const onTabStopChange = useCallback(() => action('current-item-changed'), []);
   const { getTabContainerProps, getTabStopProps } = useItemRover(items, gridKeyDownTranslators, {
     initialItem: items[1],
-    onCurrentItemChange,
+    onTabStopChange,
     columnsCount
   });
   return (
@@ -78,10 +78,10 @@ const oneDimensionalKeyDownTranslators = [verticalNavigation(), extremesNavigati
 const OneDimensionalTemplate: Story<OneDimensionalTemplateProps> = ({ itemCount }) => {
   const [items] = useState<GridItem[]>(() => createItems(itemCount));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onCurrentItemChange = useCallback(() => action('current-item-changed'), []);
+  const onTabStopChange = useCallback(() => action('current-item-changed'), []);
   const { getTabContainerProps, getTabStopProps } = useItemRover(items, oneDimensionalKeyDownTranslators, {
     initialItem: items[1],
-    onCurrentItemChange
+    onTabStopChange
   });
   return (
     <StackedLayout>

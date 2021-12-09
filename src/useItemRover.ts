@@ -35,12 +35,12 @@ type GetTabStopProps = (
   onClick?: MouseEventHandler<HTMLElement>;
 };
 
-export type OnCurrentItemChange = (item: Item | null) => void;
+export type OnTabStopChange = (item: Item | null) => void;
 
 export type ItemRoverOptions = {
   columnsCount?: number;
   initialItem?: Item | null;
-  onCurrentItemChange?: OnCurrentItemChange;
+  onTabStopChange?: OnTabStopChange;
   shouldFocusOnClick?: boolean;
 };
 
@@ -55,7 +55,7 @@ export function useItemRover(
   keyDownTranslators: KeyDownTranslator[],
   options: ItemRoverOptions = {}
 ): ItemRoverResult {
-  const { onCurrentItemChange, columnsCount, initialItem = null, shouldFocusOnClick = false } = options;
+  const { onTabStopChange, columnsCount, initialItem = null, shouldFocusOnClick = false } = options;
 
   const [state, dispatch] = useReducer(roverReducer, {
     currentTabStopItem: initialItem,
@@ -95,8 +95,8 @@ export function useItemRover(
 
   // If required, notify the user that the current tab stop has changed.
   useEffect(() => {
-    onCurrentItemChange && onCurrentItemChange(state.currentTabStopItem);
-  }, [state.currentTabStopItem, onCurrentItemChange]);
+    onTabStopChange && onTabStopChange(state.currentTabStopItem);
+  }, [state.currentTabStopItem, onTabStopChange]);
 
   const getTabContainerProps: GetTabContainerProps = useCallback(
     ({ onKeyDown: userOnKeyDown, ...rest } = {}) => {
