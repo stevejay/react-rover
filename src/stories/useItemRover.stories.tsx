@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { action } from '@storybook/addon-actions';
 import { Meta, Story } from '@storybook/react';
 
@@ -20,9 +20,13 @@ const meta: Meta = {
   title: 'Grid',
   argTypes: {
     children: {
-      control: {
-        type: 'text'
-      }
+      table: { disable: true }
+    },
+    columnsCount: {
+      table: { disable: true }
+    },
+    itemCount: {
+      table: { disable: true }
     }
   },
   parameters: {
@@ -32,11 +36,16 @@ const meta: Meta = {
 
 export default meta;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function tabStopChangeAction(arg: any) {
+  action('tab-stop-change')(arg === null ? '<null>' : arg);
+}
+
 function createItems(count: number): GridItem[] {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   return [...Array(count)].map((_, i) => ({
-    id: `${i}`,
-    label: `${i}`
+    id: `${i + 1}`,
+    label: `${i + 1}`
   }));
 }
 
@@ -52,10 +61,9 @@ const gridKeyDownTranslators = [
 const GridTemplate: Story<GridTemplateProps> = ({ columnsCount, itemCount }) => {
   const [items] = useState<GridItem[]>(() => createItems(itemCount));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTabStopChange = useCallback(() => action('current-item-changed'), []);
   const { getTabContainerProps, getTabStopProps } = useItemRover(items, gridKeyDownTranslators, {
     initialItem: items[1],
-    onTabStopChange,
+    onTabStopChange: tabStopChangeAction,
     columnsCount
   });
   return (
@@ -63,7 +71,7 @@ const GridTemplate: Story<GridTemplateProps> = ({ columnsCount, itemCount }) => 
       <Button label="Focus before" />
       <Grid columnsCount={columnsCount} aria-label="Cells" {...getTabContainerProps()}>
         {items.map((item) => (
-          <Button key={item.id} disabled={item.id === '3'} label={item.label} {...getTabStopProps(item)} />
+          <Button key={item.id} disabled={item.id === '5'} label={item.label} {...getTabStopProps(item)} />
         ))}
       </Grid>
       <Button label="Focus after" />
@@ -73,13 +81,12 @@ const GridTemplate: Story<GridTemplateProps> = ({ columnsCount, itemCount }) => 
 
 const DynamicGridTemplate: Story<void> = () => {
   const [columnsCount, setColumnsCount] = useState(3);
-  const [enableButtonTwo, setEnableButtonTwo] = useState(false);
+  const [enableButtonThree, setEnableButtonThree] = useState(false);
   const [items] = useState<GridItem[]>(() => createItems(7));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTabStopChange = useCallback(() => action('current-item-changed'), []);
   const { getTabContainerProps, getTabStopProps } = useItemRover(items, gridKeyDownTranslators, {
     initialItem: items[2],
-    onTabStopChange,
+    onTabStopChange: tabStopChangeAction,
     columnsCount
   });
   return (
@@ -90,7 +97,7 @@ const DynamicGridTemplate: Story<void> = () => {
           <Button
             key={item.id}
             label={item.label}
-            disabled={item.id === '2' ? !enableButtonTwo : false}
+            disabled={item.id === '3' ? !enableButtonThree : false}
             {...getTabStopProps(item)}
           />
         ))}
@@ -101,8 +108,8 @@ const DynamicGridTemplate: Story<void> = () => {
           onClick={() => setColumnsCount((state) => (state === 2 ? 3 : 2))}
         />
         <Button
-          label={enableButtonTwo ? 'Disable Button Two' : 'Enable Button Two'}
-          onClick={() => setEnableButtonTwo((state) => !state)}
+          label={enableButtonThree ? 'Disable Button Three' : 'Enable Button Three'}
+          onClick={() => setEnableButtonThree((state) => !state)}
         />
       </div>
     </StackedLayout>
@@ -116,10 +123,8 @@ const oneDimensionalKeyDownTranslators = [verticalNavigation(), extremesNavigati
 const OneDimensionalTemplate: Story<OneDimensionalTemplateProps> = ({ itemCount }) => {
   const [items] = useState<GridItem[]>(() => createItems(itemCount));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTabStopChange = useCallback(() => action('current-item-changed'), []);
   const { getTabContainerProps, getTabStopProps } = useItemRover(items, oneDimensionalKeyDownTranslators, {
-    initialItem: items[1],
-    onTabStopChange
+    onTabStopChange: tabStopChangeAction
   });
   return (
     <StackedLayout>
@@ -143,12 +148,12 @@ MassiveGrid.args = {
 export const SmallGrid = GridTemplate.bind({});
 SmallGrid.args = {
   columnsCount: 3,
-  itemCount: 8
+  itemCount: 10
 };
 
 export const DynamicGrid = DynamicGridTemplate.bind({});
 
 export const Column = OneDimensionalTemplate.bind({});
 Column.args = {
-  itemCount: 8
+  itemCount: 5
 };

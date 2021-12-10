@@ -29,7 +29,7 @@ test('tabbing in and out of a toolbar', async ({ page }) => {
   await keyboard.tabForwards();
   await expect(toolbarPage.after).toBeFocused();
 
-  // Tab back into the toolbar, which should be to button one:
+  // Tab back into the toolbar:
 
   await keyboard.tabBackwards();
   await expect(toolbarPage.buttonOne).toBeFocused();
@@ -44,7 +44,7 @@ test('tabbing in and out of a toolbar', async ({ page }) => {
   await keyboard.tabForwards();
   await expect(toolbarPage.after).toBeFocused();
 
-  // Tab back into the toolbar, which should be to button two:
+  // Tab back into the toolbar:
 
   await keyboard.tabBackwards();
   await expect(toolbarPage.buttonTwo).toBeFocused();
@@ -154,7 +154,7 @@ test('initialisation of a toolbar with an initialItem value', async ({ page }) =
 
   await toolbarPage.before.focus();
 
-  // Tab forward into the toolbar, which should be to button two:
+  // Tab forward into the toolbar:
 
   await keyboard.tabForwards();
   await expect(toolbarPage.buttonTwo).toBeFocused();
@@ -169,7 +169,7 @@ test('roving when the end tab stops are disabled', async ({ page }) => {
 
   await toolbarPage.before.focus();
 
-  // Tab forward into the toolbar, which should be to button two:
+  // Tab forward into the toolbar:
 
   await keyboard.tabForwards();
   await expect(toolbarPage.buttonTwo).toBeFocused();
@@ -216,7 +216,7 @@ test('roving when the end tab stops are disabled but focusable', async ({ page }
 
   await toolbarPage.before.focus();
 
-  // Tab forward into the toolbar, which should be to button one:
+  // Tab forward into the toolbar:
 
   await keyboard.tabForwards();
   await expect(toolbarPage.buttonOne).toBeFocused();

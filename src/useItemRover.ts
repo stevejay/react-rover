@@ -97,6 +97,7 @@ export function useItemRover(
 
   // If required, notify the user that the current tab stop has changed.
   useEffect(() => {
+    console.log('effect run', onTabStopChange);
     onTabStopChange && onTabStopChange(state.currentTabStopItem);
   }, [state.currentTabStopItem, onTabStopChange]);
 

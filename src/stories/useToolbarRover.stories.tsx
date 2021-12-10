@@ -47,8 +47,8 @@ const meta: Meta = {
 export default meta;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function customTabStopChangedAction(arg: any) {
-  action('tab-stop-changed')(arg === null ? '<null>' : arg);
+function tabStopChangeAction(arg: any) {
+  action('tab-stop-change')(arg === null ? '<null>' : arg);
 }
 
 const horizontalToolbarKeyDownTranslators = [
@@ -61,13 +61,14 @@ const TextEditorToolbarTemplate: Story<void> = () => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [state, setState] = useState(initialEditorState);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTabStopChange = useCallback(customTabStopChangedAction, []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
     initialId: 'italic',
-    onTabStopChange
+    onTabStopChange: tabStopChangeAction
   });
-  // Prevents focus leaving the text area if it currently has focus,
-  // so you can interact with the toolbar without losing the caret:
+
+  // Prevents focus leaving the text area if it currently has focus.
+  // This is so you can click buttons in the toolbar without losing focus
+  // (and the caret) in the text area:
   const mouseDownHandler = useCallback((event: MouseEvent) => {
     if (
       document.activeElement &&
@@ -77,6 +78,7 @@ const TextEditorToolbarTemplate: Story<void> = () => {
       event.preventDefault();
     }
   }, []);
+
   return (
     <StackedLayout>
       <Toolbar aria-label="Text Formatting" aria-controls="text-area" {...getTabContainerProps()}>
@@ -202,9 +204,8 @@ const DynamicToolbarTemplate: Story<void> = () => {
   const [showButtonTwo, setShowButtonTwo] = useState(true);
   const [showButtonThree, setShowButtonThree] = useState(true);
   const [enableButtonThree, setEnableButtonThree] = useState(true);
-  const onTabStopChange = useCallback(customTabStopChangedAction, []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
-    onTabStopChange
+    onTabStopChange: tabStopChangeAction
   });
   return (
     <StackedLayout>
@@ -279,10 +280,9 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
   shouldFocusOnClick
 }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTabStopChange = useCallback(customTabStopChangedAction, []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(keyDownTranslators, {
     initialId,
-    onTabStopChange,
+    onTabStopChange: tabStopChangeAction,
     shouldFocusOnClick
   });
   return (
@@ -310,13 +310,11 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
 
 export const TextEditorToolbar = TextEditorToolbarTemplate.bind({});
 TextEditorToolbar.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
 export const DynamicToolbar = DynamicToolbarTemplate.bind({});
 DynamicToolbar.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -330,7 +328,6 @@ Basic.args = {
   ]
 };
 Basic.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -345,7 +342,6 @@ WithButtonTwoAsInitialTabStop.args = {
   initialId: 'two'
 };
 WithButtonTwoAsInitialTabStop.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -361,7 +357,6 @@ WithDisabledEndStops.args = {
   ]
 };
 WithDisabledEndStops.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -375,7 +370,6 @@ WithDisabledFocusableEndStops.args = {
   ]
 };
 WithDisabledFocusableEndStops.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -389,7 +383,6 @@ WithNoWraparound.args = {
   ]
 };
 WithNoWraparound.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -403,7 +396,6 @@ WithVerticalNavigation.args = {
   ]
 };
 WithVerticalNavigation.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -417,6 +409,5 @@ WithHorizontalAndVerticalNavigation.args = {
   ]
 };
 WithHorizontalAndVerticalNavigation.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
