@@ -30,19 +30,13 @@ const meta: Meta = {
   title: 'Toolbar',
   argTypes: {
     children: {
-      table: {
-        disable: true
-      }
+      table: { disable: true }
     },
     keyDownTranslators: {
-      table: {
-        disable: true
-      }
+      table: { disable: true }
     },
     tabStops: {
-      table: {
-        disable: true
-      }
+      table: { disable: true }
     }
   },
   parameters: {
@@ -204,7 +198,9 @@ const TextEditorToolbarTemplate: Story<void> = () => {
 };
 
 const DynamicToolbarTemplate: Story<void> = () => {
+  const [showButtonOne, setShowButtonOne] = useState(true);
   const [showButtonTwo, setShowButtonTwo] = useState(true);
+  const [showButtonThree, setShowButtonThree] = useState(true);
   const [enableButtonThree, setEnableButtonThree] = useState(true);
   const onTabStopChange = useCallback(customTabStopChangedAction, []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
@@ -214,12 +210,14 @@ const DynamicToolbarTemplate: Story<void> = () => {
     <StackedLayout>
       <Button label="Focus before" />
       <Toolbar aria-label="Toolbar" {...getTabContainerProps()}>
-        <Button
-          label="One"
-          {...getTabStopProps('one', {
-            onClick: action('button-one-click')
-          })}
-        />
+        {showButtonOne && (
+          <Button
+            label="One"
+            {...getTabStopProps('one', {
+              onClick: action('button-one-click')
+            })}
+          />
+        )}
         {showButtonTwo && (
           <Button
             label="Two"
@@ -228,18 +226,28 @@ const DynamicToolbarTemplate: Story<void> = () => {
             })}
           />
         )}
-        <Button
-          label="Three"
-          disabled={!enableButtonThree}
-          {...getTabStopProps('three', {
-            onClick: action('button-three-click')
-          })}
-        />
+        {showButtonThree && (
+          <Button
+            label="Three"
+            disabled={!enableButtonThree}
+            {...getTabStopProps('three', {
+              onClick: action('button-three-click')
+            })}
+          />
+        )}
       </Toolbar>
       <div css={{ display: 'flex', gap: 16 }}>
         <Button
+          label={showButtonOne ? 'Delete Button One' : 'Render Button One'}
+          onClick={() => setShowButtonOne((state) => !state)}
+        />
+        <Button
           label={showButtonTwo ? 'Delete Button Two' : 'Render Button Two'}
           onClick={() => setShowButtonTwo((state) => !state)}
+        />
+        <Button
+          label={showButtonThree ? 'Delete Button Three' : 'Render Button Three'}
+          onClick={() => setShowButtonThree((state) => !state)}
         />
         <Button
           label={enableButtonThree ? 'Disable Button Three' : 'Enable Button Three'}

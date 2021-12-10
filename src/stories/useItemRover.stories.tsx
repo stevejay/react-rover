@@ -99,7 +99,7 @@ const OneDimensionalTemplate: Story<OneDimensionalTemplateProps> = ({ itemCount 
 export const MassiveGrid = GridTemplate.bind({});
 MassiveGrid.args = {
   columnsCount: 12,
-  itemCount: 1000
+  itemCount: 2000
 };
 
 export const SmallGrid = GridTemplate.bind({});
