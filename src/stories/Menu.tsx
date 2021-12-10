@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { forwardRef, KeyboardEvent, MouseEvent, useState } from 'react';
-import { FaArrowDown } from 'react-icons/fa';
+import { FaCaretDown } from 'react-icons/fa';
 import styled from '@emotion/styled';
 
 import { ButtonBase } from './ButtonBase';
@@ -97,7 +97,7 @@ export const Menu = forwardRef<HTMLButtonElement, MenuProps>(
           //   }}
         >
           {value.toUpperCase()}
-          <FaArrowDown />
+          <FaCaretDown style={{ marginLeft: 4, marginRight: -4 }} />
         </ButtonBase>
         <StyledMenu role="menu" id={menuId} aria-label={menuLabel} open={open}>
           {options.map((option) => (

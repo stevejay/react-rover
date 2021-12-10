@@ -21,16 +21,16 @@ export function shouldResetCurrentTabStopItem(
   return !currentElement || !elementIsEnabled(currentElement);
 }
 
-function findIndexOfTabStop(items: ItemList, tabStopItem: Item | null): number {
+export function findIndexOfTabStopItem(items: ItemList, tabStopItem: Item | null): number {
   return items.findIndex((item) => item === tabStopItem);
 }
 
-export function findTabStop(items: ItemList, tabStopItem: Item | null): Item | null {
-  const index = findIndexOfTabStop(items, tabStopItem);
+export function findTabStopItem(items: ItemList, tabStopItem: Item | null): Item | null {
+  const index = findIndexOfTabStopItem(items, tabStopItem);
   return index === -1 ? null : items[index];
 }
 
-export function focusTabStop(itemToElementMap: ItemToElementMap, tabStopItem: Item | null): void {
+export function focusTabStopItem(itemToElementMap: ItemToElementMap, tabStopItem: Item | null): void {
   tabStopItem && itemToElementMap.get(tabStopItem)?.focus();
 }
 
@@ -41,9 +41,8 @@ export function addTabStopItem(
   itemToElementMap: ItemToElementMap,
   tabStopItem: Item
 ): ItemList {
-  // Iterate backwards through items since it is
-  // most likely that the tab stop will be inserted
-  // at the end of the array.
+  // Iterate backwards through items since it is most likely
+  // that the tab stop will be inserted at the end of the array.
   let indexToInsertAt = -1;
   const tabStopElement = itemToElementMap.get(tabStopItem);
 
@@ -76,47 +75,4 @@ export function addTabStopItem(
 
 export function removeTabStopItem(items: ItemList, tabStopItem: Item): ItemList {
   return items.filter((item) => item !== tabStopItem);
-}
-
-export function getIdOfNextEnabledTabStop(
-  items: ItemList,
-  itemToElementMap: ItemToElementMap,
-  currentTabStopItem: Item,
-  offset: number,
-  wraparound: boolean
-): Item | null {
-  const startIndex = findIndexOfTabStop(items, currentTabStopItem);
-  if (startIndex === -1) {
-    return null;
-  }
-
-  let nextIndex = startIndex + offset;
-  let result: Item | null = null;
-
-  for (;;) {
-    if (nextIndex >= items.length) {
-      if (wraparound) {
-        nextIndex = 0;
-      } else {
-        break;
-      }
-    } else if (nextIndex <= -1) {
-      if (wraparound) {
-        nextIndex = items.length - 1;
-      } else {
-        break;
-      }
-    } else if (nextIndex === startIndex) {
-      // We've looped right around back to where we started
-      // so return null as there is nothing to do.
-      break;
-    } else if (elementIsEnabled(itemToElementMap.get(items[nextIndex]))) {
-      result = items[nextIndex];
-      break;
-    } else {
-      nextIndex += offset;
-    }
-  }
-
-  return result;
 }

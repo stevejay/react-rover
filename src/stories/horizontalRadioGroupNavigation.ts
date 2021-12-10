@@ -1,4 +1,4 @@
-import { getIdOfNextEnabledTabStop, ItemList, ItemToElementMap, KeyDownTranslator } from '@/index';
+import { getNextEnabledTabStopItem, ItemList, ItemToElementMap, KeyDownTranslator } from '@/index';
 
 function getRoleAttribute(element: HTMLElement | null): string | null {
   return element ? element.getAttribute('role') : null;
@@ -30,6 +30,14 @@ function getRadioGroupTabStopRange(
   return [firstIndex, lastIndex];
 }
 
+/**
+ * Demonstrates how you can create a custom key down translator. This example
+ * allows you to use the up and down arrows to rove between the buttons
+ * of a radio button group.
+ *
+ * The `getNextEnabledTabStopItem` function is exposed by the `react-rover`
+ * package to facilitate creating your own translators.
+ */
 export function horizontalRadioGroupNavigation(wraparound = true): KeyDownTranslator {
   return (event, items, itemToElementMap, currentTabStopItem) => {
     const currentTabStopElement = itemToElementMap.get(currentTabStopItem);
@@ -58,7 +66,7 @@ export function horizontalRadioGroupNavigation(wraparound = true): KeyDownTransl
       return null;
     }
 
-    const newTabStopItem = getIdOfNextEnabledTabStop(
+    const result = getNextEnabledTabStopItem(
       items.slice(firstIndex, lastIndex + 1),
       itemToElementMap,
       currentTabStopItem,
@@ -66,6 +74,6 @@ export function horizontalRadioGroupNavigation(wraparound = true): KeyDownTransl
       wraparound
     );
 
-    return newTabStopItem ? { newTabStopItem } : null;
+    return result !== currentTabStopItem ? result : null;
   };
 }

@@ -1,5 +1,5 @@
 import { elementIsEnabled } from '@/domUtils';
-import { findTabStop } from '@/tabStopUtils';
+import { findTabStopItem } from '@/tabStopUtils';
 import type { Action, State } from '@/types';
 import { isNil } from '@/utils';
 
@@ -12,7 +12,6 @@ export function roverReducer(state: State, action: Action): State {
           return { currentTabStopItem: initialItem, shouldFocus: false };
         }
       }
-
       const firstEnabledTabStopItem = items.find((item) => elementIsEnabled(itemToElementMap.get(item)));
       return isNil(firstEnabledTabStopItem)
         ? state
@@ -20,13 +19,15 @@ export function roverReducer(state: State, action: Action): State {
     }
     case 'updateTabStopOnClick': {
       const { items, newTabStopItem, shouldFocus } = action.payload;
-      const tabStop = findTabStop(items, newTabStopItem);
-      return tabStop ? { currentTabStopItem: newTabStopItem, shouldFocus } : state;
+      return findTabStopItem(items, newTabStopItem)
+        ? { currentTabStopItem: newTabStopItem, shouldFocus }
+        : state;
     }
     case 'updateTabStopOnKeyDown': {
       const { items, newTabStopItem } = action.payload;
-      const tabStop = findTabStop(items, newTabStopItem);
-      return tabStop ? { currentTabStopItem: newTabStopItem, shouldFocus: true } : state;
+      return findTabStopItem(items, newTabStopItem)
+        ? { currentTabStopItem: newTabStopItem, shouldFocus: true }
+        : state;
     }
     default:
       /* istanbul ignore next */

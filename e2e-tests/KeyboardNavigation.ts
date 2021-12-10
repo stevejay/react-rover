@@ -38,4 +38,12 @@ export class KeyboardNavigation {
   async end() {
     await this.page.keyboard.press('End');
   }
+
+  async ctrlHome() {
+    await this.page.keyboard.press('Control+Home');
+  }
+
+  async ctrlEnd() {
+    await this.page.keyboard.press('Control+End');
+  }
 }

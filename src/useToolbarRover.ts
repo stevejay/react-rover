@@ -1,4 +1,14 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import {
+  KeyboardEvent,
+  KeyboardEventHandler,
+  MouseEvent,
+  MouseEventHandler,
+  Ref,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef
+} from 'react';
 import mergeRefs from 'merge-refs';
 
 import { callAllEventHandlers, elementIsEnabled, useIsomorphicLayoutEffect } from '@/domUtils';
@@ -6,28 +16,30 @@ import { runKeyDownTranslators } from '@/keyDownTranslators';
 import { roverReducer } from '@/roverReducer';
 import {
   addTabStopItem,
-  focusTabStop,
+  focusTabStopItem,
   removeTabStopItem,
   shouldResetCurrentTabStopItem
 } from '@/tabStopUtils';
 import type { Item, ItemList, KeyDownTranslator } from '@/types';
 
-type GetTabContainerProps = (props?: { onKeyDown?: React.KeyboardEventHandler<HTMLElement> }) => {
-  onKeyDown: React.KeyboardEventHandler<HTMLElement>;
+import { isNil } from './utils';
+
+type GetTabContainerProps = (props?: { onKeyDown?: KeyboardEventHandler<HTMLElement> }) => {
+  onKeyDown: KeyboardEventHandler<HTMLElement>;
 };
 
 type GetTabStopProps = (
   id: string,
   props?: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ref?: React.Ref<any>;
-    onClick?: React.MouseEventHandler<HTMLElement>;
+    ref?: Ref<any>;
+    onClick?: MouseEventHandler<HTMLElement>;
   }
 ) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ref?: React.Ref<any>;
+  ref?: Ref<any>;
   tabIndex: number;
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  onClick?: MouseEventHandler<HTMLElement>;
 };
 
 export type OnTabStopChange = (item: string | null) => void;
@@ -48,10 +60,10 @@ export function useToolbarRover(
   keyDownTranslators: KeyDownTranslator[],
   options: ToolbarRoverOptions = {}
 ): ToolbarRoverResult {
-  const { onTabStopChange, initialId = null, shouldFocusOnClick = false } = options;
+  const { onTabStopChange, initialId: initialItem = null, shouldFocusOnClick = false } = options;
 
   const [state, dispatch] = useReducer(roverReducer, {
-    currentTabStopItem: initialId,
+    currentTabStopItem: initialItem,
     shouldFocus: false
   });
 
@@ -68,7 +80,7 @@ export function useToolbarRover(
         payload: {
           items: tabStopItemsRef.current,
           itemToElementMap: tabStopElementMapRef.current,
-          initialItem: initialId
+          initialItem
         }
       });
     }
@@ -77,7 +89,7 @@ export function useToolbarRover(
   // If necessary, focus on the new current tab stop.
   useEffect(() => {
     if (state.currentTabStopItem && state.shouldFocus) {
-      focusTabStop(tabStopElementMapRef.current, state.currentTabStopItem);
+      focusTabStopItem(tabStopElementMapRef.current, state.currentTabStopItem);
     }
   }, [state.currentTabStopItem, state.shouldFocus]);
 
@@ -90,20 +102,20 @@ export function useToolbarRover(
     ({ onKeyDown: userOnKeyDown, ...rest } = {}) => {
       return {
         ...rest,
-        onKeyDown: callAllEventHandlers(userOnKeyDown, (event: React.KeyboardEvent<HTMLElement>) => {
-          const action = runKeyDownTranslators(
+        onKeyDown: callAllEventHandlers(userOnKeyDown, (event: KeyboardEvent<HTMLElement>) => {
+          const newTabStopItem = runKeyDownTranslators(
             keyDownTranslators,
             event,
             tabStopItemsRef.current,
             tabStopElementMapRef.current,
             state.currentTabStopItem
           );
-          if (action) {
+          if (!isNil(newTabStopItem)) {
             event.preventDefault();
             event.stopPropagation();
             dispatch({
               type: 'updateTabStopOnKeyDown',
-              payload: { items: tabStopItemsRef.current, ...action }
+              payload: { items: tabStopItemsRef.current, newTabStopItem }
             });
           }
         })
@@ -128,9 +140,9 @@ export function useToolbarRover(
         tabIndex: id === state.currentTabStopItem ? 0 : -1,
         // eslint-disable-next-line
         ref: userRef ? mergeRefs(userRef, ref) : ref,
-        onClick: (event: React.MouseEvent<HTMLElement>) => {
+        onClick: (event: MouseEvent<HTMLElement>) => {
           if (elementIsEnabled(event.target)) {
-            callAllEventHandlers<React.MouseEvent<HTMLElement>>(userOnClick, () => {
+            callAllEventHandlers<MouseEvent<HTMLElement>>(userOnClick, () => {
               dispatch({
                 type: 'updateTabStopOnClick',
                 payload: {

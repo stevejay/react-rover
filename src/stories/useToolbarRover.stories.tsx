@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useCallback, useRef, useState } from 'react';
+import { MouseEvent, useCallback, useRef, useState } from 'react';
 import { FaAlignCenter, FaAlignLeft, FaAlignRight, FaBold, FaItalic, FaUnderline } from 'react-icons/fa';
 import { action } from '@storybook/addon-actions';
 import { Meta, Story } from '@storybook/react';
@@ -13,6 +13,7 @@ import {
 } from '@/index';
 
 import { Button } from './Button';
+import { ButtonGroup, RadioButtonGroup } from './ButtonGroup';
 import { Checkbox } from './Checkbox';
 import { horizontalRadioGroupNavigation } from './horizontalRadioGroupNavigation';
 import { Link } from './Link';
@@ -29,19 +30,13 @@ const meta: Meta = {
   title: 'Toolbar',
   argTypes: {
     children: {
-      table: {
-        disable: true
-      }
+      table: { disable: true }
     },
     keyDownTranslators: {
-      table: {
-        disable: true
-      }
+      table: { disable: true }
     },
     tabStops: {
-      table: {
-        disable: true
-      }
+      table: { disable: true }
     }
   },
   parameters: {
@@ -52,8 +47,8 @@ const meta: Meta = {
 export default meta;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function customTabStopChangedAction(arg: any) {
-  action('tab-stop-changed')(arg === null ? '<null>' : arg);
+function tabStopChangeAction(arg: any) {
+  action('tab-stop-change')(arg === null ? '<null>' : arg);
 }
 
 const horizontalToolbarKeyDownTranslators = [
@@ -66,14 +61,15 @@ const TextEditorToolbarTemplate: Story<void> = () => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [state, setState] = useState(initialEditorState);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTabStopChange = useCallback(customTabStopChangedAction, []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
     initialId: 'italic',
-    onTabStopChange
+    onTabStopChange: tabStopChangeAction
   });
-  // Prevents focus leaving the text area if it currently has focus,
-  // so you can interact with the toolbar without losing the caret:
-  const mouseDownHandler = useCallback((event: React.MouseEvent) => {
+
+  // Prevents focus leaving the text area if it currently has focus.
+  // This is so you can click buttons in the toolbar without losing focus
+  // (and the caret) in the text area:
+  const mouseDownHandler = useCallback((event: MouseEvent) => {
     if (
       document.activeElement &&
       textAreaRef.current &&
@@ -82,10 +78,11 @@ const TextEditorToolbarTemplate: Story<void> = () => {
       event.preventDefault();
     }
   }, []);
+
   return (
     <StackedLayout>
       <Toolbar aria-label="Text Formatting" aria-controls="text-area" {...getTabContainerProps()}>
-        <Toolbar.Group>
+        <ButtonGroup>
           <ToggleButton
             label="Bold"
             icon={FaBold}
@@ -117,8 +114,8 @@ const TextEditorToolbarTemplate: Story<void> = () => {
                 }))
             })}
           />
-        </Toolbar.Group>
-        <Toolbar.RadioButtonGroup>
+        </ButtonGroup>
+        <RadioButtonGroup>
           <RadioButton
             label="Align left"
             icon={FaAlignLeft}
@@ -146,8 +143,8 @@ const TextEditorToolbarTemplate: Story<void> = () => {
               onClick: () => setState((state) => ({ ...state, justify: 'right' }))
             })}
           />
-        </Toolbar.RadioButtonGroup>
-        <Toolbar.Group>
+        </RadioButtonGroup>
+        <ButtonGroup>
           <Button
             label="Copy"
             onMouseDown={mouseDownHandler}
@@ -170,40 +167,32 @@ const TextEditorToolbarTemplate: Story<void> = () => {
               onClick: action('cut-button-click')
             })}
           />
-        </Toolbar.Group>
-        <Toolbar.Group>
-          <Menu
-            valueFormatter={(value) => `Font: ${value}`}
-            menuLabel="Font family"
-            options={state.fontFamilies}
-            value={state.fontFamily}
-            onChange={(_, value) => setState((state) => ({ ...state, fontFamily: value }))}
-            {...getTabStopProps('font-family')}
-          />
-        </Toolbar.Group>
-        <Toolbar.Group>
-          <SpinButton
-            label="Font size in points"
-            value={state.fontSize}
-            min={5}
-            max={24}
-            onMouseDown={mouseDownHandler}
-            onChange={(_, value) => setState((state) => ({ ...state, fontSize: value }))}
-            {...getTabStopProps('font-size')}
-          />
-        </Toolbar.Group>
-        <Toolbar.Group>
-          <Checkbox
-            label="Night Mode"
-            checked={state.nightMode}
-            onMouseDown={mouseDownHandler}
-            onChange={(_, nightMode) => setState((state) => ({ ...state, nightMode }))}
-            {...getTabStopProps('night-mode')}
-          />
-        </Toolbar.Group>
-        <Toolbar.Group>
-          <Link label="Help" href="https://www.google.com" {...getTabStopProps('link')} />
-        </Toolbar.Group>
+        </ButtonGroup>
+        <Menu
+          valueFormatter={(value) => `Font: ${value}`}
+          menuLabel="Font family"
+          options={state.fontFamilies}
+          value={state.fontFamily}
+          onChange={(_, value) => setState((state) => ({ ...state, fontFamily: value }))}
+          {...getTabStopProps('font-family')}
+        />
+        <SpinButton
+          label="Font size in points"
+          value={state.fontSize}
+          min={5}
+          max={24}
+          onMouseDown={mouseDownHandler}
+          onChange={(_, value) => setState((state) => ({ ...state, fontSize: value }))}
+          {...getTabStopProps('font-size')}
+        />
+        <Checkbox
+          label="Night Mode"
+          checked={state.nightMode}
+          onMouseDown={mouseDownHandler}
+          onChange={(_, nightMode) => setState((state) => ({ ...state, nightMode }))}
+          {...getTabStopProps('night-mode')}
+        />
+        <Link label="Help" href="https://www.google.com" {...getTabStopProps('link')} />
       </Toolbar>
       <TextArea id="text-area" ref={textAreaRef} state={state} />
     </StackedLayout>
@@ -211,22 +200,25 @@ const TextEditorToolbarTemplate: Story<void> = () => {
 };
 
 const DynamicToolbarTemplate: Story<void> = () => {
+  const [showButtonOne, setShowButtonOne] = useState(true);
   const [showButtonTwo, setShowButtonTwo] = useState(true);
+  const [showButtonThree, setShowButtonThree] = useState(true);
   const [enableButtonThree, setEnableButtonThree] = useState(true);
-  const onTabStopChange = useCallback(customTabStopChangedAction, []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(horizontalToolbarKeyDownTranslators, {
-    onTabStopChange
+    onTabStopChange: tabStopChangeAction
   });
   return (
     <StackedLayout>
       <Button label="Focus before" />
       <Toolbar aria-label="Toolbar" {...getTabContainerProps()}>
-        <Button
-          label="One"
-          {...getTabStopProps('one', {
-            onClick: action('button-one-click')
-          })}
-        />
+        {showButtonOne && (
+          <Button
+            label="One"
+            {...getTabStopProps('one', {
+              onClick: action('button-one-click')
+            })}
+          />
+        )}
         {showButtonTwo && (
           <Button
             label="Two"
@@ -235,18 +227,28 @@ const DynamicToolbarTemplate: Story<void> = () => {
             })}
           />
         )}
-        <Button
-          label="Three"
-          disabled={!enableButtonThree}
-          {...getTabStopProps('three', {
-            onClick: action('button-three-click')
-          })}
-        />
+        {showButtonThree && (
+          <Button
+            label="Three"
+            disabled={!enableButtonThree}
+            {...getTabStopProps('three', {
+              onClick: action('button-three-click')
+            })}
+          />
+        )}
       </Toolbar>
       <div css={{ display: 'flex', gap: 16 }}>
         <Button
+          label={showButtonOne ? 'Delete Button One' : 'Render Button One'}
+          onClick={() => setShowButtonOne((state) => !state)}
+        />
+        <Button
           label={showButtonTwo ? 'Delete Button Two' : 'Render Button Two'}
           onClick={() => setShowButtonTwo((state) => !state)}
+        />
+        <Button
+          label={showButtonThree ? 'Delete Button Three' : 'Render Button Three'}
+          onClick={() => setShowButtonThree((state) => !state)}
         />
         <Button
           label={enableButtonThree ? 'Disable Button Three' : 'Enable Button Three'}
@@ -278,10 +280,9 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
   shouldFocusOnClick
 }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTabStopChange = useCallback(customTabStopChangedAction, []);
   const { getTabContainerProps, getTabStopProps } = useToolbarRover(keyDownTranslators, {
     initialId,
-    onTabStopChange,
+    onTabStopChange: tabStopChangeAction,
     shouldFocusOnClick
   });
   return (
@@ -309,13 +310,11 @@ const SimpleToolbarTemplate: Story<SimpleToolbarTemplateProps> = ({
 
 export const TextEditorToolbar = TextEditorToolbarTemplate.bind({});
 TextEditorToolbar.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
 export const DynamicToolbar = DynamicToolbarTemplate.bind({});
 DynamicToolbar.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -329,7 +328,6 @@ Basic.args = {
   ]
 };
 Basic.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -344,7 +342,6 @@ WithButtonTwoAsInitialTabStop.args = {
   initialId: 'two'
 };
 WithButtonTwoAsInitialTabStop.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -360,7 +357,6 @@ WithDisabledEndStops.args = {
   ]
 };
 WithDisabledEndStops.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -374,7 +370,6 @@ WithDisabledFocusableEndStops.args = {
   ]
 };
 WithDisabledFocusableEndStops.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -388,7 +383,6 @@ WithNoWraparound.args = {
   ]
 };
 WithNoWraparound.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -402,7 +396,6 @@ WithVerticalNavigation.args = {
   ]
 };
 WithVerticalNavigation.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };
 
@@ -416,6 +409,5 @@ WithHorizontalAndVerticalNavigation.args = {
   ]
 };
 WithHorizontalAndVerticalNavigation.parameters = {
-  controls: { hideNoControlsWarning: true },
   options: { selectedPanel: 'storybook/actions/panel' }
 };

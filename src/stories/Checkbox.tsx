@@ -1,48 +1,51 @@
 /** @jsxImportSource @emotion/react */
-import { forwardRef, InputHTMLAttributes } from 'react';
+import { ChangeEvent, forwardRef, InputHTMLAttributes } from 'react';
 import styled from '@emotion/styled';
 
 const StyledLabel = styled.label`
-  border: 1px solid white;
   outline: none;
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   text-align: center;
-  background: white;
-  color: #222428;
-  font-size: 14px;
-  line-height: 1.5em;
-  margin-right: 4px;
-  font-family: sans-serif;
+  background: rgb(246, 248, 250);
+  color: rgb(36, 41, 47);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+  transition-property: color, background-color, border-color;
 
   &:hover {
-    border-color: #005a9c;
-    background: rgb(226, 239, 255);
+    background-color: rgb(243, 244, 246);
   }
 
   &:focus-within {
-    border-width: 2px;
-    border-color: #005a9c;
-    background: rgb(226, 239, 255);
-    padding: 5px 11px;
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
   }
+`;
+
+const StyledInput = styled.input`
+  outline: none;
+  cursor: pointer;
+  margin: 0 3px 0 0;
 `;
 
 export type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> & {
   label: string;
   checked: boolean;
   disabledFocusable?: boolean;
-  onChange: (
-    event: Parameters<NonNullable<InputHTMLAttributes<HTMLInputElement>['onChange']>>[0],
-    checked: boolean
-  ) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement>, checked: boolean) => void;
 };
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   ({ label, checked, onChange, disabled = false, ...rest }, ref) => (
     <StyledLabel>
-      <input
+      <StyledInput
         {...rest}
         type="checkbox"
         ref={ref}

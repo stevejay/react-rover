@@ -1,36 +1,48 @@
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import {
+  KeyboardEvent,
+  KeyboardEventHandler,
+  MouseEvent,
+  MouseEventHandler,
+  Ref,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef
+} from 'react';
 import mergeRefs from 'merge-refs';
 
 import { callAllEventHandlers, elementIsEnabled, useIsomorphicLayoutEffect } from '@/domUtils';
 import { runKeyDownTranslators } from '@/keyDownTranslators';
 import { roverReducer } from '@/roverReducer';
-import { focusTabStop, shouldResetCurrentTabStopItem } from '@/tabStopUtils';
+import { focusTabStopItem, shouldResetCurrentTabStopItem } from '@/tabStopUtils';
 import { Item, ItemList, KeyDownTranslator } from '@/types';
 
-type GetTabContainerProps = (props?: { onKeyDown?: React.KeyboardEventHandler<HTMLElement> }) => {
-  onKeyDown: React.KeyboardEventHandler<HTMLElement>;
+import { isNil } from './utils';
+
+type GetTabContainerProps = (props?: { onKeyDown?: KeyboardEventHandler<HTMLElement> }) => {
+  onKeyDown: KeyboardEventHandler<HTMLElement>;
 };
 
 type GetTabStopProps = (
   item: Item,
   props?: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ref?: React.Ref<any>;
-    onClick?: React.MouseEventHandler<HTMLElement>;
+    ref?: Ref<any>;
+    onClick?: MouseEventHandler<HTMLElement>;
   }
 ) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ref?: React.Ref<any>;
+  ref?: Ref<any>;
   tabIndex: number;
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  onClick?: MouseEventHandler<HTMLElement>;
 };
 
-export type OnCurrentItemChange = (item: Item | null) => void;
+export type OnTabStopChange = (item: Item | null) => void;
 
 export type ItemRoverOptions = {
   columnsCount?: number;
   initialItem?: Item | null;
-  onCurrentItemChange?: OnCurrentItemChange;
+  onTabStopChange?: OnTabStopChange;
   shouldFocusOnClick?: boolean;
 };
 
@@ -41,11 +53,11 @@ export type ItemRoverResult = {
 };
 
 export function useItemRover(
-  items: Item[],
+  items: ItemList,
   keyDownTranslators: KeyDownTranslator[],
   options: ItemRoverOptions = {}
 ): ItemRoverResult {
-  const { onCurrentItemChange, columnsCount, initialItem = null, shouldFocusOnClick = false } = options;
+  const { onTabStopChange, columnsCount, initialItem = null, shouldFocusOnClick = false } = options;
 
   const [state, dispatch] = useReducer(roverReducer, {
     currentTabStopItem: initialItem,
@@ -79,21 +91,22 @@ export function useItemRover(
   // If necessary, focus on the new current tab stop.
   useEffect(() => {
     if (state.currentTabStopItem && state.shouldFocus) {
-      focusTabStop(tabStopElementMapRef.current, state.currentTabStopItem);
+      focusTabStopItem(tabStopElementMapRef.current, state.currentTabStopItem);
     }
   }, [state.currentTabStopItem, state.shouldFocus]);
 
   // If required, notify the user that the current tab stop has changed.
   useEffect(() => {
-    onCurrentItemChange && onCurrentItemChange(state.currentTabStopItem);
-  }, [state.currentTabStopItem, onCurrentItemChange]);
+    console.log('effect run', onTabStopChange);
+    onTabStopChange && onTabStopChange(state.currentTabStopItem);
+  }, [state.currentTabStopItem, onTabStopChange]);
 
   const getTabContainerProps: GetTabContainerProps = useCallback(
     ({ onKeyDown: userOnKeyDown, ...rest } = {}) => {
       return {
         ...rest,
-        onKeyDown: callAllEventHandlers(userOnKeyDown, (event: React.KeyboardEvent<HTMLElement>) => {
-          const action = runKeyDownTranslators(
+        onKeyDown: callAllEventHandlers(userOnKeyDown, (event: KeyboardEvent<HTMLElement>) => {
+          const newTabStopItem = runKeyDownTranslators(
             keyDownTranslators,
             event,
             tabStopItemsRef.current,
@@ -101,12 +114,12 @@ export function useItemRover(
             state.currentTabStopItem,
             { columnsCount }
           );
-          if (action) {
+          if (!isNil(newTabStopItem)) {
             event.preventDefault();
             event.stopPropagation();
             dispatch({
               type: 'updateTabStopOnKeyDown',
-              payload: { items: tabStopItemsRef.current, ...action }
+              payload: { items: tabStopItemsRef.current, newTabStopItem }
             });
           }
         })
@@ -129,9 +142,9 @@ export function useItemRover(
         tabIndex: id === state.currentTabStopItem ? 0 : -1,
         // eslint-disable-next-line
         ref: userRef ? mergeRefs(userRef, ref) : ref,
-        onClick: (event: React.MouseEvent<HTMLElement>) => {
+        onClick: (event: MouseEvent<HTMLElement>) => {
           if (elementIsEnabled(event.target)) {
-            callAllEventHandlers<React.MouseEvent<HTMLElement>>(userOnClick, () => {
+            callAllEventHandlers<MouseEvent<HTMLElement>>(userOnClick, () => {
               dispatch({
                 type: 'updateTabStopOnClick',
                 payload: {

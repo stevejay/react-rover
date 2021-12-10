@@ -35,10 +35,6 @@ export type Action =
       };
     };
 
-export type KeyDownAction = {
-  newTabStopItem: Item;
-};
-
 export type KeyDownTranslatorOptions = { columnsCount?: number };
 
 export type KeyDownTranslator = (
@@ -47,4 +43,4 @@ export type KeyDownTranslator = (
   itemToElementMap: ItemToElementMap,
   currentTabStopItem: Item,
   options?: KeyDownTranslatorOptions
-) => KeyDownAction | null;
+) => Item | null;
