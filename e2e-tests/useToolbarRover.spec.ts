@@ -363,7 +363,7 @@ test('the rover handles the current tab stop disappearing', async ({ page }) => 
   await keyboard.rightArrow();
   await expect(toolbarPage.buttonTwo).toBeFocused();
 
-  // Click on the 'Hide Button Two' button:
+  // Click on the 'Delete Button Two' button:
 
   await page.locator('"Delete Button Two"').click();
 
@@ -378,6 +378,65 @@ test('the rover handles the current tab stop disappearing', async ({ page }) => 
 
   // Check the rover still wraps around correctly:
 
+  await keyboard.rightArrow();
+  await expect(toolbarPage.buttonThree).toBeFocused();
+  await keyboard.rightArrow();
+  await expect(toolbarPage.buttonOne).toBeFocused();
+});
+
+test('the rover handles all tab stops disappearing', async ({ page }) => {
+  const keyboard = new KeyboardNavigation(page);
+  const toolbarPage = new SimpleToolbarPage(page);
+  await toolbarPage.goto(dynamicToolbar);
+
+  // Focus on the before content:
+
+  await toolbarPage.before.focus();
+
+  // Tab forward into the toolbar:
+
+  await keyboard.tabForwards();
+  await expect(toolbarPage.buttonOne).toBeFocused();
+
+  // Rove to button two:
+
+  await keyboard.rightArrow();
+  await expect(toolbarPage.buttonTwo).toBeFocused();
+
+  // Delete all the buttons:
+
+  await page.locator('"Delete Button One"').click();
+  await page.locator('"Delete Button Two"').click();
+  await page.locator('"Delete Button Three"').click();
+
+  // Focus on the before content:
+
+  await toolbarPage.before.focus();
+
+  // Tab forward, which should be to the first delete/render button:
+
+  await keyboard.tabForwards();
+  await expect(page.locator('"Render Button One"')).toBeFocused();
+
+  // Show the buttons again:
+
+  await page.locator('"Render Button One"').click();
+  await page.locator('"Render Button Two"').click();
+  await page.locator('"Render Button Three"').click();
+
+  // Focus on the before content:
+
+  await toolbarPage.before.focus();
+
+  // Tab forward into the toolbar:
+
+  await keyboard.tabForwards();
+  await expect(toolbarPage.buttonOne).toBeFocused();
+
+  // Check the rover still wraps around correctly:
+
+  await keyboard.rightArrow();
+  await expect(toolbarPage.buttonTwo).toBeFocused();
   await keyboard.rightArrow();
   await expect(toolbarPage.buttonThree).toBeFocused();
   await keyboard.rightArrow();
