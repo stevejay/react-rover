@@ -1,7 +1,28 @@
 /** @jsxImportSource @emotion/react */
 import { forwardRef } from 'react';
+import styled from '@emotion/styled';
 
 import { TextEditorState } from './textEditorState';
+
+const StyledTextArea = styled.textarea<TextAreaProps>`
+  outline: none;
+  height: 400px;
+  padding: 8px;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  border-radius: 5px;
+  font-size: ${({ state }) => `${state.fontSize}px`};
+  font-family: ${({ state }) => state.fontFamily};
+  text-align: ${({ state }) => state.justify};
+  text-decoration: ${({ state }) => (state.underline ? 'underline' : 'none')};
+  font-weight: ${({ state }) => (state.bold ? 700 : 400)};
+  font-style: ${({ state }) => (state.italic ? 'italic' : 'normal')};
+  color: ${({ state }) => (state.nightMode ? 'white' : 'black')};
+  background-color: ${({ state }) => (state.nightMode ? 'black' : 'white')};
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+  }
+`;
 
 export type TextAreaProps = {
   id: string;
@@ -9,41 +30,5 @@ export type TextAreaProps = {
 };
 
 export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(({ id, state }, ref) => (
-  <textarea
-    ref={ref}
-    id={id}
-    rows={20}
-    cols={80}
-    css={{
-      height: 400,
-      padding: 8,
-      border: '2px solid black',
-      borderRadius: 5,
-      fontSize: `${state.fontSize}pt`,
-      fontFamily: state.fontFamily,
-      outlineColor: '#005a9c',
-      textAlign: state.justify,
-      textDecoration: state.underline ? 'underline' : 'none',
-      fontWeight: state.bold ? 700 : 400,
-      fontStyle: state.italic ? 'italic' : 'normal',
-      color: state.nightMode ? 'white' : 'black',
-      backgroundColor: state.nightMode ? 'black' : 'white',
-      '&:focus': {
-        borderColor: '#005a9c',
-        padding: 7,
-        borderWidth: 3
-      },
-      '&:focus:not(:focus-visible)': {
-        borderColor: 'black',
-        padding: 8,
-        borderWidth: 2
-      },
-      '&:focus-visible': {
-        borderColor: '#005a9c',
-        padding: 7,
-        borderWidth: 3
-      }
-    }}
-    defaultValue={state.text}
-  />
+  <StyledTextArea ref={ref} id={id} state={state} rows={20} cols={80} defaultValue={state.text} />
 ));

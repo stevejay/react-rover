@@ -5,6 +5,6 @@ export const StackedLayout = styled.div`
   display: flex;
   flex-direction: column;
   & > * + * {
-    margin-top: 16px;
+    margin-top: 16px !important;
   }
 `;

@@ -13,6 +13,7 @@ import {
 } from '@/index';
 
 import { Button } from './Button';
+import { ButtonGroup, RadioButtonGroup } from './ButtonGroup';
 import { Checkbox } from './Checkbox';
 import { horizontalRadioGroupNavigation } from './horizontalRadioGroupNavigation';
 import { Link } from './Link';
@@ -85,7 +86,7 @@ const TextEditorToolbarTemplate: Story<void> = () => {
   return (
     <StackedLayout>
       <Toolbar aria-label="Text Formatting" aria-controls="text-area" {...getTabContainerProps()}>
-        <Toolbar.Group>
+        <ButtonGroup>
           <ToggleButton
             label="Bold"
             icon={FaBold}
@@ -117,8 +118,8 @@ const TextEditorToolbarTemplate: Story<void> = () => {
                 }))
             })}
           />
-        </Toolbar.Group>
-        <Toolbar.RadioButtonGroup>
+        </ButtonGroup>
+        <RadioButtonGroup>
           <RadioButton
             label="Align left"
             icon={FaAlignLeft}
@@ -146,8 +147,8 @@ const TextEditorToolbarTemplate: Story<void> = () => {
               onClick: () => setState((state) => ({ ...state, justify: 'right' }))
             })}
           />
-        </Toolbar.RadioButtonGroup>
-        <Toolbar.Group>
+        </RadioButtonGroup>
+        <ButtonGroup>
           <Button
             label="Copy"
             onMouseDown={mouseDownHandler}
@@ -170,40 +171,32 @@ const TextEditorToolbarTemplate: Story<void> = () => {
               onClick: action('cut-button-click')
             })}
           />
-        </Toolbar.Group>
-        <Toolbar.Group>
-          <Menu
-            valueFormatter={(value) => `Font: ${value}`}
-            menuLabel="Font family"
-            options={state.fontFamilies}
-            value={state.fontFamily}
-            onChange={(_, value) => setState((state) => ({ ...state, fontFamily: value }))}
-            {...getTabStopProps('font-family')}
-          />
-        </Toolbar.Group>
-        <Toolbar.Group>
-          <SpinButton
-            label="Font size in points"
-            value={state.fontSize}
-            min={5}
-            max={24}
-            onMouseDown={mouseDownHandler}
-            onChange={(_, value) => setState((state) => ({ ...state, fontSize: value }))}
-            {...getTabStopProps('font-size')}
-          />
-        </Toolbar.Group>
-        <Toolbar.Group>
-          <Checkbox
-            label="Night Mode"
-            checked={state.nightMode}
-            onMouseDown={mouseDownHandler}
-            onChange={(_, nightMode) => setState((state) => ({ ...state, nightMode }))}
-            {...getTabStopProps('night-mode')}
-          />
-        </Toolbar.Group>
-        <Toolbar.Group>
-          <Link label="Help" href="https://www.google.com" {...getTabStopProps('link')} />
-        </Toolbar.Group>
+        </ButtonGroup>
+        <Menu
+          valueFormatter={(value) => `Font: ${value}`}
+          menuLabel="Font family"
+          options={state.fontFamilies}
+          value={state.fontFamily}
+          onChange={(_, value) => setState((state) => ({ ...state, fontFamily: value }))}
+          {...getTabStopProps('font-family')}
+        />
+        <SpinButton
+          label="Font size in points"
+          value={state.fontSize}
+          min={5}
+          max={24}
+          onMouseDown={mouseDownHandler}
+          onChange={(_, value) => setState((state) => ({ ...state, fontSize: value }))}
+          {...getTabStopProps('font-size')}
+        />
+        <Checkbox
+          label="Night Mode"
+          checked={state.nightMode}
+          onMouseDown={mouseDownHandler}
+          onChange={(_, nightMode) => setState((state) => ({ ...state, nightMode }))}
+          {...getTabStopProps('night-mode')}
+        />
+        <Link label="Help" href="https://www.google.com" {...getTabStopProps('link')} />
       </Toolbar>
       <TextArea id="text-area" ref={textAreaRef} state={state} />
     </StackedLayout>

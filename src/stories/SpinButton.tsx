@@ -1,53 +1,63 @@
 /** @jsxImportSource @emotion/react */
 import { forwardRef, HTMLAttributes, KeyboardEvent, MouseEvent, Ref } from 'react';
-import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
+import { FaRegArrowAltCircleDown, FaRegArrowAltCircleUp } from 'react-icons/fa';
 import styled from '@emotion/styled';
 
 const StyledSpinButton = styled.div`
-  border: 1px solid white;
+  font-family: inherit;
   outline: none;
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 5px;
-  text-align: center;
-  background: white;
-  color: #222428;
-  font-size: 14px;
-  line-height: 1.5em;
-  margin-right: 4px;
-  font-family: sans-serif;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  border-radius: 6px;
+  padding: 0 14px;
+  margin: 0;
+  background: rgb(246, 248, 250);
+  color: rgb(36, 41, 47);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+  transition-property: color, background-color, border-color;
+  cursor: pointer;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+
+  & > * + * {
+    margin-left: 4px;
+  }
 
   &:hover {
-    border-color: #005a9c;
-    background: rgb(226, 239, 255);
+    background-color: rgb(243, 244, 246);
   }
 
   &:focus-within {
-    border-width: 2px;
-    border-color: #005a9c;
-    background: rgb(226, 239, 255);
-    padding: 5px 11px;
-  }
-
-  &:focus-within .increase,
-  &:focus-within .decrease {
-    fill: #005a9c;
-    border-color: #005a9c;
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
   }
 `;
 
-const StyledIncDecButton = styled.span`
-  width: 20px;
-  border: 1px solid #ececea;
-  border-radius: 3px;
-  background-color: #ececea;
+const StyledLabel = styled.span`
+  min-width: 5ch;
   display: inline-block;
-  padding: 0;
   margin: 0;
+  padding: 5px 0;
+`;
+
+const StyledIncDecButton = styled.span`
+  outline: none;
+  display: block;
+  padding: 0;
+  color: rgb(87, 96, 106);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
 
   &:hover {
-    fill: #005a9c;
-    border-color: #005a9c;
+    color: black;
+  }
+
+  &[data-disabled='true'] {
+    color: rgb(140, 149, 159);
   }
 `;
 
@@ -69,6 +79,27 @@ export const SpinButton = forwardRef<HTMLElement, SpinButtonProps>(
     const decrement = (event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>, dec = 1) =>
       onChange(event, Math.max(value - dec, min));
 
+    const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+      let handled = false;
+      if (event.key === 'ArrowUp') {
+        increment(event, 1);
+        handled = true;
+      } else if (event.key === 'ArrowDown') {
+        decrement(event, 1);
+        handled = true;
+      } else if (event.key === 'PageUp') {
+        increment(event, 5);
+        handled = true;
+      } else if (event.key === 'PageDown') {
+        decrement(event, 5);
+        handled = true;
+      }
+      if (handled) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
+
     return (
       <StyledSpinButton
         {...rest}
@@ -80,50 +111,24 @@ export const SpinButton = forwardRef<HTMLElement, SpinButtonProps>(
         aria-valuemax={max}
         aria-label={label}
         aria-disabled={disabled}
-        onKeyDown={(event) => {
-          let handled = false;
-          if (event.key === 'ArrowUp') {
-            increment(event, 1);
-            handled = true;
-          } else if (event.key === 'ArrowDown') {
-            decrement(event, 1);
-            handled = true;
-          } else if (event.key === 'PageUp') {
-            increment(event, 5);
-            handled = true;
-          } else if (event.key === 'PageDown') {
-            decrement(event, 5);
-            handled = true;
-          }
-          if (handled) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-        }}
+        onKeyDown={onKeyDown}
       >
-        <span
-          css={{
-            width: 60,
-            display: 'inline-block',
-            padding: 0,
-            margin: 0
-          }}
-        >
-          {value} Point
-        </span>
+        <StyledLabel>{value} px</StyledLabel>
         <StyledIncDecButton
           className="increase"
           onClick={(event) => increment(event, 1)}
           onMouseDown={onMouseDown}
+          data-disabled={value >= max}
         >
-          <FaArrowUp />
+          <FaRegArrowAltCircleUp />
         </StyledIncDecButton>
         <StyledIncDecButton
           className="decrease"
           onClick={(event) => decrement(event, 1)}
           onMouseDown={onMouseDown}
+          data-disabled={value <= min}
         >
-          <FaArrowDown />
+          <FaRegArrowAltCircleDown />
         </StyledIncDecButton>
       </StyledSpinButton>
     );

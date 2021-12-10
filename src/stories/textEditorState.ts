@@ -16,9 +16,9 @@ export const initialEditorState: TextEditorState = {
   underline: false,
   justify: 'left',
   nightMode: false,
-  fontSize: 14,
-  fontFamily: 'sans-serif',
-  fontFamilies: ['sans-serif', 'serif', 'monospace', 'fantasy', 'cursive'],
+  fontSize: 16,
+  fontFamily: 'Readex Pro',
+  fontFamilies: ['Readex Pro', 'sans-serif', 'serif', 'monospace', 'fantasy', 'cursive'],
   text: `Abraham Lincoln's Gettysburg Address
 
 Four score and seven years ago our fathers brought forth on this continent a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.`
