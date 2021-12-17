@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { action } from '@storybook/addon-actions';
 import { Meta, Story } from '@storybook/react';
 
@@ -10,7 +10,7 @@ import {
   gridSingleStepNavigation,
   verticalNavigation
 } from '@/keyDownTranslators';
-import { useItemRover } from '@/useItemRover';
+import { GetTabStopProps, useItemRover } from '@/useItemRover';
 
 import { Button } from './Button';
 import { Grid } from './Grid';
@@ -58,20 +58,51 @@ const gridKeyDownTranslators = [
   gridSingleStepNavigation()
 ];
 
+type MemoizedButtonProps = { item: GridItem; tabIndex: number; getTabStopProps: GetTabStopProps };
+
+const MemoizedButton = memo<MemoizedButtonProps>(
+  ({ item, tabIndex, getTabStopProps }) => (
+    // <button type="button" disabled={item.id === '5'} {...getTabStopProps(item)} tabIndex={tabIndex}>
+    //   {item.label}
+    // </button>
+    <Button disabled={item.id === '5'} label={item.label} {...getTabStopProps(item)} tabIndex={tabIndex} />
+  ),
+  (prevProps, nextProps) =>
+    prevProps.item === nextProps.item &&
+    prevProps.tabIndex === nextProps.tabIndex &&
+    prevProps.getTabStopProps === nextProps.getTabStopProps
+);
+
 const GridTemplate: Story<GridTemplateProps> = ({ columnsCount, itemCount }) => {
   const [items] = useState<GridItem[]>(() => createItems(itemCount));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const { getTabContainerProps, getTabStopProps } = useItemRover(items, gridKeyDownTranslators, {
-    initialItem: items[1],
-    onTabStopChange: tabStopChangeAction,
-    columnsCount
-  });
+  const { getTabContainerProps, getTabStopProps, getTabStopTabIndex } = useItemRover(
+    items,
+    gridKeyDownTranslators,
+    {
+      initialItem: items[1],
+      onTabStopChange: tabStopChangeAction,
+      columnsCount
+    }
+  );
   return (
     <StackedLayout>
       <Button label="Focus before" />
       <Grid columnsCount={columnsCount} aria-label="Cells" {...getTabContainerProps()}>
         {items.map((item) => (
-          <Button key={item.id} disabled={item.id === '5'} label={item.label} {...getTabStopProps(item)} />
+          <MemoizedButton
+            key={item.id}
+            item={item}
+            getTabStopProps={getTabStopProps}
+            tabIndex={getTabStopTabIndex(item)}
+          />
+          //   <Button
+          //     key={item.id}
+          //     disabled={item.id === '5'}
+          //     label={item.label}
+          //     {...getTabStopProps(item)}
+          //     tabIndex={getTabStopTabIndex(item)}
+          //   />
         ))}
       </Grid>
       <Button label="Focus after" />
@@ -84,11 +115,15 @@ const DynamicGridTemplate: Story<void> = () => {
   const [enableButtonThree, setEnableButtonThree] = useState(false);
   const [items] = useState<GridItem[]>(() => createItems(7));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const { getTabContainerProps, getTabStopProps } = useItemRover(items, gridKeyDownTranslators, {
-    initialItem: items[2],
-    onTabStopChange: tabStopChangeAction,
-    columnsCount
-  });
+  const { getTabContainerProps, getTabStopProps, getTabStopTabIndex } = useItemRover(
+    items,
+    gridKeyDownTranslators,
+    {
+      initialItem: items[2],
+      onTabStopChange: tabStopChangeAction,
+      columnsCount
+    }
+  );
   return (
     <StackedLayout>
       <Button label="Focus before" />
@@ -99,6 +134,7 @@ const DynamicGridTemplate: Story<void> = () => {
             label={item.label}
             disabled={item.id === '3' ? !enableButtonThree : false}
             {...getTabStopProps(item)}
+            tabIndex={getTabStopTabIndex(item)}
           />
         ))}
       </Grid>
@@ -123,15 +159,24 @@ const oneDimensionalKeyDownTranslators = [verticalNavigation(), extremesNavigati
 const OneDimensionalTemplate: Story<OneDimensionalTemplateProps> = ({ itemCount }) => {
   const [items] = useState<GridItem[]>(() => createItems(itemCount));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const { getTabContainerProps, getTabStopProps } = useItemRover(items, oneDimensionalKeyDownTranslators, {
-    onTabStopChange: tabStopChangeAction
-  });
+  const { getTabContainerProps, getTabStopProps, getTabStopTabIndex } = useItemRover(
+    items,
+    oneDimensionalKeyDownTranslators,
+    {
+      onTabStopChange: tabStopChangeAction
+    }
+  );
   return (
     <StackedLayout>
       <Button label="Focus before" />
       <Grid columnsCount={1} aria-label="Cells" {...getTabContainerProps()}>
         {items.map((item) => (
-          <Button key={item.id} label={item.label} {...getTabStopProps(item)} />
+          <Button
+            key={item.id}
+            label={item.label}
+            {...getTabStopProps(item)}
+            tabIndex={getTabStopTabIndex(item)}
+          />
         ))}
       </Grid>
       <Button label="Focus after" />
