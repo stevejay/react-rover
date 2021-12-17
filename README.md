@@ -13,6 +13,7 @@
 
 ## Notes
 
+- This is the branch for the prop getter approach code.
 - In Safari, clicking a button, radio button or checkbox doesn't give the element focus. (The onfocus event does not fire.)
 - The prop-types rule from eslint-plugin-react [does not support the React.VFC type](https://github.com/yannickcr/eslint-plugin-react/issues/2913).
 - CodeFactor don't support an ESLint config file with the `.cjs` file extension.
