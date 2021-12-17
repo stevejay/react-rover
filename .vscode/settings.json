@@ -22,5 +22,7 @@
     "env*": true,
     "tsconfig.tsbuildinfo": true,
     ".vite/": true
-  }
+  },
+  "css.validate": false,
+  "stylelint.enable": true
 }

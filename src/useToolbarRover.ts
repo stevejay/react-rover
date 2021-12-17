@@ -138,7 +138,6 @@ export function useToolbarRover(
       return {
         ...rest,
         tabIndex: id === state.currentTabStopItem ? 0 : -1,
-        // eslint-disable-next-line
         ref: userRef ? mergeRefs(userRef, ref) : ref,
         onClick: (event: MouseEvent<HTMLElement>) => {
           if (elementIsEnabled(event.target)) {

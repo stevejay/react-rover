@@ -52,6 +52,13 @@ export type ItemRoverResult = {
   getTabStopProps: GetTabStopProps;
 };
 
+/**
+ *
+ * @param items Must be memoized for performance.
+ * @param keyDownTranslators
+ * @param options
+ * @returns
+ */
 export function useItemRover(
   items: ItemList,
   keyDownTranslators: KeyDownTranslator[],
@@ -67,7 +74,7 @@ export function useItemRover(
   const tabStopItemsRef = useRef<ItemList>([]);
   const tabStopElementMapRef = useRef(new Map<Item, HTMLElement>());
 
-  // Update the items ref if it has changed. Must be first effect.
+  // Update the items ref if it has changed. *** Must be first effect ***
   useIsomorphicLayoutEffect(() => {
     tabStopItemsRef.current = items;
   }, [items]);
@@ -97,7 +104,6 @@ export function useItemRover(
 
   // If required, notify the user that the current tab stop has changed.
   useEffect(() => {
-    console.log('effect run', onTabStopChange);
     onTabStopChange && onTabStopChange(state.currentTabStopItem);
   }, [state.currentTabStopItem, onTabStopChange]);
 
@@ -140,7 +146,6 @@ export function useItemRover(
       return {
         ...rest,
         tabIndex: id === state.currentTabStopItem ? 0 : -1,
-        // eslint-disable-next-line
         ref: userRef ? mergeRefs(userRef, ref) : ref,
         onClick: (event: MouseEvent<HTMLElement>) => {
           if (elementIsEnabled(event.target)) {
