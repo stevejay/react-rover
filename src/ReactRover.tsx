@@ -29,14 +29,7 @@ import { isNil } from './utils';
 
 export type OnTabStopChange = (item: Item | null) => void;
 
-export type ItemRoverOptions = {
-  columnsCount?: number;
-  initialItem?: Item | null;
-  onTabStopChange?: OnTabStopChange;
-  shouldFocusOnClick?: boolean;
-};
-
-export type ToolbarRoverContextType = {
+export type ReactRoverContextType = {
   onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
   register: (item: Item, node: HTMLElement) => void;
   unregister: (item: Item) => void;
@@ -44,7 +37,7 @@ export type ToolbarRoverContextType = {
   currentTabStopItem: Item | null;
 };
 
-export const ToolbarRoverContext = createContext<ToolbarRoverContextType>({
+export const ReactRoverContext = createContext<ReactRoverContextType>({
   onKeyDown: () => void 0,
   register: () => void 0,
   unregister: () => void 0,
@@ -52,12 +45,38 @@ export const ToolbarRoverContext = createContext<ToolbarRoverContextType>({
   currentTabStopItem: null
 });
 
-export type ToolbarRoverProviderProps = {
-  /** Must be memoized or be a constant. */
-  keyDownTranslators: KeyDownTranslator[];
-} & ItemRoverOptions;
+export type ReactRoverOptions = {
+  /**
+   * The number of items in each row of a grid. Only applicable if using React
+   * Rover in a grid.
+   */
+  columnsCount?: number;
+  /**
+   * The initially focusable tab stop. Pass a value here if possible to avoid a
+   * double render of the entire rover.
+   */
+  initialItem?: Item | null;
+  /**
+   * Optional callback for when the currently focusable tab stop in the rover
+   * changes.
+   */
+  onTabStopChange?: OnTabStopChange;
+  /**
+   * Pass `true` if you want the rover to apply focus to a tab stop when it is
+   * clicked on. This is set to `false` by default.
+   */
+  shouldFocusOnClick?: boolean;
+};
 
-export const ToolbarRoverProvider: FC<ToolbarRoverProviderProps> = ({
+export type ReactRoverProviderProps = {
+  /**
+   * An array of keyDown translators that give the required tabbing behaviour.
+   * Must be memoized or be a constant.
+   */
+  keyDownTranslators: KeyDownTranslator[];
+} & ReactRoverOptions;
+
+export const ReactRoverProvider: FC<ReactRoverProviderProps> = ({
   keyDownTranslators,
   children,
   onTabStopChange,
@@ -74,9 +93,8 @@ export const ToolbarRoverProvider: FC<ToolbarRoverProviderProps> = ({
   const tabStopElementMapRef = useRef(new Map<Item, HTMLElement>());
   const currentTabStopItemRef = useRef<Item | null>(state.currentTabStopItem);
 
-  // Repair the rover state in the case that the current tab stop
-  // has just been removed, or the toolbar is being created and
-  // initialItem is not set.
+  // Repair the rover state in the case that the current tab stop has just been
+  // removed, or the toolbar is being created and initialItem is not set.
   useIsomorphicLayoutEffect(() => {
     if (shouldResetCurrentTabStopItem(tabStopElementMapRef.current, state.currentTabStopItem)) {
       dispatch({
@@ -108,6 +126,8 @@ export const ToolbarRoverProvider: FC<ToolbarRoverProviderProps> = ({
     currentTabStopItemRef.current = state.currentTabStopItem;
   }, [state.currentTabStopItem]);
 
+  // A memoized keyDown handler for the rover container that runs the keyDown
+  // translators.
   const onKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>) => {
       const newTabStopItem = runKeyDownTranslators(
@@ -130,16 +150,19 @@ export const ToolbarRoverProvider: FC<ToolbarRoverProviderProps> = ({
     [keyDownTranslators, columnsCount]
   );
 
+  // A memoized callback for registering a tab stop.
   const register = useCallback<(item: Item, node: HTMLElement) => void>((item, node) => {
     tabStopElementMapRef.current.set(item, node);
     tabStopItemsRef.current = addTabStopItem(tabStopItemsRef.current, tabStopElementMapRef.current, item);
   }, []);
 
+  // A memoized callback for unregistering a tab stop.
   const unregister = useCallback<(item: Item) => void>((item) => {
     tabStopElementMapRef.current.delete(item);
     tabStopItemsRef.current = removeTabStopItem(tabStopItemsRef.current, item);
   }, []);
 
+  // A memoized callback for when a tab stop is clicked on.
   const clicked = useCallback<(item: Item) => void>(
     (item) => {
       dispatch({
@@ -154,7 +177,8 @@ export const ToolbarRoverProvider: FC<ToolbarRoverProviderProps> = ({
     [shouldFocusOnClick]
   );
 
-  const value = useMemo<ToolbarRoverContextType>(
+  // The context value, memoized.
+  const value = useMemo<ReactRoverContextType>(
     () => ({
       onKeyDown,
       register,
@@ -165,23 +189,34 @@ export const ToolbarRoverProvider: FC<ToolbarRoverProviderProps> = ({
     [onKeyDown, register, unregister, clicked, state.currentTabStopItem]
   );
 
-  return <ToolbarRoverContext.Provider value={value}>{children}</ToolbarRoverContext.Provider>;
+  return <ReactRoverContext.Provider value={value}>{children}</ReactRoverContext.Provider>;
 };
 
-export function useToolbarRoverContainer(onKeyDown?: KeyboardEventHandler<HTMLElement>): {
+/**
+ * The hook for the element that contains the tab stops of the rover.
+ * @param onKeyDown An optional user-supplied `onKeyDown` callback. This will be
+ * invoked before the rover's `onKeyDown` callback. You can cancel the rover's
+ * callback by adding a `preventReactRoverDefault` property to the event and
+ * setting it to `true`. This callback does not need to be stable.
+ * @returns The props (`onKeyDown`) that must be applied to the rover container
+ * element.
+ */
+export function useReactRoverContainer(onKeyDown?: KeyboardEventHandler<HTMLElement>): {
   onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
 } {
-  const { onKeyDown: contextOnKeyDown } = useContext<ToolbarRoverContextType>(ToolbarRoverContext);
+  const { onKeyDown: contextOnKeyDown } = useContext<ReactRoverContextType>(ReactRoverContext);
 
   // Store the user's onKeyDown handler on a ref so we always have access to the
-  // latest value for it in the internalOnKeyDown handler without needing to add the
-  // onKeyDown handler to that handler's deps array.
+  // latest value for it in the internalOnKeyDown handler without needing to add
+  // the onKeyDown handler to that handler's deps array.
   const onKeyDownRef = useRef<KeyboardEventHandler<HTMLElement> | undefined>(onKeyDown);
   useIsomorphicLayoutEffect(() => {
     onKeyDownRef.current = onKeyDown;
   });
 
-  const internalOnKeyDown = useCallback(
+  // A memoized onKeyDown callback that wraps the user's onKeyDown callback (if
+  // given) and the rover's onKeyDown callback.
+  const combinedOnKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>) => {
       if (elementIsEnabled(event.target)) {
         callAllEventHandlers<KeyboardEvent<HTMLElement>>(onKeyDownRef.current, () => {
@@ -192,10 +227,22 @@ export function useToolbarRoverContainer(onKeyDown?: KeyboardEventHandler<HTMLEl
     [contextOnKeyDown]
   );
 
-  return { onKeyDown: internalOnKeyDown };
+  return { onKeyDown: combinedOnKeyDown };
 }
 
-export function useToolbarRoverTabStop(
+/**
+ * The hook for the element that contains the tab stops of the rover.
+ * @param item The identifier object for this tab stop. This is most often
+ * a string that is unique within the rover or an object that is unique
+ * to this tab stop and does not change identity.
+ * @param onClick An optional user-supplied `onClick` callback. This will be
+ * invoked before the rover's `onClick` callback. You can cancel the rover's
+ * callback by adding a `preventReactRoverDefault` property to the event and
+ * setting it to `true`. This callback does not need to be stable.
+ * @returns The props (`ref`, `tabIndex` and `onClick`) that must be applied to
+ * the rover container element.
+ */
+export function useReactRoverTabStop(
   item: Item,
   onClick?: MouseEventHandler<HTMLElement>
 ): {
@@ -205,7 +252,7 @@ export function useToolbarRoverTabStop(
   onClick: MouseEventHandler<HTMLElement>;
 } {
   const { register, unregister, clicked, currentTabStopItem } =
-    useContext<ToolbarRoverContextType>(ToolbarRoverContext);
+    useContext<ReactRoverContextType>(ReactRoverContext);
 
   const ref = useCallback(
     (node: HTMLElement) => (node ? register(item, node) : unregister(item)),
@@ -220,7 +267,9 @@ export function useToolbarRoverTabStop(
     onClickRef.current = onClick;
   });
 
-  const internalOnClick = useCallback(
+  // A memoized onClick callback that wraps the user's onClick callback (if
+  // given) and the rover's onClick callback.
+  const combinedOnClick = useCallback(
     (event: MouseEvent<HTMLElement>) => {
       if (elementIsEnabled(event.target)) {
         callAllEventHandlers<MouseEvent<HTMLElement>>(onClickRef.current, () => {
@@ -231,5 +280,5 @@ export function useToolbarRoverTabStop(
     [clicked, item]
   );
 
-  return { ref, onClick: internalOnClick, tabIndex: item === currentTabStopItem ? 0 : -1 };
+  return { ref, onClick: combinedOnClick, tabIndex: item === currentTabStopItem ? 0 : -1 };
 }

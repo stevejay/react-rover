@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 import { KeyboardNavigation } from './KeyboardNavigation';
-import { SimpleToolbarPage } from './SimpleToolbarPage';
+import { ToolbarPage } from './ToolbarPage';
 
 const basicToolbar = 'toolbar--basic';
 const toolbarWithButtonTwoAsInitialTabStop = 'toolbar--with-button-two-as-initial-tab-stop';
@@ -12,7 +12,7 @@ const dynamicToolbar = 'toolbar--dynamic-toolbar';
 
 test('tabbing in and out of a toolbar', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
+  const toolbarPage = new ToolbarPage(page);
   await toolbarPage.goto(basicToolbar);
 
   // Focus on the before content:
@@ -52,7 +52,7 @@ test('tabbing in and out of a toolbar', async ({ page }) => {
 
 test('roving within a toolbar with horizontal navigation', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
+  const toolbarPage = new ToolbarPage(page);
   await toolbarPage.goto(basicToolbar);
 
   // Focus on the before content:
@@ -107,7 +107,7 @@ test('roving within a toolbar with horizontal navigation', async ({ page }) => {
 
 test('clicking on an enabled tab stop', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
+  const toolbarPage = new ToolbarPage(page);
   await toolbarPage.goto(basicToolbar);
 
   // Focus on the before content:
@@ -127,7 +127,7 @@ test('clicking on an enabled tab stop', async ({ page }) => {
 
 test('clicking on a disabled tab stop', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
+  const toolbarPage = new ToolbarPage(page);
   await toolbarPage.goto(toolbarWithDisabledEndStops);
 
   // Focus on the before content:
@@ -147,7 +147,7 @@ test('clicking on a disabled tab stop', async ({ page }) => {
 
 test('initialisation of a toolbar with an initialItem value', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
+  const toolbarPage = new ToolbarPage(page);
   await toolbarPage.goto(toolbarWithButtonTwoAsInitialTabStop);
 
   // Focus on the before content:
@@ -162,7 +162,7 @@ test('initialisation of a toolbar with an initialItem value', async ({ page }) =
 
 test('roving when the end tab stops are disabled', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
+  const toolbarPage = new ToolbarPage(page);
   await toolbarPage.goto(toolbarWithDisabledEndStops);
 
   // Focus on the before content:
@@ -209,7 +209,7 @@ test('roving when the end tab stops are disabled', async ({ page }) => {
 
 test('roving when the end tab stops are disabled but focusable', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
+  const toolbarPage = new ToolbarPage(page);
   await toolbarPage.goto(toolbarWithDisabledFocusableEndStops);
 
   // Focus on the before content:
@@ -256,7 +256,7 @@ test('roving when the end tab stops are disabled but focusable', async ({ page }
 
 test('roving within a toolbar with no wraparound', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
+  const toolbarPage = new ToolbarPage(page);
   await toolbarPage.goto(toolbarWithNoWraparound);
 
   // Focus on the before content:
@@ -305,7 +305,7 @@ test('roving within a toolbar with no wraparound', async ({ page }) => {
 
 test('the rover handles the current tab stop becoming disabled', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
+  const toolbarPage = new ToolbarPage(page);
   await toolbarPage.goto(dynamicToolbar);
 
   // Focus on the before content:
@@ -346,7 +346,7 @@ test('the rover handles the current tab stop becoming disabled', async ({ page }
 
 test('the rover handles the current tab stop disappearing', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
+  const toolbarPage = new ToolbarPage(page);
   await toolbarPage.goto(dynamicToolbar);
 
   // Focus on the before content:
@@ -386,7 +386,7 @@ test('the rover handles the current tab stop disappearing', async ({ page }) => 
 
 test('the rover handles all tab stops disappearing', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const toolbarPage = new SimpleToolbarPage(page);
+  const toolbarPage = new ToolbarPage(page);
   await toolbarPage.goto(dynamicToolbar);
 
   // Focus on the before content:

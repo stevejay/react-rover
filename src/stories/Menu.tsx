@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { forwardRef, KeyboardEvent, MouseEvent, useState } from 'react';
+import { forwardRef, KeyboardEvent, MouseEvent, MouseEventHandler, useState } from 'react';
 import { FaCaretDown } from 'react-icons/fa';
 import styled from '@emotion/styled';
 
@@ -65,6 +65,8 @@ const StyledMenuItem = styled.li`
 `;
 
 export type MenuProps = {
+  tabIndex: number;
+  onClick: MouseEventHandler<HTMLButtonElement>;
   valueFormatter: (value: string) => string;
   menuLabel: string;
   value: string;

@@ -4,22 +4,22 @@ import { action } from '@storybook/addon-actions';
 import { Meta, Story } from '@storybook/react';
 
 import {
+  extremesNavigation,
   gridExtremesNavigation,
   gridRowExtremesNavigation,
-  gridSingleStepNavigation
-} from '@/keyDownTranslators';
-import {
-  ToolbarRoverProvider,
-  useToolbarRoverContainer,
-  useToolbarRoverTabStop
-} from '@/ToolbarRoverProvider';
+  gridSingleStepNavigation,
+  ReactRoverProvider,
+  useReactRoverContainer,
+  useReactRoverTabStop,
+  verticalNavigation
+} from '@/index';
 
 import { Button } from './Button';
 import { Grid } from './Grid';
 import { StackedLayout } from './StackedLayout';
 
 const meta: Meta = {
-  title: 'AlternativeToolbarGrid',
+  title: 'Grid',
   argTypes: {
     children: {
       table: { disable: true }
@@ -72,9 +72,7 @@ type GridButtonProps = {
 };
 
 const GridButton: FC<GridButtonProps> = ({ item }) => {
-  const { ref, onClick, tabIndex } = useToolbarRoverTabStop(item.id, () =>
-    console.log(`item ${item.id} clicked`)
-  );
+  const { ref, onClick, tabIndex } = useReactRoverTabStop(item, () => console.log(`item ${item.id} clicked`));
   return (
     <MemoizedGridButton
       ref={ref}
@@ -103,7 +101,7 @@ const MemoizedGridOfButtons: FC<MemoizedGridOfButtonsProps> = memo(({ items, col
 type GridOfButtonsProps = { items: GridItem[]; columnsCount: number };
 
 const GridOfButtons: FC<GridOfButtonsProps> = ({ items, columnsCount }) => {
-  const { onKeyDown } = useToolbarRoverContainer((event) => console.log(`keydown ${event.key}`));
+  const { onKeyDown } = useReactRoverContainer((event) => console.log(`keydown ${event.key}`));
   return <MemoizedGridOfButtons items={items} columnsCount={columnsCount} onKeyDown={onKeyDown} />;
 };
 
@@ -118,13 +116,63 @@ const GridTemplate: Story<GridTemplateProps> = ({ columnsCount, itemCount }) => 
   return (
     <StackedLayout>
       <Button label="Focus before" />
-      <ToolbarRoverProvider
+      <ReactRoverProvider
         keyDownTranslators={gridKeyDownTranslators}
         columnsCount={columnsCount}
         onTabStopChange={tabStopChangeAction}
+        initialItem={items[1]}
       >
         <GridOfButtons columnsCount={columnsCount} items={items} />
-      </ToolbarRoverProvider>
+      </ReactRoverProvider>
+      <Button label="Focus after" />
+    </StackedLayout>
+  );
+};
+
+const DynamicGridTemplate: Story<void> = () => {
+  const [columnsCount, setColumnsCount] = useState(3);
+  const [enableButtonThree, setEnableButtonThree] = useState(false);
+  const [items] = useState<GridItem[]>(() => createItems(7));
+  return (
+    <StackedLayout>
+      <Button label="Focus before" />
+      <ReactRoverProvider
+        keyDownTranslators={gridKeyDownTranslators}
+        onTabStopChange={tabStopChangeAction}
+        columnsCount={columnsCount}
+        initialItem={items[2]}
+      >
+        <GridOfButtons columnsCount={columnsCount} items={items} />
+      </ReactRoverProvider>
+      <div css={{ display: 'flex', gap: 16 }}>
+        <Button
+          label={`Change to ${columnsCount === 2 ? '3' : '2'} columns`}
+          onClick={() => setColumnsCount((state) => (state === 2 ? 3 : 2))}
+        />
+        <Button
+          label={enableButtonThree ? 'Disable Button Three' : 'Enable Button Three'}
+          onClick={() => setEnableButtonThree((state) => !state)}
+        />
+      </div>
+    </StackedLayout>
+  );
+};
+
+type OneDimensionalTemplateProps = { itemCount: number };
+
+const oneDimensionalKeyDownTranslators = [verticalNavigation(), extremesNavigation()];
+
+const OneDimensionalTemplate: Story<OneDimensionalTemplateProps> = ({ itemCount }) => {
+  const [items] = useState<GridItem[]>(() => createItems(itemCount));
+  return (
+    <StackedLayout>
+      <Button label="Focus before" />
+      <ReactRoverProvider
+        keyDownTranslators={oneDimensionalKeyDownTranslators}
+        onTabStopChange={tabStopChangeAction}
+      >
+        <GridOfButtons columnsCount={1} items={items} />
+      </ReactRoverProvider>
       <Button label="Focus after" />
     </StackedLayout>
   );
@@ -140,4 +188,11 @@ export const SmallGrid = GridTemplate.bind({});
 SmallGrid.args = {
   columnsCount: 3,
   itemCount: 10
+};
+
+export const DynamicGrid = DynamicGridTemplate.bind({});
+
+export const Column = OneDimensionalTemplate.bind({});
+Column.args = {
+  itemCount: 5
 };

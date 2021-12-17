@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test';
 
+import { GridPage } from './GridPage';
 import { KeyboardNavigation } from './KeyboardNavigation';
-import { SimpleGridPage } from './SimpleGridPage';
 
 const basicToolbar = 'grid--small-grid';
 
 test('tabbing in and out of a grid', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const gridPage = new SimpleGridPage(page);
+  const gridPage = new GridPage(page);
   await gridPage.goto(basicToolbar);
 
   // Focus on the before content:
@@ -47,7 +47,7 @@ test('tabbing in and out of a grid', async ({ page }) => {
 
 test('roving within a grid', async ({ page }) => {
   const keyboard = new KeyboardNavigation(page);
-  const gridPage = new SimpleGridPage(page);
+  const gridPage = new GridPage(page);
   await gridPage.goto(basicToolbar);
 
   // Focus on the before content:

@@ -9,17 +9,15 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ label, type = 'button', disabled = false, disabledFocusable = false, ...rest }: ButtonProps, ref) => {
-    return (
-      <ButtonBase
-        {...rest}
-        type={type}
-        disabled={disabled}
-        aria-disabled={disabledFocusable || disabled}
-        ref={ref}
-      >
-        {label}
-      </ButtonBase>
-    );
-  }
+  ({ label, type = 'button', disabled = false, disabledFocusable = false, ...rest }: ButtonProps, ref) => (
+    <ButtonBase
+      {...rest}
+      type={type}
+      disabled={disabled}
+      aria-disabled={disabledFocusable || disabled}
+      ref={ref}
+    >
+      {label}
+    </ButtonBase>
+  )
 );

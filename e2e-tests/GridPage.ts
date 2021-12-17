@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 
-export class SimpleGridPage {
+export class GridPage {
   readonly page: Page;
   readonly before: Locator;
   readonly after: Locator;

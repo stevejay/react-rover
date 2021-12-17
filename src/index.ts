@@ -3,9 +3,10 @@ export {
   getNextEnabledTabStopItem,
   gridExtremesNavigation,
   gridRowExtremesNavigation,
+  gridSingleStepNavigation,
   horizontalNavigation,
   verticalNavigation
 } from '@/keyDownTranslators';
+export * from '@/ReactRover';
 export { findTabStopItem } from '@/tabStopUtils';
 export * from '@/types';
-export { useToolbarRover } from '@/useToolbarRover';

@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 
-export class SimpleToolbarPage {
+export class ToolbarPage {
   readonly page: Page;
   readonly before: Locator;
   readonly after: Locator;
