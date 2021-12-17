@@ -50,3 +50,28 @@ To bring down (preserving any volumes; use `-v` to remove those too):
 ```bash
 docker-compose down
 ```
+
+## Info on downshift's memoization implementation
+
+> Everywhere we were referencing state directly in our new useMemo and useCallback hooks, we replaced with our latest ref so we don't have to worry about breaking memoization.
+>
+> Note in general, this is not a great idea. There's a good reason that this isn't the default for React hooks. However, for the use case of this library and the way these callbacks are called (typically during the render phase), it makes perfect sense. We don't really need to worry about preserving old closures.
+
+Links:
+
+- [here](https://github.com/downshift-js/downshift/pull/1051/files)
+- [here](https://github.com/downshift-js/downshift/issues/1050)
+- [live stream](https://youtu.be/UG3B5wjPuG0)
+
+```javascript
+function useLatestRef(val) {
+  const ref = useRef(val)
+  // technically this is not "concurrent mode safe" because we're manipulating
+  // the value during render (so it's not idempotent). However, the places this
+  // hook is used is to support memoizing callbacks which will be called
+  // *during* render, so we need the latest values *during* render.
+  // If not for this, then we'd probably want to use useLayoutEffect instead.
+  ref.current = val
+  return ref
+}
+```

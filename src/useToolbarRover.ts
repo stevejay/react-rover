@@ -24,11 +24,11 @@ import type { Item, ItemList, KeyDownTranslator } from '@/types';
 
 import { isNil } from './utils';
 
-type GetTabContainerProps = (props?: { onKeyDown?: KeyboardEventHandler<HTMLElement> }) => {
+export type GetTabContainerProps = (props?: { onKeyDown?: KeyboardEventHandler<HTMLElement> }) => {
   onKeyDown: KeyboardEventHandler<HTMLElement>;
 };
 
-type GetTabStopProps = (
+export type GetTabStopProps = (
   id: string,
   props?: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,9 +37,9 @@ type GetTabStopProps = (
   }
 ) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ref?: Ref<any>;
+  ref: Ref<any>;
   tabIndex: number;
-  onClick?: MouseEventHandler<HTMLElement>;
+  onClick: MouseEventHandler<HTMLElement>;
 };
 
 export type OnTabStopChange = (item: string | null) => void;
