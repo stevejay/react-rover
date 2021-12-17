@@ -2,6 +2,8 @@ import {
   createContext,
   FC,
   KeyboardEvent,
+  KeyboardEventHandler,
+  MouseEvent,
   MouseEventHandler,
   Ref,
   useCallback,
@@ -12,10 +14,15 @@ import {
   useRef
 } from 'react';
 
-import { useIsomorphicLayoutEffect } from '@/domUtils';
+import { callAllEventHandlers, elementIsEnabled, useIsomorphicLayoutEffect } from '@/domUtils';
 import { runKeyDownTranslators } from '@/keyDownTranslators';
 import { roverReducer } from '@/roverReducer';
-import { focusTabStopItem, shouldResetCurrentTabStopItem } from '@/tabStopUtils';
+import {
+  addTabStopItem,
+  focusTabStopItem,
+  removeTabStopItem,
+  shouldResetCurrentTabStopItem
+} from '@/tabStopUtils';
 import { Item, ItemList, KeyDownTranslator } from '@/types';
 
 import { isNil } from './utils';
@@ -29,7 +36,7 @@ export type ItemRoverOptions = {
   shouldFocusOnClick?: boolean;
 };
 
-export type RoverContextType = {
+export type ToolbarRoverContextType = {
   onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
   register: (item: Item, node: HTMLElement) => void;
   unregister: (item: Item) => void;
@@ -37,7 +44,7 @@ export type RoverContextType = {
   currentTabStopItem: Item | null;
 };
 
-export const RoverContext = createContext<RoverContextType>({
+export const ToolbarRoverContext = createContext<ToolbarRoverContextType>({
   onKeyDown: () => void 0,
   register: () => void 0,
   unregister: () => void 0,
@@ -45,14 +52,12 @@ export const RoverContext = createContext<RoverContextType>({
   currentTabStopItem: null
 });
 
-export type RoverProviderProps = {
-  items: ItemList;
+export type ToolbarRoverProviderProps = {
   /** Must be memoized or be a constant. */
   keyDownTranslators: KeyDownTranslator[];
 } & ItemRoverOptions;
 
-export const RoverProvider: FC<RoverProviderProps> = ({
-  items,
+export const ToolbarRoverProvider: FC<ToolbarRoverProviderProps> = ({
   keyDownTranslators,
   children,
   onTabStopChange,
@@ -68,12 +73,6 @@ export const RoverProvider: FC<RoverProviderProps> = ({
   const tabStopItemsRef = useRef<ItemList>([]);
   const tabStopElementMapRef = useRef(new Map<Item, HTMLElement>());
   const currentTabStopItemRef = useRef<Item | null>(state.currentTabStopItem);
-
-  // Update the items ref if it has changed.
-  // *** Must be the first effect ***
-  useIsomorphicLayoutEffect(() => {
-    tabStopItemsRef.current = items;
-  }, [items]);
 
   // Repair the rover state in the case that the current tab stop
   // has just been removed, or the toolbar is being created and
@@ -131,15 +130,15 @@ export const RoverProvider: FC<RoverProviderProps> = ({
     [keyDownTranslators, columnsCount]
   );
 
-  const register = useCallback<(item: Item, node: HTMLElement) => void>(
-    (item, node) => tabStopElementMapRef.current.set(item, node),
-    []
-  );
+  const register = useCallback<(item: Item, node: HTMLElement) => void>((item, node) => {
+    tabStopElementMapRef.current.set(item, node);
+    tabStopItemsRef.current = addTabStopItem(tabStopItemsRef.current, tabStopElementMapRef.current, item);
+  }, []);
 
-  const unregister = useCallback<(item: Item) => void>(
-    (item) => tabStopElementMapRef.current.delete(item),
-    []
-  );
+  const unregister = useCallback<(item: Item) => void>((item) => {
+    tabStopElementMapRef.current.delete(item);
+    tabStopItemsRef.current = removeTabStopItem(tabStopItemsRef.current, item);
+  }, []);
 
   const clicked = useCallback<(item: Item) => void>(
     (item) => {
@@ -155,7 +154,7 @@ export const RoverProvider: FC<RoverProviderProps> = ({
     [shouldFocusOnClick]
   );
 
-  const value = useMemo<RoverContextType>(
+  const value = useMemo<ToolbarRoverContextType>(
     () => ({
       onKeyDown,
       register,
@@ -166,27 +165,71 @@ export const RoverProvider: FC<RoverProviderProps> = ({
     [onKeyDown, register, unregister, clicked, state.currentTabStopItem]
   );
 
-  return <RoverContext.Provider value={value}>{children}</RoverContext.Provider>;
+  return <ToolbarRoverContext.Provider value={value}>{children}</ToolbarRoverContext.Provider>;
 };
 
-export function useRoverContainer(): { onKeyDown: (event: KeyboardEvent<HTMLElement>) => void } {
-  return { onKeyDown: useContext<RoverContextType>(RoverContext).onKeyDown };
+export function useToolbarRoverContainer(onKeyDown?: KeyboardEventHandler<HTMLElement>): {
+  onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
+} {
+  const { onKeyDown: contextOnKeyDown } = useContext<ToolbarRoverContextType>(ToolbarRoverContext);
+
+  // Store the user's onKeyDown handler on a ref so we always have access to the
+  // latest value for it in the internalOnKeyDown handler without needing to add the
+  // onKeyDown handler to that handler's deps array.
+  const onKeyDownRef = useRef<KeyboardEventHandler<HTMLElement> | undefined>(onKeyDown);
+  useIsomorphicLayoutEffect(() => {
+    onKeyDownRef.current = onKeyDown;
+  });
+
+  const internalOnKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
+      if (elementIsEnabled(event.target)) {
+        callAllEventHandlers<KeyboardEvent<HTMLElement>>(onKeyDownRef.current, () => {
+          contextOnKeyDown(event);
+        })(event);
+      }
+    },
+    [contextOnKeyDown]
+  );
+
+  return { onKeyDown: internalOnKeyDown };
 }
 
-export function useRoverTabStop(item: Item): {
+export function useToolbarRoverTabStop(
+  item: Item,
+  onClick?: MouseEventHandler<HTMLElement>
+): {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ref: Ref<any>;
   tabIndex: number;
   onClick: MouseEventHandler<HTMLElement>;
 } {
-  const { register, unregister, clicked, currentTabStopItem } = useContext<RoverContextType>(RoverContext);
+  const { register, unregister, clicked, currentTabStopItem } =
+    useContext<ToolbarRoverContextType>(ToolbarRoverContext);
 
   const ref = useCallback(
     (node: HTMLElement) => (node ? register(item, node) : unregister(item)),
     [item, register, unregister]
   );
 
-  const onClick = useCallback(() => clicked(item), [clicked, item]);
+  // Store the user's onClick handler on a ref so we always have access to the
+  // latest value for it in the internalOnClick handler without needing to add the
+  // onClick handler to that handler's deps array.
+  const onClickRef = useRef<MouseEventHandler<HTMLElement> | undefined>(onClick);
+  useIsomorphicLayoutEffect(() => {
+    onClickRef.current = onClick;
+  });
 
-  return { ref, onClick, tabIndex: item === currentTabStopItem ? 0 : -1 };
+  const internalOnClick = useCallback(
+    (event: MouseEvent<HTMLElement>) => {
+      if (elementIsEnabled(event.target)) {
+        callAllEventHandlers<MouseEvent<HTMLElement>>(onClickRef.current, () => {
+          clicked(item);
+        })(event);
+      }
+    },
+    [clicked, item]
+  );
+
+  return { ref, onClick: internalOnClick, tabIndex: item === currentTabStopItem ? 0 : -1 };
 }

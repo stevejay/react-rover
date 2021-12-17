@@ -20,7 +20,8 @@
     "build:storybook": "build-storybook",
     "lint:md": "markdownlint --ignore-path ./.gitignore .",
     "view-coverage": "open ./coverage/lcov-report/index.html",
-    "lint:dockerfile": "dockerfilelint Dockerfile"
+    "lint:dockerfile": "dockerfilelint Dockerfile",
+    "preview:storybook": "serve ./storybook-static --listen 5000"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
